@@ -5,7 +5,7 @@ C# API to control Xiaomi Yeelight Color Bulbs
 The console project uses C# 7.1 "Async Main Method" Feature, make sure your visual studio version is up to date !
 
 ## Usage
-The `YeelightAPI.DeviceManager` allows you to connect to a bulb. Just instanciate the manager : `DeviceManager manager = new DeviceManager();` and initiate connection to your bulb IP adress : `manager.Connect("XXX.XXX.XXX.XXX");`.
+The `YeelightAPI.DeviceManager` allows you to connect to a bulb. Just instanciate the manager : ` DeviceManager manager = new DeviceManager();` and initiate connection to your bulb IP adress : `manager.Connect("XXX.XXX.XXX.XXX");`.
 Then you can use the manager to control the bulb : 
 * Power on / off : `manager.SetPower(true);`
 * Toggle State : `manager.Toggle();`
@@ -14,15 +14,21 @@ Then you can use the manager to control the bulb :
 
 Some methods use an optional parameter named "smooth", it refers to the duration in milliseconds of the effect you want to apply. For a progressive brightness change, use `manager.SetBrightness(100, 3000);`.
 
-If you need a method that is not implemented, you can use the methods `ExecuteCommandWithResponse(METHODS method, int id = 0, List<object> parameters = null, int? smooth = null)` (with response) and `ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null, int? smooth = null)` (without response).
+If you need a method that is not implemented, you can use the folowing methods :
+* `ExecuteCommandWithResponse(METHODS method, int id = 0, List<object> parameters = null, int? smooth = null)` (with response) 
+* `ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null, int? smooth = null)` (without response).
+
 These methods are generic and use the `METHODS` enumeration and a list of parameters, which allows you to call any known method with any parameter.
 
 ## Event
 When you call a method that changes the state of the bulb, it sends a notification to inform that its state really change. You can receive these notification using the "NotificationReceived" 
-Example : `manager.NotificationReceived += (object sender, NotificationReceivedEventArgs arg) =>
-           {
-                Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result));
-           };`
+Example : 
+```csharp
+   manager.NotificationReceived += (object sender, NotificationReceivedEventArgs arg) =>
+   {
+       Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result));
+   };
+```
 
 ## VNext
 * turn into a nuget package
