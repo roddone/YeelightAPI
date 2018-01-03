@@ -156,7 +156,7 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="prop"></param>
         /// <returns></returns>
-        public object Get_Prop(string prop)
+        public object GetProp(string prop)
         {
             //CommandResult result = ExecCommand("get_prop", new List<string>() { $"\"{prop}\"" });
             CommandResult result = ExecuteCommandWithResponse(method: METHODS.GetProp, parameters: new List<object>() { $"{prop}" });
