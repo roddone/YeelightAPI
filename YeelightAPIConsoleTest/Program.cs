@@ -54,6 +54,14 @@ namespace YeelightAPIConsoleTest
                 manager.SetRGBColor(0, 0, 255, 500);
                 await Task.Delay(3000);
 
+                Console.WriteLine("Setting Color Saturation to 1700k ...");
+                manager.SetColorSaturation(1700, 500);
+                await Task.Delay(3000);
+
+                Console.WriteLine("Setting Color Saturation to 6500k ...");
+                manager.SetColorSaturation(6500, 500);
+                await Task.Delay(3000);
+
                 Console.WriteLine("Toggling bulb state...");
                 manager.Toggle();
             }

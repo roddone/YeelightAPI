@@ -152,6 +152,19 @@ namespace YeelightAPI
         }
 
         /// <summary>
+        /// Change Color Saturation
+        /// </summary>
+        /// <param name="saturation"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public CommandResult SetColorSaturation(int saturation, int? smooth = null)
+        {
+            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetColorTemperature, parameters: new List<object>() { saturation }, smooth: smooth);
+
+            return result;
+        }
+
+        /// <summary>
         /// Get a single property value
         /// </summary>
         /// <param name="prop"></param>
