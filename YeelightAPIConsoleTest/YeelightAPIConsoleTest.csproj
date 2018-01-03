@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>YeelightAPIConsoleTest</RootNamespace>
     <AssemblyName>YeelightAPIConsoleTest</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -51,12 +51,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\YeelightAPI\YeelightAPI.csproj">
-      <Project>{a37466b9-0a91-4162-91d9-817058ad2f9e}</Project>
+      <Project>{2b56b41c-1e1d-40b5-8475-157850f1a67c}</Project>
       <Name>YeelightAPI</Name>
     </ProjectReference>
   </ItemGroup>
