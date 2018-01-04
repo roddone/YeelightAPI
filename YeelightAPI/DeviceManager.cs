@@ -33,12 +33,12 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="device"></param>
         /// <returns></returns>
-        public bool Connect(string ip, int port = 55443)
+        public bool Connect(string hostname, int port = 55443)
         {
             this.Disconnect();
 
             this.tcpClient = new TcpClient();
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            IPEndPoint endPoint = GetIPEndPointFromHostName(hostname, 55443);
             this.tcpClient.Connect(endPoint);
 
             if (!this.tcpClient.Connected)
@@ -152,11 +152,24 @@ namespace YeelightAPI
         }
 
         /// <summary>
+        /// Change Color Saturation
+        /// </summary>
+        /// <param name="saturation"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public CommandResult SetColorTemperature(int saturation, int? smooth = null)
+        {
+            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetColorTemperature, parameters: new List<object>() { saturation }, smooth: smooth);
+
+            return result;
+        }
+
+        /// <summary>
         /// Get a single property value
         /// </summary>
         /// <param name="prop"></param>
         /// <returns></returns>
-        public object Get_Prop(string prop)
+        public object GetProp(string prop)
         {
             //CommandResult result = ExecCommand("get_prop", new List<string>() { $"\"{prop}\"" });
             CommandResult result = ExecuteCommandWithResponse(method: METHODS.GetProp, parameters: new List<object>() { $"{prop}" });
@@ -268,6 +281,32 @@ namespace YeelightAPI
                          .Cast<PROPERTIES>()
                          .Select(x => x.GetRealName())
                          .ToList<object>();
+        }
+
+        /// <summary>
+        /// Get an ip from a hostname
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        private static IPEndPoint GetIPEndPointFromHostName(string hostName, int port)
+        {
+            var addresses = System.Net.Dns.GetHostAddresses(hostName);
+            if (addresses.Length == 0)
+            {
+                throw new ArgumentException(
+                    "Unable to retrieve address from specified host name.",
+                    "hostName"
+                );
+            }
+            else if (addresses.Length > 1)
+            {
+                throw new ArgumentException(
+                    "There is more that one IP address to the specified host.",
+                    "hostName"
+                );
+            }
+            return new IPEndPoint(addresses[0], port); // Port gets validated here.
         }
     }
 }
