@@ -31,8 +31,8 @@ Example :
 ```
 
 ## VNext
-* turn into a nuget package
-* handle dns host name for bulb discovery
+* ~~turn into a nuget package~~
+* ~~handle dns host name for bulb discovery~~
 * add device discovery method in the DeviceManager
 * add more native methods in the DeviceManager
 * correct bugs if needed
