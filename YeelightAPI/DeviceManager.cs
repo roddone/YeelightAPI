@@ -16,6 +16,8 @@ namespace YeelightAPI
     /// </summary>
     public class DeviceManager
     {
+        private object _syncLock = new object();
+
         private TcpClient tcpClient;
 
         private Dictionary<object, CommandResult> _currentCommandResults = new Dictionary<object, CommandResult>();
@@ -51,33 +53,39 @@ namespace YeelightAPI
             {
                 while (this.tcpClient != null)
                 {
-                    if (this.tcpClient.Client.Available > 0)
+                    lock (_syncLock)
                     {
-                        byte[] bytes = new byte[this.tcpClient.Client.Available];
-
-                        this.tcpClient.Client.Receive(bytes);
-
-                        try
+                        if (this.tcpClient.Client.Available > 0)
                         {
-                            string datas = Encoding.UTF8.GetString(bytes);
-                            CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(datas, this._serializerSettings);
+                            byte[] bytes = new byte[this.tcpClient.Client.Available];
 
-                            if (commandResult != null && commandResult.Result != null)
+                            this.tcpClient.Client.Receive(bytes);
+
+                            try
                             {
-                                //command result
-                                _currentCommandResults[commandResult.Id] = commandResult;
-                            }
-                            else
-                            {
-                                //notification result
-                                NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(datas, this._serializerSettings);
-                                if (notificationResult != null && notificationResult.Method != null)
+                                string datas = Encoding.UTF8.GetString(bytes);
+                                CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(datas, this._serializerSettings);
+
+                                if (commandResult != null && ( commandResult.Result != null || commandResult.Error != null))
                                 {
-                                    NotificationReceived(this, new NotificationReceivedEventArgs(notificationResult));
+                                    //command result
+                                    _currentCommandResults[commandResult.Id] = commandResult;
+                                }
+                                else
+                                {
+                                    //notification result
+                                    NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(datas, this._serializerSettings);
+                                    if (notificationResult != null && notificationResult.Method != null)
+                                    {
+                                        NotificationReceived(this, new NotificationReceivedEventArgs(notificationResult));
+                                    }
                                 }
                             }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error while reading through pipe : {ex.Message}");
+                            }
                         }
-                        catch (Exception ex) { }
                     }
                 }
             }, TaskCreationOptions.LongRunning);
@@ -128,7 +136,11 @@ namespace YeelightAPI
         /// <returns></returns>
         public CommandResult SetBrightness(int value, int? smooth = null)
         {
-            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetBrightness, parameters: new List<object>() { value }, smooth: smooth);
+            List<object> parameters = new List<object>() { value };
+
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetBrightness, parameters: parameters);
 
             return result;
         }
@@ -141,12 +153,15 @@ namespace YeelightAPI
         /// <param name="b"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public CommandResult SetRGBColor(int r, int g, int b, int? smooth = null)
+        public CommandResult SetRGBColor(int r, int g, int b, int? smooth)
         {
             //Convert RGB into integer 0x00RRGGBB
             int value = ((r) << 16) | ((g) << 8) | (b);
+            List<object> parameters = new List<object>() { value };
 
-            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetRGBColor, parameters: new List<object>() { value }, smooth: smooth);
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetRGBColor, parameters: parameters);
 
             return result;
         }
@@ -157,9 +172,13 @@ namespace YeelightAPI
         /// <param name="saturation"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public CommandResult SetColorTemperature(int saturation, int? smooth = null)
+        public CommandResult SetColorTemperature(int temperature, int? smooth)
         {
-            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetColorTemperature, parameters: new List<object>() { saturation }, smooth: smooth);
+            List<object> parameters = new List<object>() { temperature };
+
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetColorTemperature, parameters: parameters);
 
             return result;
         }
@@ -172,7 +191,7 @@ namespace YeelightAPI
         public object GetProp(string prop)
         {
             //CommandResult result = ExecCommand("get_prop", new List<string>() { $"\"{prop}\"" });
-            CommandResult result = ExecuteCommandWithResponse(method: METHODS.GetProp, parameters: new List<object>() { $"{prop}" });
+            CommandResult result = ExecuteCommandWithResponse(method: METHODS.GetProp, parameters: new List<object>() { prop.ToString() });
 
             return result.Result != null && result.Result.Count == 1 ? result.Result[0] : null;
         }
@@ -216,14 +235,14 @@ namespace YeelightAPI
         /// <param name="parameters"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public CommandResult ExecuteCommandWithResponse(METHODS method, int id = 0, List<object> parameters = null, int? smooth = null)
+        public CommandResult ExecuteCommandWithResponse(METHODS method, int id = 0, List<object> parameters = null)
         {
             if (this._currentCommandResults.ContainsKey(id))
             {
                 this._currentCommandResults.Remove(id);
             }
 
-            ExecuteCommand(method, id, parameters, smooth);
+            ExecuteCommand(method, id, parameters);
 
             DateTime startWait = DateTime.Now;
             while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(1)) { }//attente du prochain résultat, laisse tomber au bout de 1 seconde
@@ -247,7 +266,7 @@ namespace YeelightAPI
         /// <param name="id"></param>
         /// <param name="parameters"></param>
         /// <param name="smooth"></param>
-        public void ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null, int? smooth = null)
+        public void ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null)
         {
             Command command = new Command()
             {
@@ -256,15 +275,13 @@ namespace YeelightAPI
                 Params = parameters ?? new List<object>()
             };
 
-            if (smooth.HasValue)
-            {
-                command.Params.Add("smooth");
-                command.Params.Add(smooth);
-            }
             string data = JsonConvert.SerializeObject(command, this._serializerSettings);
             byte[] sentData = Encoding.ASCII.GetBytes(data + "\r\n"); // \r\n is the end of the message, it needs to be sent for the message to be read by the device
 
-            this.tcpClient.Client.Send(sentData);
+            lock (_syncLock)
+            {
+                this.tcpClient.Client.Send(sentData);
+            }
         }
 
         /// <summary>
@@ -308,5 +325,30 @@ namespace YeelightAPI
             }
             return new IPEndPoint(addresses[0], port); // Port gets validated here.
         }
+
+        /// <summary>
+        /// Generate valid parameters for smooth values
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="smooth"></param>
+        private static void HandleSmoothValue(ref List<object> parameters, int? smooth)
+        {
+            if(parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
+            if (smooth.HasValue)
+            {
+                parameters.Add("smooth");
+                parameters.Add(smooth.Value);
+            }
+            else
+            {
+                parameters.Add("sudden");
+                parameters.Add(null); // two parameters needed
+            }
+        }
+
     }
 }

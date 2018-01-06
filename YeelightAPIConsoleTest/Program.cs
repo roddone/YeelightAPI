@@ -19,51 +19,64 @@ namespace YeelightAPIConsoleTest
                 manager.Connect("192.168.0.16");
                 manager.NotificationReceived += (object sender, NotificationReceivedEventArgs arg) =>
                 {
-                    Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result));
+                    Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result.Params));
                 };
 
-                Console.WriteLine("powering on ...");
-                manager.SetPower(true);
-                await Task.Delay(3000);
+                Func<int?, Task> action = async (smooth) =>
+                {
+                    Console.WriteLine("powering on ...");
+                    manager.SetPower(true);
+                    await Task.Delay(2000);
 
-                Console.WriteLine("getting all props ...");
-                Dictionary<string, object> result = manager.GetAllProps();
-                Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
+                    Console.WriteLine("getting all props ...");
+                    Dictionary<string, object> result = manager.GetAllProps();
+                    Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
+                    await Task.Delay(2000);
 
-                Console.WriteLine("Setting Brightness to One...");
-                manager.SetBrightness(01);
+                    Console.WriteLine("Setting Brightness to One...");
+                    manager.SetBrightness(01);
+                    await Task.Delay(2000);
 
-                await Task.Delay(3000);
-                Console.WriteLine("Setting Brightness to 100 %...");
-                manager.SetBrightness(100, 500);
-                await Task.Delay(3000);
+                    Console.WriteLine("Setting Brightness to 100 %...");
+                    manager.SetBrightness(100, smooth);
+                    await Task.Delay(2000);
 
-                Console.WriteLine("Setting Brightness to 50 %...");
-                manager.SetBrightness(50, 500);
-                await Task.Delay(3000);
+                    Console.WriteLine("Setting Brightness to 50 %...");
+                    manager.SetBrightness(50, smooth);
+                    await Task.Delay(2000);
 
-                Console.WriteLine("Setting Brightness to red ...");
-                manager.SetRGBColor(255, 0, 0, 500);
-                await Task.Delay(3000);
+                    Console.WriteLine("Setting Brightness to red ...");
+                    manager.SetRGBColor(255, 0, 0, smooth);
+                    await Task.Delay(2000);
 
-                Console.WriteLine("Setting Brightness to green...");
-                manager.SetRGBColor(0, 255, 0, 500);
-                await Task.Delay(3000);
+                    Console.WriteLine("Setting Brightness to green...");
+                    manager.SetRGBColor(0, 255, 0, smooth);
+                    await Task.Delay(2000);
 
-                Console.WriteLine("Setting Brightness to blue...");
-                manager.SetRGBColor(0, 0, 255, 500);
-                await Task.Delay(3000);
+                    Console.WriteLine("Setting Brightness to blue...");
+                    manager.SetRGBColor(0, 0, 255, smooth);
+                    await Task.Delay(2000);
 
-                Console.WriteLine("Setting Color Saturation to 1700k ...");
-                manager.SetColorTemperature(1700, 500);
-                await Task.Delay(3000);
+                    Console.WriteLine("Setting Color Saturation to 1700k ...");
+                    manager.SetColorTemperature(1700, smooth);
+                    await Task.Delay(2000);
 
-                Console.WriteLine("Setting Color Saturation to 6500k ...");
-                manager.SetColorTemperature(6500, 500);
-                await Task.Delay(3000);
+                    Console.WriteLine("Setting Color Saturation to 6500k ...");
+                    manager.SetColorTemperature(6500, smooth);
+                    await Task.Delay(2000);
 
-                Console.WriteLine("Toggling bulb state...");
-                manager.Toggle();
+                    Console.WriteLine("Toggling bulb state...");
+                    manager.Toggle();
+                    await Task.Delay(2000);
+
+                };
+
+                //with smooth value
+                await action(1000);
+
+                //without smooth value (sudden)
+                await action(null);
+                
             }
             catch (Exception ex)
             {
