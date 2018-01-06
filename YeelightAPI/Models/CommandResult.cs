@@ -22,6 +22,16 @@ namespace YeelightClient.Models
         public CommandErrorResult Error { get; set; }
 
         /// <summary>
+        /// Indicates if the command result is successful
+        /// </summary>
+        public bool IsOk {
+            get
+            {
+                return this.Error == null && this.Result != null;
+            }
+        }
+
+        /// <summary>
         /// Result
         /// </summary>
         public List<string> Result { get; set; }
