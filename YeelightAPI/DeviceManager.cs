@@ -40,7 +40,7 @@ namespace YeelightAPI
             this.Disconnect();
 
             this.tcpClient = new TcpClient();
-            IPEndPoint endPoint = GetIPEndPointFromHostName(hostname, 55443);
+            IPEndPoint endPoint = GetIPEndPointFromHostName(hostname, port);
             this.tcpClient.Connect(endPoint);
 
             if (!this.tcpClient.Connected)
