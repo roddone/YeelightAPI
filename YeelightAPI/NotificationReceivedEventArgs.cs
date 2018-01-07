@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using YeelightClient.Models;
+using YeelightAPI.Models;
 
 namespace YeelightAPI
 {

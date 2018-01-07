@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YeelightClient.Models
+namespace YeelightAPI.Models
 {
     /// <summary>
     /// Notification, resulting of a command which has changed the state of the bulb

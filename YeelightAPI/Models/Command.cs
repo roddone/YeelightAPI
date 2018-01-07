@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YeelightClient.Models
+namespace YeelightAPI.Models
 {
     /// <summary>
     /// Command used to send to the bulb

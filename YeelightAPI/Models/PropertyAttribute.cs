@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YeelightClient.Models
+namespace YeelightAPI.Models
 {
     /// <summary>
     /// Attribute to set the real name of a Yeelight Enum

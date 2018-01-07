@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using YeelightClient.Models;
+using YeelightAPI.Models;
 
 namespace YeelightAPI
 {
