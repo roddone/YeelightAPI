@@ -49,7 +49,7 @@ namespace YeelightAPI
             }
 
             //continuous receiving
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
                 while (this.tcpClient != null)
                 {
@@ -64,20 +64,26 @@ namespace YeelightAPI
                             try
                             {
                                 string datas = Encoding.UTF8.GetString(bytes);
-                                CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(datas, this._serializerSettings);
-
-                                if (commandResult != null && ( commandResult.Result != null || commandResult.Error != null))
+                                if (!string.IsNullOrEmpty(datas))
                                 {
-                                    //command result
-                                    _currentCommandResults[commandResult.Id] = commandResult;
-                                }
-                                else
-                                {
-                                    //notification result
-                                    NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(datas, this._serializerSettings);
-                                    if (notificationResult != null && notificationResult.Method != null)
+                                    foreach (string entry in datas.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
                                     {
-                                        NotificationReceived(this, new NotificationReceivedEventArgs(notificationResult));
+                                        CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(entry, this._serializerSettings);
+
+                                        if (commandResult != null && (commandResult.Result != null || commandResult.Error != null))
+                                        {
+                                            //command result
+                                            _currentCommandResults[commandResult.Id] = commandResult;
+                                        }
+                                        else
+                                        {
+                                            //notification result
+                                            NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(entry, this._serializerSettings);
+                                            if (notificationResult != null && notificationResult.Method != null)
+                                            {
+                                                NotificationReceived(this, new NotificationReceivedEventArgs(notificationResult));
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -87,6 +93,7 @@ namespace YeelightAPI
                             }
                         }
                     }
+                    await Task.Delay(100);
                 }
             }, TaskCreationOptions.LongRunning);
 
