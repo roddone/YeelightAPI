@@ -1,5 +1,5 @@
 # YeelightAPI
-C# API to control Xiaomi Yeelight Color Bulbs
+C# API (.Net) to control Xiaomi Yeelight Color Bulbs
 
 ## Prerequisites
 The console project uses C# 7.1 "Async Main Method" Feature, make sure your visual studio version is up to date !
