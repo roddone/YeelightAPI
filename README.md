@@ -4,6 +4,11 @@ C# API (.Net) to control Xiaomi Yeelight Color Bulbs
 ## Prerequisites
 The console project uses C# 7.1 "Async Main Method" Feature, make sure your visual studio version is up to date !
 
+## Installation
+To install the latest release from [NuGet package manager](https://www.nuget.org/packages/YeelightAPI/):
+
+    Install-Package YeelightAPI
+
 ## Usage
 The `YeelightAPI.DeviceManager` allows you to connect to a bulb. Just instanciate the manager : ` DeviceManager manager = new DeviceManager();` and initiate connection to your bulb IP adress : `manager.Connect("XXX.XXX.XXX.XXX");`.
 Then you can use the manager to control the bulb : 
