@@ -9,6 +9,9 @@ To install the latest release from [NuGet package manager](https://www.nuget.org
 
     Install-Package YeelightAPI
 
+## Contribution
+If you find this package useful, please make a gift on Paypal : [https://www.paypal.me/roddone](https://www.paypal.me/roddone)
+
 ## Usage
 The `YeelightAPI.DeviceManager` allows you to connect to a bulb. Just instanciate the manager : ` DeviceManager manager = new DeviceManager();` and initiate connection to your bulb IP adress : `manager.Connect("XXX.XXX.XXX.XXX");`.
 Then you can use the manager to control the bulb : 
