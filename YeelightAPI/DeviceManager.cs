@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
 
@@ -16,6 +18,8 @@ namespace YeelightAPI
     /// </summary>
     public class DeviceManager
     {
+        #region PRIVATE ATTRIBUTES
+
         private object _syncLock = new object();
 
         private TcpClient tcpClient;
@@ -27,8 +31,92 @@ namespace YeelightAPI
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
 
+        private static readonly IPEndPoint _multicastEndPoint = new IPEndPoint(IPAddress.Parse("239.255.255.250"), 1982);
+        private const string _ssdpMessage = "M-SEARCH * HTTP/1.1\r\nHOST: 239.255.255.250:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
+        private static readonly byte[] _ssdpDiagram = Encoding.ASCII.GetBytes(_ssdpMessage);
+
+        #endregion PRIVATE ATTRIBUTES
+
+        #region EVENTS
+
         public delegate void NotificationReceivedEventHandler(object sender, NotificationReceivedEventArgs e);
         public event NotificationReceivedEventHandler NotificationReceived;
+
+        #endregion EVENTS
+
+        #region PUBLIC METHODS
+
+        public static async Task<List<Device>> Discover()
+        {
+            List<Task> tasks = new List<Task>();
+            List<Device> devices = new List<Device>();
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                var addr = ni.GetIPProperties().GatewayAddresses.FirstOrDefault();
+                if (addr != null && !addr.Address.ToString().Equals("0.0.0.0"))
+                {
+                    if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                    {
+                        foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
+                        {
+                            if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                for (int cpt = 0; cpt < 3; cpt++)
+                                {
+                                    Task t = Task.Factory.StartNew(() =>
+                                    {
+                                        Socket ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
+                                        {
+                                            Blocking = false,
+                                            Ttl = 1,
+                                            UseOnlyOverlappedIO = true,
+                                            MulticastLoopback = false,
+                                        };
+                                        ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
+                                        ssdpSocket.SetSocketOption(
+                                            SocketOptionLevel.IP,
+                                            SocketOptionName.AddMembership,
+                                            new MulticastOption(_multicastEndPoint.Address));
+
+                                        ssdpSocket.SendTo(_ssdpDiagram, SocketFlags.None, _multicastEndPoint);
+
+                                        DateTime start = DateTime.Now;
+                                        while (DateTime.Now - start < TimeSpan.FromSeconds(1))
+                                        {
+                                            if (ssdpSocket.Available > 0)
+                                            {
+                                                byte[] buffer = new byte[ssdpSocket.Available];
+                                                var i = ssdpSocket.Receive(buffer, SocketFlags.None);
+                                                if (i > 0)
+                                                {
+                                                    string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
+                                                    Device device = new Device(response);
+
+                                                    //add only if no device already matching
+                                                    if(!devices.Any(d => d.Hostname == device.Hostname))
+                                                    {
+                                                        devices.Add(device);
+                                                    }
+                                                }
+                                            }
+                                            Thread.Sleep(10);
+                                        }
+                                    });
+                                    tasks.Add(t);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (tasks.Count != 0)
+            {
+                await Task.WhenAll(tasks.ToArray());
+            }
+
+            return devices;
+        }
 
         /// <summary>
         /// Connects to a device
@@ -79,7 +167,7 @@ namespace YeelightAPI
                                         {
                                             //notification result
                                             NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(entry, this._serializerSettings);
-                                            if (notificationResult != null && notificationResult.Method != null)
+                                            if (notificationResult != null && notificationResult.Method != null && NotificationReceived != null)
                                             {
                                                 NotificationReceived(this, new NotificationReceivedEventArgs(notificationResult));
                                             }
@@ -291,6 +379,10 @@ namespace YeelightAPI
             }
         }
 
+        #endregion PUBLIC METHODS
+
+        #region PRIVATE METHODS
+
         /// <summary>
         /// Get the real name of the properties
         /// </summary>
@@ -340,7 +432,7 @@ namespace YeelightAPI
         /// <param name="smooth"></param>
         private static void HandleSmoothValue(ref List<object> parameters, int? smooth)
         {
-            if(parameters == null)
+            if (parameters == null)
             {
                 throw new ArgumentNullException(nameof(parameters));
             }
@@ -357,5 +449,6 @@ namespace YeelightAPI
             }
         }
 
+        #endregion PRIVATE METHODS
     }
 }
