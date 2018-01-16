@@ -14,68 +14,68 @@ namespace YeelightAPIConsoleTest
         {
             try
             {
-                DeviceManager manager = new DeviceManager();
-                manager.Connect("192.168.0.16");
-                manager.NotificationReceived += (object sender, NotificationReceivedEventArgs arg) =>
+                Console.Write("Choose a test mode, type 'd' for discovery mode, 's' for a static IP adress : ");
+                ConsoleKeyInfo keyInfo = Console.ReadKey();
+                Console.WriteLine();
+
+                while (keyInfo.Key != ConsoleKey.D && keyInfo.Key != ConsoleKey.S)
                 {
-                    Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result.Params));
-                };
+                    Console.WriteLine($"'{keyInfo.KeyChar}' is not a valid key !");
+                    Console.Write("Choose a test mode, type 'd' for discovery mode, 's' for a static IP adress : ");
+                    keyInfo = Console.ReadKey();
+                    Console.WriteLine();
+                }
 
-                Func<int?, Task> action = async (smooth) =>
+                if (keyInfo.Key == ConsoleKey.D)
                 {
-                    Console.WriteLine("powering on ...");
-                    manager.SetPower(true);
-                    await Task.Delay(2000);
+                    List<Device> devices = await DeviceManager.Discover();
 
-                    Console.WriteLine("getting all props ...");
-                    Dictionary<string, object> result = manager.GetAllProps();
-                    Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
-                    await Task.Delay(2000);
+                    if (devices != null && devices.Count >= 1)
+                    {
+                        Console.WriteLine($"{devices.Count} found !");
 
-                    Console.WriteLine("Setting Brightness to One...");
-                    manager.SetBrightness(01);
-                    await Task.Delay(2000);
+                        Parallel.ForEach(devices, async device =>
+                        {
+                            device.Connect();
+                            device.NotificationReceived += OnNotificationReceived;
 
-                    Console.WriteLine("Setting Brightness to 100 %...");
-                    manager.SetBrightness(100, smooth);
-                    await Task.Delay(2000);
+                            await ExecuteTests(device, null);
 
-                    Console.WriteLine("Setting Brightness to 50 %...");
-                    manager.SetBrightness(50, smooth);
-                    await Task.Delay(2000);
+                            await ExecuteTests(device, 1000);
+                        });
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("No devices Found via SSDP !");
+                        return;
+                    }
+                }
+                else
+                {
+                    int port;
+                    string hostname;
+                    Console.Write("Give a hostname or IP adress to connect to the device : ");
+                    hostname = Console.ReadLine();
+                    Console.WriteLine();
+                    Console.Write("Give a port number (or leave empty to use default port) : ");
+                    Console.WriteLine();
 
-                    Console.WriteLine("Setting Brightness to red ...");
-                    manager.SetRGBColor(255, 0, 0, smooth);
-                    await Task.Delay(2000);
+                    if (!int.TryParse(Console.ReadLine(), out port))
+                    {
+                        port = 55443;
+                    }
 
-                    Console.WriteLine("Setting Brightness to green...");
-                    manager.SetRGBColor(0, 255, 0, smooth);
-                    await Task.Delay(2000);
+                    DeviceManager manager = new DeviceManager();
+                    manager.Connect(hostname, port);
+                    manager.NotificationReceived += OnNotificationReceived;
 
-                    Console.WriteLine("Setting Brightness to blue...");
-                    manager.SetRGBColor(0, 0, 255, smooth);
-                    await Task.Delay(2000);
+                    //with smooth value
+                    await ExecuteTests(manager, 1000);
 
-                    Console.WriteLine("Setting Color Saturation to 1700k ...");
-                    manager.SetColorTemperature(1700, smooth);
-                    await Task.Delay(2000);
-
-                    Console.WriteLine("Setting Color Saturation to 6500k ...");
-                    manager.SetColorTemperature(6500, smooth);
-                    await Task.Delay(2000);
-
-                    Console.WriteLine("Toggling bulb state...");
-                    manager.Toggle();
-                    await Task.Delay(2000);
-
-                };
-
-                //with smooth value
-                await action(1000);
-
-                //without smooth value (sudden)
-                await action(null);
-                
+                    //without smooth value (sudden)
+                    await ExecuteTests(manager, null);
+                }
             }
             catch (Exception ex)
             {
@@ -84,6 +84,59 @@ namespace YeelightAPIConsoleTest
 
             Console.WriteLine("Press Enter to continue ;)");
             Console.ReadLine();
+        }
+
+        private static void OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)
+        {
+            Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result.Params));
+        }
+
+        private static async Task ExecuteTests(DeviceManager device, int? smooth = null)
+        {
+            Console.WriteLine("powering on ...");
+            device.SetPower(true);
+            await Task.Delay(2000);
+
+            Console.WriteLine("getting all props ...");
+            Dictionary<string, object> result = device.GetAllProps();
+            Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to One...");
+            device.SetBrightness(01);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to 100 %...");
+            device.SetBrightness(100, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to 50 %...");
+            device.SetBrightness(50, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to red ...");
+            device.SetRGBColor(255, 0, 0, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to green...");
+            device.SetRGBColor(0, 255, 0, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to blue...");
+            device.SetRGBColor(0, 0, 255, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Color Saturation to 1700k ...");
+            device.SetColorTemperature(1700, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Color Saturation to 6500k ...");
+            device.SetColorTemperature(6500, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Toggling bulb state...");
+            device.Toggle();
+            await Task.Delay(2000);
         }
     }
 }
