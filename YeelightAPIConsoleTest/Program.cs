@@ -28,7 +28,7 @@ namespace YeelightAPIConsoleTest
 
                 if (keyInfo.Key == ConsoleKey.D)
                 {
-                    List<Device> devices = await DeviceManager.Discover();
+                    List<Device> devices = await DeviceLocator.Discover();
 
                     if (devices != null && devices.Count >= 1)
                     {
@@ -66,8 +66,8 @@ namespace YeelightAPIConsoleTest
                         port = 55443;
                     }
 
-                    DeviceManager manager = new DeviceManager();
-                    manager.Connect(hostname, port);
+                    Device manager = new Device(hostname, port);
+                    manager.Connect();
                     manager.NotificationReceived += OnNotificationReceived;
 
                     //with smooth value
@@ -91,7 +91,7 @@ namespace YeelightAPIConsoleTest
             Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result.Params));
         }
 
-        private static async Task ExecuteTests(DeviceManager device, int? smooth = null)
+        private static async Task ExecuteTests(Device device, int? smooth = null)
         {
             Console.WriteLine("powering on ...");
             device.SetPower(true);

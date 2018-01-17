@@ -44,8 +44,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common.cs" />
+    <Compile Include="DeviceGroup.cs" />
+    <Compile Include="DeviceLocator.cs" />
     <Compile Include="Device.cs" />
-    <Compile Include="DeviceManager.cs" />
     <Compile Include="Models\Command.cs" />
     <Compile Include="Models\CommandResult.cs" />
     <Compile Include="Models\Methods.cs" />
