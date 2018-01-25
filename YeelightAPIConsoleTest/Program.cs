@@ -33,7 +33,6 @@ namespace YeelightAPIConsoleTest
                     if (devices != null && devices.Count >= 1)
                     {
                         Console.WriteLine($"{devices.Count} found !");
-
                         Parallel.ForEach(devices, async device =>
                         {
                             device.Connect();
@@ -53,7 +52,6 @@ namespace YeelightAPIConsoleTest
                 }
                 else
                 {
-                    int port;
                     string hostname;
                     Console.Write("Give a hostname or IP adress to connect to the device : ");
                     hostname = Console.ReadLine();
@@ -61,20 +59,26 @@ namespace YeelightAPIConsoleTest
                     Console.Write("Give a port number (or leave empty to use default port) : ");
                     Console.WriteLine();
 
-                    if (!int.TryParse(Console.ReadLine(), out port))
+                    if (!int.TryParse(Console.ReadLine(), out int port))
                     {
                         port = 55443;
                     }
 
-                    Device manager = new Device(hostname, port);
-                    manager.Connect();
-                    manager.NotificationReceived += OnNotificationReceived;
+                    Device device = new Device(hostname, port);
+                    device.Connect();
+                    device.NotificationReceived += OnNotificationReceived;
 
                     //with smooth value
-                    await ExecuteTests(manager, 1000);
+                    await ExecuteTests(device, 1000);
 
                     //without smooth value (sudden)
-                    await ExecuteTests(manager, null);
+                    await ExecuteTests(device, null);
+
+                    //with smooth value
+                    await ExecuteAsyncTests(device, 1000);
+
+                    //without smooth value (sudden)
+                    await ExecuteAsyncTests(device, null);
                 }
             }
             catch (Exception ex)
@@ -89,6 +93,54 @@ namespace YeelightAPIConsoleTest
         private static void OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)
         {
             Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result.Params));
+        }
+
+        private static async Task ExecuteAsyncTests(Device device, int? smooth = null)
+        {
+            Console.WriteLine("powering on ...");
+            device.SetPower(true);
+            await Task.Delay(2000);
+
+            Console.WriteLine("getting all props ...");
+            Dictionary<string, object> result = device.GetAllProps();
+            Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to One...");
+            await device.SetBrightnessAsync(01);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to 100 %...");
+            await device.SetBrightnessAsync(100, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to 50 %...");
+            await device.SetBrightnessAsync(50, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to red ...");
+            await device.SetRGBColorAsync(255, 0, 0, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to green...");
+            await device.SetRGBColorAsync(0, 255, 0, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Brightness to blue...");
+            await device.SetRGBColorAsync(0, 0, 255, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Color Saturation to 1700k ...");
+            await device.SetColorTemperatureAsync(1700, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Setting Color Saturation to 6500k ...");
+            await device.SetColorTemperatureAsync(6500, smooth);
+            await Task.Delay(2000);
+
+            Console.WriteLine("Toggling bulb state...");
+            await device.ToggleAsync();
+            await Task.Delay(2000);
         }
 
         private static async Task ExecuteTests(Device device, int? smooth = null)

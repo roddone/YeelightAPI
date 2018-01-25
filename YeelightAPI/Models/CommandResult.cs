@@ -24,10 +24,11 @@ namespace YeelightAPI.Models
         /// <summary>
         /// Indicates if the command result is successful
         /// </summary>
-        public bool IsOk {
+        public bool IsOk
+        {
             get
             {
-                return this.Error == null && this.Result != null;
+                return this.Error == null && this.Result?[0] == "ok";
             }
         }
 

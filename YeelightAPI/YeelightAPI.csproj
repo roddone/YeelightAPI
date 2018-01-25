@@ -48,6 +48,8 @@
     <Compile Include="DeviceGroup.cs" />
     <Compile Include="DeviceLocator.cs" />
     <Compile Include="Device.cs" />
+    <Compile Include="IDeviceController.cs" />
+    <Compile Include="IDeviceReader.cs" />
     <Compile Include="Models\Command.cs" />
     <Compile Include="Models\CommandResult.cs" />
     <Compile Include="Models\Methods.cs" />

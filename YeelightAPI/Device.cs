@@ -16,7 +16,7 @@ namespace YeelightAPI
     /// <summary>
     /// Yeelight Wifi Bulb Manager
     /// </summary>
-    public class Device
+    public class Device : IDeviceController, IDeviceReader
     {
 
         #region PRIVATE ATTRIBUTES
@@ -155,26 +155,34 @@ namespace YeelightAPI
             }
         }
 
+        #region IDeviceController
+        #region synchrone
+
         /// <summary>
         /// Toggle the device power
         /// </summary>
         /// <returns></returns>
-        public CommandResult Toggle()
+        public bool Toggle()
         {
-            CommandResult result = ExecuteCommandWithResponse(METHODS.Toggle);
+            CommandResult result = ExecuteCommandWithResponse(METHODS.Toggle, id: (int)METHODS.Toggle);
 
-            return result;
+            return result.IsOk;
         }
 
         /// <summary>
-        /// Toggle the device power
+        /// Set the device power state
         /// </summary>
+        /// <param name="state"></param>
         /// <returns></returns>
-        public CommandResult SetPower(bool state = true)
+        public bool SetPower(bool state = true)
         {
-            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetPower, parameters: new List<object>() { state ? "on" : "off" });
+            CommandResult result = ExecuteCommandWithResponse(
+                method: METHODS.SetPower,
+                id: (int)METHODS.SetPower,
+                parameters: new List<object>() { state ? "on" : "off" }
+            );
 
-            return result;
+            return result.IsOk;
         }
 
         /// <summary>
@@ -183,26 +191,29 @@ namespace YeelightAPI
         /// <param name="value"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public CommandResult SetBrightness(int value, int? smooth = null)
+        public bool SetBrightness(int value, int? smooth = null)
         {
             List<object> parameters = new List<object>() { value };
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetBrightness, parameters: parameters);
+            CommandResult result = ExecuteCommandWithResponse(
+                method: METHODS.SetBrightness,
+                id: (int)METHODS.SetBrightness,
+                parameters: parameters);
 
-            return result;
+            return result.IsOk;
         }
 
         /// <summary>
-        /// Change the device color
+        /// Change the device RGB color
         /// </summary>
         /// <param name="r"></param>
         /// <param name="g"></param>
         /// <param name="b"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public CommandResult SetRGBColor(int r, int g, int b, int? smooth)
+        public bool SetRGBColor(int r, int g, int b, int? smooth)
         {
             //Convert RGB into integer 0x00RRGGBB
             int value = ((r) << 16) | ((g) << 8) | (b);
@@ -210,27 +221,133 @@ namespace YeelightAPI
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetRGBColor, parameters: parameters);
+            CommandResult result = ExecuteCommandWithResponse(
+                method: METHODS.SetRGBColor,
+                id: (int)METHODS.SetRGBColor,
+                parameters: parameters);
 
-            return result;
+            return result.IsOk;
         }
 
         /// <summary>
-        /// Change Color Saturation
+        /// Change Color Temperature
         /// </summary>
         /// <param name="saturation"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public CommandResult SetColorTemperature(int temperature, int? smooth)
+        public bool SetColorTemperature(int temperature, int? smooth)
         {
             List<object> parameters = new List<object>() { temperature };
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = ExecuteCommandWithResponse(method: METHODS.SetColorTemperature, parameters: parameters);
+            CommandResult result = ExecuteCommandWithResponse(
+                method: METHODS.SetColorTemperature,
+                id: (int)METHODS.SetColorTemperature,
+                parameters: parameters);
 
-            return result;
+            return result.IsOk;
         }
+
+        #endregion synchrone
+
+        #region asynchrone
+
+        /// <summary>
+        /// Toggle the device power asynchronously
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ToggleAsync()
+        {
+            CommandResult result = await ExecuteCommandWithResponseAsync(METHODS.Toggle, id: (int)METHODS.Toggle);
+
+            return result.IsOk;
+        }
+
+        /// <summary>
+        /// Set the device power state asynchronously
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        public async Task<bool> SetPowerAsync(bool state = true)
+        {
+            CommandResult result = await ExecuteCommandWithResponseAsync(
+                method: METHODS.SetPower,
+                id: (int)METHODS.SetPower,
+                parameters: new List<object>() { state ? "on" : "off" }
+            );
+
+            return result.IsOk;
+        }
+
+        /// <summary>
+        /// Change the device brightness asynchronously
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> SetBrightnessAsync(int value, int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { value };
+
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult result = await ExecuteCommandWithResponseAsync(
+                method: METHODS.SetBrightness,
+                id: (int)METHODS.SetBrightness,
+                parameters: parameters);
+
+            return result.IsOk;
+        }
+
+        /// <summary>
+        /// Change the device RGB color asynchronously
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="g"></param>
+        /// <param name="b"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> SetRGBColorAsync(int r, int g, int b, int? smooth)
+        {
+            //Convert RGB into integer 0x00RRGGBB
+            int value = ((r) << 16) | ((g) << 8) | (b);
+            List<object> parameters = new List<object>() { value };
+
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult result = await ExecuteCommandWithResponseAsync(
+                method: METHODS.SetRGBColor,
+                id: (int)METHODS.SetRGBColor,
+                parameters: parameters);
+
+            return result.IsOk;
+        }
+
+        /// <summary>
+        /// Change Color Temperature asynchronously
+        /// </summary>
+        /// <param name="saturation"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> SetColorTemperatureAsync(int temperature, int? smooth)
+        {
+            List<object> parameters = new List<object>() { temperature };
+
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult result = await ExecuteCommandWithResponseAsync(
+                method: METHODS.SetColorTemperature,
+                id: (int)METHODS.SetColorTemperature,
+                parameters: parameters);
+
+            return result.IsOk;
+        }
+
+        #endregion asynchrone
+        #endregion IDeviceController
+
+        #region IDeviceReader
 
         /// <summary>
         /// Get a single property value
@@ -240,7 +357,11 @@ namespace YeelightAPI
         public object GetProp(string prop)
         {
             //CommandResult result = ExecCommand("get_prop", new List<string>() { $"\"{prop}\"" });
-            CommandResult result = ExecuteCommandWithResponse(method: METHODS.GetProp, parameters: new List<object>() { prop.ToString() });
+            CommandResult result = ExecuteCommandWithResponse(
+                method: METHODS.GetProp,
+                id: (int)METHODS.GetProp,
+                parameters: new List<object>() { prop.ToString() }
+                );
 
             return result.Result != null && result.Result.Count == 1 ? result.Result[0] : null;
         }
@@ -252,7 +373,11 @@ namespace YeelightAPI
         /// <returns></returns>
         public Dictionary<string, object> GetProps(List<object> props)
         {
-            CommandResult commandResult = ExecuteCommandWithResponse(method: METHODS.GetProp, parameters: props);
+            CommandResult commandResult = ExecuteCommandWithResponse(
+                method: METHODS.GetProp,
+                id: ((int)METHODS.GetProp) + 1000 + props.Count,
+                parameters: props
+                );
 
             Dictionary<string, object> result = new Dictionary<string, object>();
 
@@ -276,6 +401,8 @@ namespace YeelightAPI
             return result;
         }
 
+        #endregion IDeviceReader
+
         /// <summary>
         /// Execute a command and waits for a response during 1 second
         /// </summary>
@@ -295,6 +422,41 @@ namespace YeelightAPI
 
             DateTime startWait = DateTime.Now;
             while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(1)) { }//attente du prochain résultat, laisse tomber au bout de 1 seconde
+
+            //sauvegarde du résultat et on le retire de la liste des résultats en attente de traitement
+            if (this._currentCommandResults.ContainsKey(id))
+            {
+                CommandResult result = this._currentCommandResults[id];
+                this._currentCommandResults.Remove(id);
+
+                return result;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Execute a command and waits for a response during 1 second
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="id"></param>
+        /// <param name="parameters"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<CommandResult> ExecuteCommandWithResponseAsync(METHODS method, int id = 0, List<object> parameters = null)
+        {
+            if (this._currentCommandResults.ContainsKey(id))
+            {
+                this._currentCommandResults.Remove(id);
+            }
+
+            ExecuteCommand(method, id, parameters);
+
+            await Task.Factory.StartNew(() =>
+            {
+                DateTime startWait = DateTime.Now;
+                while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(1)) { }//attente du prochain résultat, laisse tomber au bout de 1 seconde
+            });
 
             //sauvegarde du résultat et on le retire de la liste des résultats en attente de traitement
             if (this._currentCommandResults.ContainsKey(id))
