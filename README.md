@@ -27,6 +27,7 @@ If you need a method that is not implemented, you can use the folowing methods :
 * `ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null)` (without response).
 
 These methods are generic and use the `METHODS` enumeration and a list of parameters, which allows you to call any known method with any parameter.
+All the parameters are defined in the doc ["Yeelight WiFi Light Inter-Operation Specification"](http://www.yeelight.com/download/Yeelight_Inter-Operation_Spec.pdf "Link to Yeelight WiFi Light Inter-Operation Specification"), section 4.1 : COMMAND Message.
 
 ## Event
 When you call a method that changes the state of the bulb, it sends a notification to inform that its state really change. You can receive these notification using the "NotificationReceived" 
