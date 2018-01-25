@@ -356,7 +356,6 @@ namespace YeelightAPI
         /// <returns></returns>
         public object GetProp(string prop)
         {
-            //CommandResult result = ExecCommand("get_prop", new List<string>() { $"\"{prop}\"" });
             CommandResult result = ExecuteCommandWithResponse(
                 method: METHODS.GetProp,
                 id: (int)METHODS.GetProp,
@@ -375,7 +374,7 @@ namespace YeelightAPI
         {
             CommandResult commandResult = ExecuteCommandWithResponse(
                 method: METHODS.GetProp,
-                id: ((int)METHODS.GetProp) + 1000 + props.Count,
+                id: ((int)METHODS.GetProp),// + 1000 + props.Count,
                 parameters: props
                 );
 
@@ -421,9 +420,9 @@ namespace YeelightAPI
             ExecuteCommand(method, id, parameters);
 
             DateTime startWait = DateTime.Now;
-            while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(1)) { }//attente du prochain résultat, laisse tomber au bout de 1 seconde
+            while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(5)) { } //wait for result during 1s
 
-            //sauvegarde du résultat et on le retire de la liste des résultats en attente de traitement
+            //save results and remove if from results list
             if (this._currentCommandResults.ContainsKey(id))
             {
                 CommandResult result = this._currentCommandResults[id];
@@ -455,10 +454,10 @@ namespace YeelightAPI
             await Task.Factory.StartNew(() =>
             {
                 DateTime startWait = DateTime.Now;
-                while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(1)) { }//attente du prochain résultat, laisse tomber au bout de 1 seconde
+                while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(1)) { } //wait for result during 1s
             });
 
-            //sauvegarde du résultat et on le retire de la liste des résultats en attente de traitement
+            //save results and remove if from results list
             if (this._currentCommandResults.ContainsKey(id))
             {
                 CommandResult result = this._currentCommandResults[id];
