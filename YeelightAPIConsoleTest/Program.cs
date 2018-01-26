@@ -114,7 +114,7 @@ namespace YeelightAPIConsoleTest
         private static async Task ExecuteAsyncTests(IDeviceController device, int? smooth = null)
         {
             Console.WriteLine("powering on ...");
-            device.SetPower(true);
+            await device.SetPowerAsync(true);
             await Task.Delay(2000);
 
             Console.WriteLine("Setting Brightness to One...");
