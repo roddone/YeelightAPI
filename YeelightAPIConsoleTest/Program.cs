@@ -14,14 +14,14 @@ namespace YeelightAPIConsoleTest
         {
             try
             {
-                Console.Write("Choose a test mode, type 'd' for discovery mode, 's' for a static IP adress : ");
+                Console.WriteLine("Choose a test mode, type 'd' for discovery mode, 's' for a static IP adress : ");
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
                 Console.WriteLine();
 
                 while (keyInfo.Key != ConsoleKey.D && keyInfo.Key != ConsoleKey.S)
                 {
                     Console.WriteLine($"'{keyInfo.KeyChar}' is not a valid key !");
-                    Console.Write("Choose a test mode, type 'd' for discovery mode, 's' for a static IP adress : ");
+                    Console.WriteLine("Choose a test mode, type 'd' for discovery mode, 's' for a static IP adress : ");
                     keyInfo = Console.ReadKey();
                     Console.WriteLine();
                 }
@@ -33,15 +33,26 @@ namespace YeelightAPIConsoleTest
                     if (devices != null && devices.Count >= 1)
                     {
                         Console.WriteLine($"{devices.Count} found !");
-                        Parallel.ForEach(devices, async device =>
+                        DeviceGroup group = new DeviceGroup(devices);
+
+                        group.Connect();
+
+                        foreach(Device device in group)
                         {
-                            device.Connect();
                             device.NotificationReceived += OnNotificationReceived;
+                        }
 
-                            await ExecuteTests(device, null);
+                        //with smooth value
+                        await ExecuteTests(group, null);
 
-                            await ExecuteTests(device, 1000);
-                        });
+                        //without smooth value (sudden)
+                        await ExecuteTests(group, 1000);
+
+                        //with smooth value
+                        await ExecuteAsyncTests(group, null);
+
+                        //without smooth value (sudden)
+                        await ExecuteAsyncTests(group, 1000);
                     }
                     else
                     {
@@ -67,6 +78,11 @@ namespace YeelightAPIConsoleTest
                     Device device = new Device(hostname, port);
                     device.Connect();
                     device.NotificationReceived += OnNotificationReceived;
+
+                    Console.WriteLine("getting all props ...");
+                    Dictionary<string, object> result = device.GetAllProps();
+                    Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
+                    await Task.Delay(2000);
 
                     //with smooth value
                     await ExecuteTests(device, 1000);
@@ -95,15 +111,10 @@ namespace YeelightAPIConsoleTest
             Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result.Params));
         }
 
-        private static async Task ExecuteAsyncTests(Device device, int? smooth = null)
+        private static async Task ExecuteAsyncTests(IDeviceController device, int? smooth = null)
         {
             Console.WriteLine("powering on ...");
             device.SetPower(true);
-            await Task.Delay(2000);
-
-            Console.WriteLine("getting all props ...");
-            Dictionary<string, object> result = device.GetAllProps();
-            Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
             await Task.Delay(2000);
 
             Console.WriteLine("Setting Brightness to One...");
@@ -143,15 +154,10 @@ namespace YeelightAPIConsoleTest
             await Task.Delay(2000);
         }
 
-        private static async Task ExecuteTests(Device device, int? smooth = null)
+        private static async Task ExecuteTests(IDeviceController device, int? smooth = null)
         {
             Console.WriteLine("powering on ...");
             device.SetPower(true);
-            await Task.Delay(2000);
-
-            Console.WriteLine("getting all props ...");
-            Dictionary<string, object> result = device.GetAllProps();
-            Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
             await Task.Delay(2000);
 
             Console.WriteLine("Setting Brightness to One...");

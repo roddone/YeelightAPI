@@ -72,6 +72,8 @@ namespace YeelightAPI
 
         #region PUBLIC METHODS
 
+        #region IDeviceController
+
         /// <summary>
         /// Connects to a device
         /// </summary>
@@ -155,7 +157,6 @@ namespace YeelightAPI
             }
         }
 
-        #region IDeviceController
         #region synchrone
 
         /// <summary>
