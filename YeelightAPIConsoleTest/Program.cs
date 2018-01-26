@@ -108,7 +108,9 @@ namespace YeelightAPIConsoleTest
 
         private static void OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)
         {
-            Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result.Params));
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result));
+            Console.ResetColor();
         }
 
         private static async Task ExecuteAsyncTests(IDeviceController device, int? smooth = null)
