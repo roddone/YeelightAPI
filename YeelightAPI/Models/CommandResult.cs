@@ -22,17 +22,6 @@ namespace YeelightAPI.Models
         public CommandErrorResult Error { get; set; }
 
         /// <summary>
-        /// Indicates if the command result is successful
-        /// </summary>
-        public bool IsOk
-        {
-            get
-            {
-                return this.Error == null && this.Result?[0] == "ok";
-            }
-        }
-
-        /// <summary>
         /// Result
         /// </summary>
         public List<string> Result { get; set; }
@@ -51,6 +40,22 @@ namespace YeelightAPI.Models
             /// Error message
             /// </summary>
             public string Message { get; set; }
+        }
+    }
+
+    /// <summary>
+    /// Extensions for CommandResult
+    /// </summary>
+    public static class CommandResultExtensions
+    {
+        /// <summary>
+        /// Determine if the result is a classical OK result ({"id":1, "result":["ok"]})
+        /// </summary>
+        /// <param name="this"></param>
+        /// <returns></returns>
+        public static bool IsOk(this CommandResult @this)
+        {
+            return @this != null && @this.Error == null && @this.Result?[0] == "ok";
         }
     }
 

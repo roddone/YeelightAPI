@@ -167,7 +167,7 @@ namespace YeelightAPI
         {
             CommandResult result = ExecuteCommandWithResponse(METHODS.Toggle, id: (int)METHODS.Toggle);
 
-            return result.IsOk;
+            return result.IsOk();
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace YeelightAPI
                 parameters: new List<object>() { state ? "on" : "off" }
             );
 
-            return result.IsOk;
+            return result.IsOk();
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace YeelightAPI
                 id: (int)METHODS.SetBrightness,
                 parameters: parameters);
 
-            return result.IsOk;
+            return result.IsOk();
         }
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace YeelightAPI
                 id: (int)METHODS.SetRGBColor,
                 parameters: parameters);
 
-            return result.IsOk;
+            return result.IsOk();
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace YeelightAPI
                 id: (int)METHODS.SetColorTemperature,
                 parameters: parameters);
 
-            return result.IsOk;
+            return result.IsOk();
         }
 
         #endregion synchrone
@@ -262,7 +262,7 @@ namespace YeelightAPI
         {
             CommandResult result = await ExecuteCommandWithResponseAsync(METHODS.Toggle, id: (int)METHODS.Toggle);
 
-            return result.IsOk;
+            return result.IsOk();
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace YeelightAPI
                 parameters: new List<object>() { state ? "on" : "off" }
             );
 
-            return result.IsOk;
+            return result.IsOk();
         }
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace YeelightAPI
                 id: (int)METHODS.SetBrightness,
                 parameters: parameters);
 
-            return result.IsOk;
+            return result.IsOk();
         }
 
         /// <summary>
@@ -322,7 +322,7 @@ namespace YeelightAPI
                 id: (int)METHODS.SetRGBColor,
                 parameters: parameters);
 
-            return result.IsOk;
+            return result.IsOk();
         }
 
         /// <summary>
@@ -342,7 +342,7 @@ namespace YeelightAPI
                 id: (int)METHODS.SetColorTemperature,
                 parameters: parameters);
 
-            return result.IsOk;
+            return result.IsOk();
         }
 
         #endregion asynchrone
