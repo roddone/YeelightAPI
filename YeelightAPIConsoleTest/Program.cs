@@ -32,7 +32,7 @@ namespace YeelightAPIConsoleTest
 
                     if (devices != null && devices.Count >= 1)
                     {
-                        Console.WriteLine($"{devices.Count} found !");
+                        Console.WriteLine($"{devices.Count} device(s) found !");
                         DeviceGroup group = new DeviceGroup(devices);
 
                         group.Connect();
@@ -42,22 +42,25 @@ namespace YeelightAPIConsoleTest
                             device.NotificationReceived += OnNotificationReceived;
                         }
 
-                        //with smooth value
+                        //without smooth value (sudden)
+                        WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
                         await ExecuteTests(group, null);
 
-                        //without smooth value (sudden)
+                        //with smooth value
+                        WriteLineWithColor("Processing tests with smooth effect", ConsoleColor.Cyan);
                         await ExecuteTests(group, 1000);
 
                         //with smooth value
+                        WriteLineWithColor("Processing async tests", ConsoleColor.Cyan);
                         await ExecuteAsyncTests(group, null);
 
                         //without smooth value (sudden)
+                        WriteLineWithColor("Processing async tests with smooth effect", ConsoleColor.Cyan);
                         await ExecuteAsyncTests(group, 1000);
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("No devices Found via SSDP !");
+                        WriteLineWithColor("No devices Found via SSDP !", ConsoleColor.Red);
                         return;
                     }
                 }
@@ -84,22 +87,26 @@ namespace YeelightAPIConsoleTest
                     Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
                     await Task.Delay(2000);
 
-                    //with smooth value
-                    await ExecuteTests(device, 1000);
-
                     //without smooth value (sudden)
+                    WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
                     await ExecuteTests(device, null);
 
                     //with smooth value
+                    WriteLineWithColor("Processing tests with smooth effect", ConsoleColor.Cyan);
+                    await ExecuteTests(device, 1000);
+
+                    //with smooth value
+                    WriteLineWithColor("Processing async tests", ConsoleColor.Cyan);
                     await ExecuteAsyncTests(device, 1000);
 
                     //without smooth value (sudden)
+                    WriteLineWithColor("Processing async tests with smooth effect", ConsoleColor.Cyan);
                     await ExecuteAsyncTests(device, null);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error has occurred : {ex.Message}");
+                WriteLineWithColor($"An error has occurred : {ex.Message}", ConsoleColor.Red);
             }
 
             Console.WriteLine("Press Enter to continue ;)");
@@ -108,9 +115,7 @@ namespace YeelightAPIConsoleTest
 
         private static void OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result));
-            Console.ResetColor();
+            WriteLineWithColor("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result), ConsoleColor.Yellow);
         }
 
         private static async Task ExecuteAsyncTests(IDeviceController device, int? smooth = null)
@@ -197,6 +202,13 @@ namespace YeelightAPIConsoleTest
             Console.WriteLine("Toggling bulb state...");
             device.Toggle();
             await Task.Delay(2000);
+        }
+
+        private static void WriteLineWithColor(string text, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
         }
     }
 }
