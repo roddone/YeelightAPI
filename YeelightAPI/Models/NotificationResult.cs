@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Converters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,7 @@ namespace YeelightAPI.Models
         /// <summary>
         /// Parameters
         /// </summary>
-        public Dictionary<string, string> Params { get; set; }
+        public Dictionary<PROPERTIES, object> Params { get; set; }
 
     }
 }

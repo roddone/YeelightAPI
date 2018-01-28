@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YeelightAPI.Models;
 
 namespace YeelightAPI
 {
     public interface IDeviceReader
     {
-        object GetProp(string prop);
+        object GetProp(PROPERTIES prop);
 
-        Dictionary<string, object> GetProps(List<object> props);
+        Dictionary<PROPERTIES, object> GetProps(PROPERTIES props);
 
-        Dictionary<string, object> GetAllProps();
+        Dictionary<PROPERTIES, object> GetAllProps();
     }
 }

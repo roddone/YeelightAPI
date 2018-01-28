@@ -37,6 +37,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -55,7 +56,7 @@
     <Compile Include="Models\Methods.cs" />
     <Compile Include="Models\NotificationResult.cs" />
     <Compile Include="Models\Properties.cs" />
-    <Compile Include="Models\PropertyAttribute.cs" />
+    <Compile Include="Models\RealNameAttribute.cs" />
     <Compile Include="NotificationReceivedEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI;
+using YeelightAPI.Models;
 
 namespace YeelightAPIConsoleTest
 {
@@ -83,7 +84,7 @@ namespace YeelightAPIConsoleTest
                     device.NotificationReceived += OnNotificationReceived;
 
                     Console.WriteLine("getting all props ...");
-                    Dictionary<string, object> result = device.GetAllProps();
+                    Dictionary<PROPERTIES, object> result = device.GetAllProps();
                     Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
                     await Task.Delay(2000);
 

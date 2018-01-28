@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -70,6 +71,43 @@ namespace YeelightAPI
 
         #endregion CONSTRUCTOR
 
+        public Dictionary<string, object> Properties = new Dictionary<string, object>();
+
+        public object this[PROPERTIES property]
+        {
+            get
+            {
+                return this[property.ToString()];
+            }
+            set
+            {
+                this[property.ToString()] = value;
+            }
+        }
+
+        public object this[string propertyName]
+        {
+            get
+            {
+                if (this.Properties.ContainsKey(propertyName))
+                {
+                    return this.Properties[propertyName];
+                }
+                return null;
+            }
+            set
+            {
+                if (this.Properties.ContainsKey(propertyName))
+                {
+                    this.Properties[propertyName] = value;
+                }
+                else if (!string.IsNullOrWhiteSpace(propertyName))
+                {
+                    this.Properties.Add(propertyName, value);
+                }
+            }
+        }
+
         #region PUBLIC METHODS
 
         #region IDeviceController
@@ -123,9 +161,16 @@ namespace YeelightAPI
                                         {
                                             //notification result
                                             NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(entry, this._serializerSettings);
-                                            if (notificationResult != null && notificationResult.Method != null && NotificationReceived != null)
+                                            if (notificationResult != null && notificationResult.Method != null)
                                             {
-                                                NotificationReceived(this, new NotificationReceivedEventArgs(notificationResult));
+                                                if (notificationResult.Params != null)
+                                                {
+                                                    foreach (KeyValuePair<PROPERTIES, object> property in notificationResult.Params)
+                                                    {
+                                                        this[property.Key] = property.Value;
+                                                    }
+                                                }
+                                                NotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(notificationResult));
                                             }
                                         }
                                     }
@@ -140,6 +185,12 @@ namespace YeelightAPI
                     await Task.Delay(100);
                 }
             }, TaskCreationOptions.LongRunning);
+
+            //initialiazing all properties
+            foreach (KeyValuePair<PROPERTIES, object> property in this.GetAllProps())
+            {
+                this[property.Key] = property.Value;
+            }
 
             return true;
         }
@@ -355,7 +406,7 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="prop"></param>
         /// <returns></returns>
-        public object GetProp(string prop)
+        public object GetProp(PROPERTIES prop)
         {
             CommandResult result = ExecuteCommandWithResponse(
                 method: METHODS.GetProp,
@@ -371,19 +422,26 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="props"></param>
         /// <returns></returns>
-        public Dictionary<string, object> GetProps(List<object> props)
+        public Dictionary<PROPERTIES, object> GetProps(PROPERTIES props)
         {
+            List<object> names = GetPropertiesRealNames(props);
+
             CommandResult commandResult = ExecuteCommandWithResponse(
                 method: METHODS.GetProp,
                 id: ((int)METHODS.GetProp),// + 1000 + props.Count,
-                parameters: props
+                parameters: names
                 );
 
-            Dictionary<string, object> result = new Dictionary<string, object>();
+            Dictionary<PROPERTIES, object> result = new Dictionary<PROPERTIES, object>();
 
-            for (int p = 0; p < props.Count; p++)
+            for (int n = 0; n < names.Count; n++)
             {
-                result.Add(props[p].ToString(), commandResult.Result[p]);
+                string name = names[n].ToString();
+
+                if (Enum.TryParse<PROPERTIES>(name, out PROPERTIES p))
+                {
+                    result.Add(p, commandResult.Result[n]);
+                }
             }
 
             return result;
@@ -393,10 +451,9 @@ namespace YeelightAPI
         /// Get all the properties
         /// </summary>
         /// <returns></returns>
-        public Dictionary<string, object> GetAllProps()
+        public Dictionary<PROPERTIES, object> GetAllProps()
         {
-            List<object> names = GetPropertiesRealNames(PROPERTIES.All);
-            Dictionary<string, object> result = GetProps(names);
+            Dictionary<PROPERTIES, object> result = GetProps(PROPERTIES.ALL);
 
             return result;
         }
@@ -404,7 +461,7 @@ namespace YeelightAPI
         #endregion IDeviceReader
 
         /// <summary>
-        /// Execute a command and waits for a response during 1 second
+        /// Execute a command and waits for a response during 5 seconds
         /// </summary>
         /// <param name="method"></param>
         /// <param name="id"></param>
@@ -509,9 +566,9 @@ namespace YeelightAPI
             var vals = Enum.GetValues(typeof(PROPERTIES));
             return vals
                          .Cast<PROPERTIES>()
-                         .Where(m => properties.HasFlag(m) && m != PROPERTIES.All)
+                         .Where(m => properties.HasFlag(m) && m != PROPERTIES.ALL && m != PROPERTIES.NONE)
                          .Cast<PROPERTIES>()
-                         .Select(x => x.GetRealName())
+                         .Select(x => x.ToString())
                          .ToList<object>();
         }
 
