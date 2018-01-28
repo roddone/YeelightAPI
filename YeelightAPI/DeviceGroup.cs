@@ -11,13 +11,35 @@ namespace YeelightAPI
     /// </summary>
     public class DeviceGroup : List<Device>, IDeviceController
     {
+
+        #region PUBLIC PROPERTIES
+
+        /// <summary>
+        /// Name of the group
+        /// </summary>
+        public string Name { get; set; }
+
+        #endregion PUBLIC PROPERTIES
+
+        #region CONSTRUCTOR
+
         /// <summary>
         /// Constructor with one device
         /// </summary>
         /// <param name="device"></param>
-        public DeviceGroup(Device device)
+        public DeviceGroup(string name = null)
+        {
+            this.Name = name;
+        }
+
+        /// <summary>
+        /// Constructor with one device
+        /// </summary>
+        /// <param name="device"></param>
+        public DeviceGroup(Device device, string name = null)
         {
             this.Add(device);
+            this.Name = name;
         }
 
         /// <summary>
@@ -33,10 +55,15 @@ namespace YeelightAPI
         /// Constructor with a list (IEnumerable) of devices
         /// </summary>
         /// <param name="devices"></param>
-        public DeviceGroup(IEnumerable<Device> devices)
+        public DeviceGroup(IEnumerable<Device> devices, string name = null)
         {
             this.AddRange(devices);
+            this.Name = name;
         }
+
+        #endregion CONSTRUCTOR
+
+        #region IDeviceController
 
         /// <summary>
         /// Connect all the devices
@@ -275,5 +302,8 @@ namespace YeelightAPI
 
             return result;
         }
+
+        #endregion IDeviceController
+
     }
 }

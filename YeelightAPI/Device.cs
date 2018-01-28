@@ -54,6 +54,11 @@ namespace YeelightAPI
         /// </summary>
         public int Port { get; set; }
 
+        /// <summary>
+        /// Name of the device
+        /// </summary>
+        public string Name { get; set; }
+
         #endregion PUBLIC PROPERTIES
 
         #region CONSTRUCTOR
@@ -63,16 +68,27 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="hostname"></param>
         /// <param name="port"></param>
-        public Device(string hostname, int port = Common.DefaultPort)
+        public Device(string hostname, int port = Common.DefaultPort, string name = null)
         {
             this.Hostname = hostname;
             this.Port = port;
+            this.Name = name;
         }
 
         #endregion CONSTRUCTOR
 
+        #region PROPERTIES ACCESS
+
+        /// <summary>
+        /// List of device properties
+        /// </summary>
         public Dictionary<string, object> Properties = new Dictionary<string, object>();
 
+        /// <summary>
+        /// Access property from its enum value
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
         public object this[PROPERTIES property]
         {
             get
@@ -85,6 +101,11 @@ namespace YeelightAPI
             }
         }
 
+        /// <summary>
+        /// Access property from its name
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
         public object this[string propertyName]
         {
             get
@@ -107,6 +128,8 @@ namespace YeelightAPI
                 }
             }
         }
+
+        #endregion PROPERTIES ACCESS
 
         #region PUBLIC METHODS
 
