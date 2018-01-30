@@ -64,7 +64,7 @@ Example :
 * ~~handle dns host name for bulb discovery~~
 * ~~add device discovery method in the DeviceManager~~
 * add more native methods in the DeviceManager
-* full use of async / await
+* ~~full use of async / await~~
 * ~~allow to group devices to control multiple devices~~
 * correct bugs if needed
 
