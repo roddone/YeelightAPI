@@ -10,6 +10,8 @@ namespace YeelightAPI
     {
         bool Connect();
 
+        Task<bool> ConnectAsync();
+
         void Disconnect();
 
         bool Toggle();

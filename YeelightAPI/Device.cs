@@ -138,15 +138,24 @@ namespace YeelightAPI
         /// <summary>
         /// Connects to a device
         /// </summary>
-        /// <param name="device"></param>
         /// <returns></returns>
         public bool Connect()
+        {
+            return ConnectAsync().Result;
+        }
+
+        /// <summary>
+        /// Connects to a device asynchronously
+        /// </summary>
+
+        /// <returns></returns>
+        public async Task<bool> ConnectAsync()
         {
             this.Disconnect();
 
             this.tcpClient = new TcpClient();
-            IPEndPoint endPoint = GetIPEndPointFromHostName(this.Hostname, this.Port);
-            this.tcpClient.Connect(endPoint);
+            //IPEndPoint endPoint = GetIPEndPointFromHostName(this.Hostname, this.Port);
+            await this.tcpClient.ConnectAsync(this.Hostname, this.Port);
 
             if (!this.tcpClient.Connected)
             {
@@ -226,7 +235,7 @@ namespace YeelightAPI
         {
             if (this.tcpClient != null)
             {
-                this.tcpClient.Close();
+                this.tcpClient.Dispose();
                 this.tcpClient = null;
             }
         }
@@ -593,32 +602,6 @@ namespace YeelightAPI
                          .Cast<PROPERTIES>()
                          .Select(x => x.ToString())
                          .ToList<object>();
-        }
-
-        /// <summary>
-        /// Get an ip from a hostname
-        /// </summary>
-        /// <param name="hostName"></param>
-        /// <param name="port"></param>
-        /// <returns></returns>
-        private static IPEndPoint GetIPEndPointFromHostName(string hostName, int port)
-        {
-            var addresses = System.Net.Dns.GetHostAddresses(hostName);
-            if (addresses.Length == 0)
-            {
-                throw new ArgumentException(
-                    "Unable to retrieve address from specified host name.",
-                    "hostName"
-                );
-            }
-            else if (addresses.Length > 1)
-            {
-                throw new ArgumentException(
-                    "There is more that one IP address to the specified host.",
-                    "hostName"
-                );
-            }
-            return new IPEndPoint(addresses[0], port); // Port gets validated here.
         }
 
         /// <summary>

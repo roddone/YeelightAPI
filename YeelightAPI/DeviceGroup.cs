@@ -81,6 +81,30 @@ namespace YeelightAPI
         }
 
         /// <summary>
+        /// Connect all the devices asynchronously
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ConnectAsync()
+        {
+            bool result = true;
+            List<Task<bool>> tasks = new List<Task<bool>>();
+
+            foreach (Device device in this)
+            {
+                tasks.Add(device.ConnectAsync());
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (Task<bool> t in tasks)
+            {
+                result &= t.Result;
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Disconnect all the devices
         /// </summary>
         public void Disconnect()
