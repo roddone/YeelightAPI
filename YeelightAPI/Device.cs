@@ -15,9 +15,9 @@ using YeelightAPI.Models;
 namespace YeelightAPI
 {
     /// <summary>
-    /// Yeelight Wifi Bulb Manager
+    /// Yeelight Wifi Device Manager
     /// </summary>
-    public class Device : IDeviceController, IDeviceReader
+    public class Device : IDeviceController, IDeviceReader, IDisposable
     {
 
         #region PRIVATE ATTRIBUTES
@@ -37,8 +37,29 @@ namespace YeelightAPI
 
         #region EVENTS
 
+        /// <summary>
+        /// Notification Received event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public delegate void NotificationReceivedEventHandler(object sender, NotificationReceivedEventArgs e);
+
+        /// <summary>
+        /// Notification Received event
+        /// </summary>
         public event NotificationReceivedEventHandler NotificationReceived;
+
+        /// <summary>
+        /// Error Received event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public delegate void ErrorEventHandler(object sender, ErrorEventArgs e);
+
+        /// <summary>
+        /// Error Received event
+        /// </summary>
+        public event ErrorEventHandler OnCommandError;
 
         #endregion EVENTS
 
@@ -147,7 +168,6 @@ namespace YeelightAPI
         /// <summary>
         /// Connects to a device asynchronously
         /// </summary>
-
         /// <returns></returns>
         public async Task<bool> ConnectAsync()
         {
@@ -163,60 +183,9 @@ namespace YeelightAPI
             }
 
             //continuous receiving
-            Task.Factory.StartNew(async () =>
-            {
-                while (this.tcpClient != null)
-                {
-                    lock (_syncLock)
-                    {
-                        if (this.tcpClient.Client.Available > 0)
-                        {
-                            byte[] bytes = new byte[this.tcpClient.Client.Available];
-
-                            this.tcpClient.Client.Receive(bytes);
-
-                            try
-                            {
-                                string datas = Encoding.UTF8.GetString(bytes);
-                                if (!string.IsNullOrEmpty(datas))
-                                {
-                                    foreach (string entry in datas.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
-                                    {
-                                        CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(entry, this._serializerSettings);
-
-                                        if (commandResult != null && (commandResult.Result != null || commandResult.Error != null))
-                                        {
-                                            //command result
-                                            _currentCommandResults[commandResult.Id] = commandResult;
-                                        }
-                                        else
-                                        {
-                                            //notification result
-                                            NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(entry, this._serializerSettings);
-                                            if (notificationResult != null && notificationResult.Method != null)
-                                            {
-                                                if (notificationResult.Params != null)
-                                                {
-                                                    foreach (KeyValuePair<PROPERTIES, object> property in notificationResult.Params)
-                                                    {
-                                                        this[property.Key] = property.Value;
-                                                    }
-                                                }
-                                                NotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(notificationResult));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"Error while reading through pipe : {ex.Message}");
-                            }
-                        }
-                    }
-                    await Task.Delay(100);
-                }
-            }, TaskCreationOptions.LongRunning);
+#pragma warning disable 4014
+            this.Watch();
+#pragma warning restore 4014
 
             //initialiazing all properties
             foreach (KeyValuePair<PROPERTIES, object> property in this.GetAllProps())
@@ -492,6 +461,18 @@ namespace YeelightAPI
 
         #endregion IDeviceReader
 
+        #region IDisposable
+
+        /// <summary>
+        /// Dispose the device
+        /// </summary>
+        public void Dispose()
+        {
+            this.Disconnect();
+        }
+
+        #endregion IDisposable
+
         /// <summary>
         /// Execute a command and waits for a response during 5 seconds
         /// </summary>
@@ -587,6 +568,80 @@ namespace YeelightAPI
         #endregion PUBLIC METHODS
 
         #region PRIVATE METHODS
+
+        /// <summary>
+        /// Watch for device responses and notifications
+        /// </summary>
+        /// <returns></returns>
+        private async Task Watch()
+        {
+            await Task.Factory.StartNew(async () =>
+            {
+                //while device is connected
+                while (this.tcpClient != null)
+                {
+                    lock (_syncLock)
+                    {
+                        //there is data avaiblable in the pipe
+                        if (this.tcpClient.Client.Available > 0)
+                        {
+                            byte[] bytes = new byte[this.tcpClient.Client.Available];
+
+                            //read datas
+                            this.tcpClient.Client.Receive(bytes);
+
+                            try
+                            {
+                                string datas = Encoding.UTF8.GetString(bytes);
+                                if (!string.IsNullOrEmpty(datas))
+                                {
+                                    //get every messages in the pipe
+                                    foreach (string entry in datas.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
+                                    {
+                                        CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(entry, this._serializerSettings);
+
+                                        if (commandResult != null && (commandResult.Result != null || commandResult.Error != null))
+                                        {
+                                            //command result
+                                            _currentCommandResults[commandResult.Id] = commandResult;
+                                        }
+                                        else if (commandResult != null && commandResult.Error != null)
+                                        {
+                                            //error result
+                                            OnCommandError?.Invoke(this, new ErrorEventArgs(commandResult.Error));
+                                        }
+                                        else
+                                        {
+                                            NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(entry, this._serializerSettings);
+
+                                            if (notificationResult != null && notificationResult.Method != null)
+                                            {
+                                                if (notificationResult.Params != null)
+                                                {
+                                                    //save properties
+                                                    foreach (KeyValuePair<PROPERTIES, object> property in notificationResult.Params)
+                                                    {
+                                                        this[property.Key] = property.Value;
+                                                    }
+                                                }
+
+                                                //notification result
+                                                NotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(notificationResult));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error while reading through pipe : {ex.Message}");
+                            }
+                        }
+                    }
+                    await Task.Delay(100);
+                }
+            }, TaskCreationOptions.LongRunning);
+        }
 
         /// <summary>
         /// Get the real name of the properties
