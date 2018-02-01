@@ -21,12 +21,12 @@ namespace YeelightAPI
         /// <param name="result"></param>
         public ErrorEventArgs(CommandResult.CommandErrorResult result)
         {
-            this.Result = result;
+            this.Error = result;
         }
 
         /// <summary>
         /// Notification Result
         /// </summary>
-        public CommandResult.CommandErrorResult Result { get; set; }
+        public CommandResult.CommandErrorResult Error { get; set; }
     }
 }

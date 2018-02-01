@@ -34,30 +34,33 @@ namespace YeelightAPIConsoleTest
                     if (devices != null && devices.Count >= 1)
                     {
                         Console.WriteLine($"{devices.Count} device(s) found !");
-                        DeviceGroup group = new DeviceGroup(devices);
-
-                        group.Connect();
-
-                        foreach(Device device in group)
+                        using (DeviceGroup group = new DeviceGroup(devices))
                         {
-                            device.NotificationReceived += OnNotificationReceived;
+
+                            group.Connect();
+
+                            foreach (Device device in group)
+                            {
+                                device.NotificationReceived += Device_OnNotificationReceived;
+                                device.OnCommandError += Device_OnCommandError;
+                            }
+
+                            //without smooth value (sudden)
+                            WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
+                            await ExecuteTests(group, null);
+
+                            //with smooth value
+                            WriteLineWithColor("Processing tests with smooth effect", ConsoleColor.Cyan);
+                            await ExecuteTests(group, 1000);
+
+                            //with smooth value
+                            WriteLineWithColor("Processing async tests", ConsoleColor.Cyan);
+                            await ExecuteAsyncTests(group, null);
+
+                            //without smooth value (sudden)
+                            WriteLineWithColor("Processing async tests with smooth effect", ConsoleColor.Cyan);
+                            await ExecuteAsyncTests(group, 1000);
                         }
-
-                        //without smooth value (sudden)
-                        WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
-                        await ExecuteTests(group, null);
-
-                        //with smooth value
-                        WriteLineWithColor("Processing tests with smooth effect", ConsoleColor.Cyan);
-                        await ExecuteTests(group, 1000);
-
-                        //with smooth value
-                        WriteLineWithColor("Processing async tests", ConsoleColor.Cyan);
-                        await ExecuteAsyncTests(group, null);
-
-                        //without smooth value (sudden)
-                        WriteLineWithColor("Processing async tests with smooth effect", ConsoleColor.Cyan);
-                        await ExecuteAsyncTests(group, 1000);
                     }
                     else
                     {
@@ -79,30 +82,33 @@ namespace YeelightAPIConsoleTest
                         port = 55443;
                     }
 
-                    Device device = new Device(hostname, port);
-                    device.Connect();
-                    device.NotificationReceived += OnNotificationReceived;
+                    using (Device device = new Device(hostname, port))
+                    {
+                        device.Connect();
+                        device.NotificationReceived += Device_OnNotificationReceived;
+                        device.OnCommandError += Device_OnCommandError;
 
-                    Console.WriteLine("getting all props ...");
-                    Dictionary<PROPERTIES, object> result = device.GetAllProps();
-                    Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
-                    await Task.Delay(2000);
+                        Console.WriteLine("getting all props ...");
+                        Dictionary<PROPERTIES, object> result = device.GetAllProps();
+                        Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
+                        await Task.Delay(2000);
 
-                    //without smooth value (sudden)
-                    WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
-                    await ExecuteTests(device, null);
+                        //without smooth value (sudden)
+                        WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
+                        await ExecuteTests(device, null);
 
-                    //with smooth value
-                    WriteLineWithColor("Processing tests with smooth effect", ConsoleColor.Cyan);
-                    await ExecuteTests(device, 1000);
+                        //with smooth value
+                        WriteLineWithColor("Processing tests with smooth effect", ConsoleColor.Cyan);
+                        await ExecuteTests(device, 1000);
 
-                    //with smooth value
-                    WriteLineWithColor("Processing async tests", ConsoleColor.Cyan);
-                    await ExecuteAsyncTests(device, 1000);
+                        //with smooth value
+                        WriteLineWithColor("Processing async tests", ConsoleColor.Cyan);
+                        await ExecuteAsyncTests(device, 1000);
 
-                    //without smooth value (sudden)
-                    WriteLineWithColor("Processing async tests with smooth effect", ConsoleColor.Cyan);
-                    await ExecuteAsyncTests(device, null);
+                        //without smooth value (sudden)
+                        WriteLineWithColor("Processing async tests with smooth effect", ConsoleColor.Cyan);
+                        await ExecuteAsyncTests(device, null);
+                    }
                 }
             }
             catch (Exception ex)
@@ -114,7 +120,12 @@ namespace YeelightAPIConsoleTest
             Console.ReadLine();
         }
 
-        private static void OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)
+        private static void Device_OnCommandError(object sender, ErrorEventArgs arg)
+        {
+            WriteLineWithColor("An error occurred : " + JsonConvert.SerializeObject(arg.Error), ConsoleColor.Red);
+        }
+
+        private static void Device_OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)
         {
             WriteLineWithColor("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result), ConsoleColor.Yellow);
         }
