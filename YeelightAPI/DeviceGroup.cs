@@ -9,7 +9,7 @@ namespace YeelightAPI
     /// <summary>
     /// Group of devices
     /// </summary>
-    public class DeviceGroup : List<Device>, IDeviceController
+    public class DeviceGroup : List<Device>, IDeviceController, IDisposable
     {
 
         #region PUBLIC PROPERTIES
@@ -328,6 +328,21 @@ namespace YeelightAPI
         }
 
         #endregion IDeviceController
+
+        #region IDisposable
+
+        /// <summary>
+        /// Dispose the devices
+        /// </summary>
+        public void Dispose()
+        {
+            foreach(Device device in this)
+            {
+                device.Dispose();
+            }
+        }
+
+        #endregion
 
     }
 }
