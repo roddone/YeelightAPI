@@ -49,13 +49,38 @@ If you want to find what devices are connected, you can use `YeelightAPI.DeviceL
 	List<Device> devices = await DeviceLocator.Discover();
 ```
 
-## Event
-When you call a method that changes the state of the device, it sends a notification to inform that its state really change. You can receive these notification using the "NotificationReceived" 
+### Async / Await
+If you have to deal with asynchronism, the API fully supports async / await. The methos are the same, but they have a "Async" suffix.
 Example : 
 ```csharp
-   device.NotificationReceived += (object sender, NotificationReceivedEventArgs arg) =>
+	// with single device
+	await device.Connect();
+	await device.Toggle();
+
+	//with groups
+	await group.Connect();
+	await group.Toggle();
+	...
+```
+
+## Events
+### Notifications
+When you call a method that changes the state of the device, it sends a notification to inform that its state really change. You can receive these notification using the "OnNotificationReceived" event.
+Example : 
+```csharp
+   device.OnNotificationReceived += (object sender, NotificationReceivedEventArgs arg) =>
    {
        Console.WriteLine("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result));
+   };
+```
+
+### Errors
+When a method returns an error, it fires a "OnCommandError" event.
+Example : 
+```csharp
+   device.OnCommandError += (object sender, CommandErrorEventArgs arg) =>
+   {
+       Console.WriteLine($"An error occurred : {arg.Error}");
    };
 ```
 
