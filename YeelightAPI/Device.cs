@@ -47,7 +47,7 @@ namespace YeelightAPI
         /// <summary>
         /// Notification Received event
         /// </summary>
-        public event NotificationReceivedEventHandler NotificationReceived;
+        public event NotificationReceivedEventHandler OnNotificationReceived;
 
         /// <summary>
         /// Error Received event handler
@@ -632,7 +632,7 @@ namespace YeelightAPI
                                                 }
 
                                                 //notification result
-                                                NotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(notificationResult));
+                                                OnNotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(notificationResult));
                                             }
                                         }
                                     }

@@ -41,7 +41,7 @@ namespace YeelightAPIConsoleTest
 
                             foreach (Device device in group)
                             {
-                                device.NotificationReceived += Device_OnNotificationReceived;
+                                device.OnNotificationReceived += Device_OnNotificationReceived;
                                 device.OnCommandError += Device_OnCommandError;
                             }
 
@@ -85,7 +85,7 @@ namespace YeelightAPIConsoleTest
                     using (Device device = new Device(hostname, port))
                     {
                         device.Connect();
-                        device.NotificationReceived += Device_OnNotificationReceived;
+                        device.OnNotificationReceived += Device_OnNotificationReceived;
                         device.OnCommandError += Device_OnCommandError;
 
                         Console.WriteLine("getting all props ...");
