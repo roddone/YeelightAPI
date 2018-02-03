@@ -40,6 +40,15 @@ namespace YeelightAPI.Models
             /// Error message
             /// </summary>
             public string Message { get; set; }
+
+            /// <summary>
+            /// ToString override
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString()
+            {
+                return $"{this.Code} - {this.Message}";
+            }
         }
     }
 

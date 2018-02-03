@@ -54,12 +54,12 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public delegate void ErrorEventHandler(object sender, ErrorEventArgs e);
+        public delegate void CommandErrorEventHandler(object sender, CommandErrorEventArgs e);
 
         /// <summary>
         /// Error Received event
         /// </summary>
-        public event ErrorEventHandler OnCommandError;
+        public event CommandErrorEventHandler OnCommandError;
 
         #endregion EVENTS
 
@@ -614,7 +614,7 @@ namespace YeelightAPI
                                         else if (commandResult != null && commandResult.Error != null)
                                         {
                                             //error result
-                                            OnCommandError?.Invoke(this, new ErrorEventArgs(commandResult.Error));
+                                            OnCommandError?.Invoke(this, new CommandErrorEventArgs(commandResult.Error));
                                         }
                                         else
                                         {

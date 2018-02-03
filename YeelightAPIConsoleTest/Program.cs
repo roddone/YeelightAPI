@@ -120,9 +120,9 @@ namespace YeelightAPIConsoleTest
             Console.ReadLine();
         }
 
-        private static void Device_OnCommandError(object sender, ErrorEventArgs arg)
+        private static void Device_OnCommandError(object sender, CommandErrorEventArgs arg)
         {
-            WriteLineWithColor("An error occurred : " + JsonConvert.SerializeObject(arg.Error), ConsoleColor.Red);
+            WriteLineWithColor($"An error occurred : {arg.Error}", ConsoleColor.Red);
         }
 
         private static void Device_OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)

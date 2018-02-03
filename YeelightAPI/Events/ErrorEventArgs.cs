@@ -8,18 +8,18 @@ namespace YeelightAPI
     /// <summary>
     /// Notification event Argument
     /// </summary>
-    public class ErrorEventArgs : EventArgs
+    public class CommandErrorEventArgs : EventArgs
     {
         /// <summary>
         /// Constructor
         /// </summary>
-        public ErrorEventArgs() { }
+        public CommandErrorEventArgs() { }
 
         /// <summary>
         /// Constructor with notification result
         /// </summary>
         /// <param name="result"></param>
-        public ErrorEventArgs(CommandResult.CommandErrorResult result)
+        public CommandErrorEventArgs(CommandResult.CommandErrorResult result)
         {
             this.Error = result;
         }
@@ -28,5 +28,6 @@ namespace YeelightAPI
         /// Notification Result
         /// </summary>
         public CommandResult.CommandErrorResult Error { get; set; }
+
     }
 }
