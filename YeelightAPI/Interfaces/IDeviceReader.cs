@@ -14,5 +14,11 @@ namespace YeelightAPI
         Dictionary<PROPERTIES, object> GetProps(PROPERTIES props);
 
         Dictionary<PROPERTIES, object> GetAllProps();
+
+        Task<object> GetPropAsync(PROPERTIES prop);
+
+        Task<Dictionary<PROPERTIES, object>> GetPropsAsync(PROPERTIES props);
+
+        Task<Dictionary<PROPERTIES, object>> GetAllPropsAsync();
     }
 }

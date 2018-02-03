@@ -163,46 +163,6 @@ namespace YeelightAPI
         #region IDeviceController
 
         /// <summary>
-        /// Connects to a device
-        /// </summary>
-        /// <returns></returns>
-        public bool Connect()
-        {
-            return ConnectAsync().Result;
-        }
-
-        /// <summary>
-        /// Connects to a device asynchronously
-        /// </summary>
-        /// <returns></returns>
-        public async Task<bool> ConnectAsync()
-        {
-            this.Disconnect();
-
-            this.tcpClient = new TcpClient();
-            //IPEndPoint endPoint = GetIPEndPointFromHostName(this.Hostname, this.Port);
-            await this.tcpClient.ConnectAsync(this.Hostname, this.Port);
-
-            if (!this.tcpClient.Connected)
-            {
-                return false;
-            }
-
-            //continuous receiving
-#pragma warning disable 4014
-            this.Watch();
-#pragma warning restore 4014
-
-            //initialiazing all properties
-            foreach (KeyValuePair<PROPERTIES, object> property in this.GetAllProps())
-            {
-                this[property.Key] = property.Value;
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// Disconnect the current device
         /// </summary>
         /// <returns></returns>
@@ -215,7 +175,16 @@ namespace YeelightAPI
             }
         }
 
-        #region synchrone
+        #region synchronous
+        
+        /// <summary>
+        /// Connects to a device
+        /// </summary>
+        /// <returns></returns>
+        public bool Connect()
+        {
+            return ConnectAsync().Result;
+        }
 
         /// <summary>
         /// Toggle the device power
@@ -308,9 +277,40 @@ namespace YeelightAPI
             return result.IsOk();
         }
 
-        #endregion synchrone
+        #endregion synchronous
 
-        #region asynchrone
+        #region asynchronous
+
+        /// <summary>
+        /// Connects to a device asynchronously
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ConnectAsync()
+        {
+            this.Disconnect();
+
+            this.tcpClient = new TcpClient();
+            //IPEndPoint endPoint = GetIPEndPointFromHostName(this.Hostname, this.Port);
+            await this.tcpClient.ConnectAsync(this.Hostname, this.Port);
+
+            if (!this.tcpClient.Connected)
+            {
+                return false;
+            }
+
+            //continuous receiving
+#pragma warning disable 4014
+            this.Watch();
+#pragma warning restore 4014
+
+            //initialiazing all properties
+            foreach (KeyValuePair<PROPERTIES, object> property in this.GetAllProps())
+            {
+                this[property.Key] = property.Value;
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// Toggle the device power asynchronously
@@ -403,10 +403,13 @@ namespace YeelightAPI
             return result.IsOk();
         }
 
-        #endregion asynchrone
+        #endregion asynchronous
+
         #endregion IDeviceController
 
         #region IDeviceReader
+
+        #region synchronous
 
         /// <summary>
         /// Get a single property value
@@ -464,6 +467,69 @@ namespace YeelightAPI
 
             return result;
         }
+
+        #endregion synchronous
+
+        #region asynchronous
+
+        /// <summary>
+        /// Get a single property value asynchronously
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public async Task<object> GetPropAsync(PROPERTIES prop)
+        {
+            CommandResult result = await ExecuteCommandWithResponseAsync(
+                method: METHODS.GetProp,
+                id: (int)METHODS.GetProp,
+                parameters: new List<object>() { prop.ToString() }
+                );
+
+            return result.Result != null && result.Result.Count == 1 ? result.Result[0] : null;
+        }
+
+        /// <summary>
+        /// Get multiple properties asynchronously
+        /// </summary>
+        /// <param name="props"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<PROPERTIES, object>> GetPropsAsync(PROPERTIES props)
+        {
+            List<object> names = GetPropertiesRealNames(props);
+
+            CommandResult commandResult = await ExecuteCommandWithResponseAsync(
+                method: METHODS.GetProp,
+                id: ((int)METHODS.GetProp),// + 1000 + props.Count,
+                parameters: names
+                );
+
+            Dictionary<PROPERTIES, object> result = new Dictionary<PROPERTIES, object>();
+
+            for (int n = 0; n < names.Count; n++)
+            {
+                string name = names[n].ToString();
+
+                if (Enum.TryParse<PROPERTIES>(name, out PROPERTIES p))
+                {
+                    result.Add(p, commandResult.Result[n]);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get all the properties asynchronously
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Dictionary<PROPERTIES, object>> GetAllPropsAsync()
+        {
+            Dictionary<PROPERTIES, object> result = await GetPropsAsync(PROPERTIES.ALL);
+
+            return result;
+        }
+
+        #endregion asynchronous
 
         #endregion IDeviceReader
 
