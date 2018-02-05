@@ -88,8 +88,13 @@ namespace YeelightAPIConsoleTest
                         device.OnNotificationReceived += Device_OnNotificationReceived;
                         device.OnCommandError += Device_OnCommandError;
 
-                        Console.WriteLine("getting all props ...");
+                        Console.WriteLine("getting all props synchronously...");
                         Dictionary<PROPERTIES, object> result = device.GetAllProps();
+                        Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
+                        await Task.Delay(2000);
+
+                        Console.WriteLine("getting all props asynchronously...");
+                        result = await device.GetAllPropsAsync();
                         Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
                         await Task.Delay(2000);
 
