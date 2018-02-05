@@ -12,10 +12,6 @@ namespace YeelightAPI.Models
     /// </summary>
     public class NotificationResult
     {
-        /// <summary>
-        /// Id
-        /// </summary>
-        public int Id { get; set; }
 
         /// <summary>
         /// Method
