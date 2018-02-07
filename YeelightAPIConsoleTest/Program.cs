@@ -45,21 +45,32 @@ namespace YeelightAPIConsoleTest
                                 device.OnCommandError += Device_OnCommandError;
                             }
 
+                            bool success = true;
+
                             //without smooth value (sudden)
                             WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
-                            await ExecuteTests(group, null);
+                            success &= await ExecuteTests(group, null);
 
                             //with smooth value
                             WriteLineWithColor("Processing tests with smooth effect", ConsoleColor.Cyan);
-                            await ExecuteTests(group, 1000);
+                            success &= await ExecuteTests(group, 1000);
 
                             //with smooth value
                             WriteLineWithColor("Processing async tests", ConsoleColor.Cyan);
-                            await ExecuteAsyncTests(group, null);
+                            success &= await ExecuteAsyncTests(group, null);
 
                             //without smooth value (sudden)
                             WriteLineWithColor("Processing async tests with smooth effect", ConsoleColor.Cyan);
-                            await ExecuteAsyncTests(group, 1000);
+                            success &= await ExecuteAsyncTests(group, 1000);
+
+                            if (success)
+                            {
+                                WriteLineWithColor("All Tests are successfull", ConsoleColor.Green);
+                            }
+                            else
+                            {
+                                WriteLineWithColor("Some tests have failed", ConsoleColor.Red);
+                            }
                         }
                     }
                     else
@@ -88,6 +99,7 @@ namespace YeelightAPIConsoleTest
                         device.OnNotificationReceived += Device_OnNotificationReceived;
                         device.OnCommandError += Device_OnCommandError;
 
+                        Console.ReadLine();
                         Console.WriteLine("getting all props synchronously...");
                         Dictionary<PROPERTIES, object> result = device.GetAllProps();
                         Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
@@ -98,21 +110,32 @@ namespace YeelightAPIConsoleTest
                         Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
                         await Task.Delay(2000);
 
+                        bool success = true;
+
                         //without smooth value (sudden)
                         WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
-                        await ExecuteTests(device, null);
+                        success &= await ExecuteTests(device, null);
 
                         //with smooth value
                         WriteLineWithColor("Processing tests with smooth effect", ConsoleColor.Cyan);
-                        await ExecuteTests(device, 1000);
+                        success &= await ExecuteTests(device, 1000);
 
                         //with smooth value
                         WriteLineWithColor("Processing async tests", ConsoleColor.Cyan);
-                        await ExecuteAsyncTests(device, 1000);
+                        success &= await ExecuteAsyncTests(device, 1000);
 
                         //without smooth value (sudden)
                         WriteLineWithColor("Processing async tests with smooth effect", ConsoleColor.Cyan);
-                        await ExecuteAsyncTests(device, null);
+                        success &= await ExecuteAsyncTests(device, null);
+
+                        if (success)
+                        {
+                            WriteLineWithColor("All Tests are successfull", ConsoleColor.Green);
+                        }
+                        else
+                        {
+                            WriteLineWithColor("Some tests have failed", ConsoleColor.Red);
+                        }
                     }
                 }
             }
@@ -127,98 +150,150 @@ namespace YeelightAPIConsoleTest
 
         private static void Device_OnCommandError(object sender, CommandErrorEventArgs arg)
         {
-            WriteLineWithColor($"An error occurred : {arg.Error}", ConsoleColor.Red);
+            WriteLineWithColor($"An error occurred : {arg.Error}", ConsoleColor.DarkRed);
         }
 
         private static void Device_OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)
         {
-            WriteLineWithColor("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result), ConsoleColor.Yellow);
+            WriteLineWithColor("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result), ConsoleColor.DarkGray);
         }
 
-        private static async Task ExecuteAsyncTests(IDeviceController device, int? smooth = null)
+        private static async Task<bool> ExecuteAsyncTests(IDeviceController device, int? smooth = null)
         {
+            bool success = true;
+            int delay = 1500;
+
             Console.WriteLine("powering on ...");
-            await device.SetPowerAsync(true);
-            await Task.Delay(2000);
+            success &= await device.SetPowerAsync(true);
+            await Task.Delay(delay);
 
             Console.WriteLine("Setting Brightness to One...");
-            await device.SetBrightnessAsync(01);
-            await Task.Delay(2000);
+            success &= await device.SetBrightnessAsync(01);
+            await Task.Delay(delay);
 
             Console.WriteLine("Setting Brightness to 100 %...");
-            await device.SetBrightnessAsync(100, smooth);
-            await Task.Delay(2000);
+            success &= await device.SetBrightnessAsync(100, smooth);
+            await Task.Delay(delay);
 
             Console.WriteLine("Setting Brightness to 50 %...");
             await device.SetBrightnessAsync(50, smooth);
-            await Task.Delay(2000);
+            await Task.Delay(delay);
 
-            Console.WriteLine("Setting Brightness to red ...");
-            await device.SetRGBColorAsync(255, 0, 0, smooth);
-            await Task.Delay(2000);
+            Console.WriteLine("Setting RGB color to red ...");
+            success &= await device.SetRGBColorAsync(255, 0, 0, smooth);
+            await Task.Delay(delay);
 
-            Console.WriteLine("Setting Brightness to green...");
-            await device.SetRGBColorAsync(0, 255, 0, smooth);
-            await Task.Delay(2000);
+            Console.WriteLine("Setting RGB color to green...");
+            success &= await device.SetRGBColorAsync(0, 255, 0, smooth);
+            await Task.Delay(delay);
 
-            Console.WriteLine("Setting Brightness to blue...");
-            await device.SetRGBColorAsync(0, 0, 255, smooth);
-            await Task.Delay(2000);
+            Console.WriteLine("Setting RGB color to blue...");
+            success &= await device.SetRGBColorAsync(0, 0, 255, smooth);
+            await Task.Delay(delay);
+
+            Console.WriteLine("Setting HSV color to red...");
+            success &= await device.SetHSVColorAsync(0, 100, smooth);
+            await Task.Delay(delay);
+
+            Console.WriteLine("Setting HSV color to green...");
+            success &= await device.SetHSVColorAsync(120, 100, smooth);
+            await Task.Delay(delay);
+
+            Console.WriteLine("Setting HSV color to blue...");
+            success &= await device.SetHSVColorAsync(240, 100, smooth);
+            await Task.Delay(delay);
 
             Console.WriteLine("Setting Color Saturation to 1700k ...");
-            await device.SetColorTemperatureAsync(1700, smooth);
-            await Task.Delay(2000);
+            success &= await device.SetColorTemperatureAsync(1700, smooth);
+            await Task.Delay(delay);
 
             Console.WriteLine("Setting Color Saturation to 6500k ...");
-            await device.SetColorTemperatureAsync(6500, smooth);
-            await Task.Delay(2000);
+            success &= await device.SetColorTemperatureAsync(6500, smooth);
+            await Task.Delay(delay);
 
             Console.WriteLine("Toggling bulb state...");
-            await device.ToggleAsync();
-            await Task.Delay(2000);
+            success &= await device.ToggleAsync();
+            await Task.Delay(delay);
+
+            if (success)
+            {
+                WriteLineWithColor($"Tests are successful", ConsoleColor.DarkGreen);
+            }
+            else
+            {
+                WriteLineWithColor($"Tests failed", ConsoleColor.DarkRed);
+            }
+
+            return success;
         }
 
-        private static async Task ExecuteTests(IDeviceController device, int? smooth = null)
+        private static async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         {
+            bool success = true;
+            int delay = 1500;
+
             Console.WriteLine("powering on ...");
-            device.SetPower(true);
-            await Task.Delay(2000);
+            success &= device.SetPower(true);
+            await Task.Delay(delay);
 
             Console.WriteLine("Setting Brightness to One...");
-            device.SetBrightness(01);
-            await Task.Delay(2000);
+            success &= device.SetBrightness(01);
+            await Task.Delay(delay);
 
             Console.WriteLine("Setting Brightness to 100 %...");
-            device.SetBrightness(100, smooth);
-            await Task.Delay(2000);
+            success &= device.SetBrightness(100, smooth);
+            await Task.Delay(delay);
 
             Console.WriteLine("Setting Brightness to 50 %...");
-            device.SetBrightness(50, smooth);
-            await Task.Delay(2000);
+            success &= device.SetBrightness(50, smooth);
+            await Task.Delay(delay);
 
-            Console.WriteLine("Setting Brightness to red ...");
-            device.SetRGBColor(255, 0, 0, smooth);
-            await Task.Delay(2000);
+            Console.WriteLine("Setting RGB color to red ...");
+            success &= device.SetRGBColor(255, 0, 0, smooth);
+            await Task.Delay(delay);
 
-            Console.WriteLine("Setting Brightness to green...");
-            device.SetRGBColor(0, 255, 0, smooth);
-            await Task.Delay(2000);
+            Console.WriteLine("Setting RGB color to green...");
+            success &= device.SetRGBColor(0, 255, 0, smooth);
+            await Task.Delay(delay);
 
-            Console.WriteLine("Setting Brightness to blue...");
-            device.SetRGBColor(0, 0, 255, smooth);
-            await Task.Delay(2000);
+            Console.WriteLine("Setting RGB color to blue...");
+            success &= device.SetRGBColor(0, 0, 255, smooth);
+            await Task.Delay(delay);
+
+            Console.WriteLine("Setting HSV color to red...");
+            success &= device.SetHSVColor(0, 100, smooth);
+            await Task.Delay(delay);
+
+            Console.WriteLine("Setting HSV color to green...");
+            success &= device.SetHSVColor(120, 100, smooth);
+            await Task.Delay(delay);
+
+            Console.WriteLine("Setting HSV color to blue...");
+            success &= device.SetHSVColor(240, 100, smooth);
+            await Task.Delay(delay);
 
             Console.WriteLine("Setting Color Saturation to 1700k ...");
-            device.SetColorTemperature(1700, smooth);
-            await Task.Delay(2000);
+            success &= device.SetColorTemperature(1700, smooth);
+            await Task.Delay(delay);
 
             Console.WriteLine("Setting Color Saturation to 6500k ...");
-            device.SetColorTemperature(6500, smooth);
-            await Task.Delay(2000);
+            success &= device.SetColorTemperature(6500, smooth);
+            await Task.Delay(delay);
 
             Console.WriteLine("Toggling bulb state...");
-            device.Toggle();
-            await Task.Delay(2000);
+            success &= device.Toggle();
+            await Task.Delay(delay);
+
+            if (success)
+            {
+                WriteLineWithColor($"Tests are successful", ConsoleColor.DarkGreen);
+            }
+            else
+            {
+                WriteLineWithColor($"Tests failed", ConsoleColor.DarkRed);
+            }
+
+            return success;
         }
 
         private static void WriteLineWithColor(string text, ConsoleColor color)
