@@ -72,7 +72,7 @@ namespace YeelightAPI
         /// <param name="b"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public bool SetRGBColor(int r, int g, int b, int? smooth)
+        public bool SetRGBColor(int r, int g, int b, int? smooth = null)
         {
             return SetRGBColorAsync(r, g, b, smooth).Result;
         }
@@ -83,9 +83,21 @@ namespace YeelightAPI
         /// <param name="saturation"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public bool SetColorTemperature(int temperature, int? smooth)
+        public bool SetColorTemperature(int temperature, int? smooth = null)
         {
             return SetColorTemperatureAsync(temperature, smooth).Result;
+        }
+
+        /// <summary>
+        /// Change HSV color
+        /// </summary>
+        /// <param name="hue"></param>
+        /// <param name="sat"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public bool SetHSVColor(int hue, int sat, int? smooth = null)
+        {
+            return SetHSVColorAsync(hue, sat, smooth).Result;
         }
 
         #endregion synchronous
@@ -178,7 +190,7 @@ namespace YeelightAPI
         /// <param name="b"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<bool> SetRGBColorAsync(int r, int g, int b, int? smooth)
+        public async Task<bool> SetRGBColorAsync(int r, int g, int b, int? smooth = null)
         {
             //Convert RGB into integer 0x00RRGGBB
             int value = ((r) << 16) | ((g) << 8) | (b);
@@ -200,7 +212,7 @@ namespace YeelightAPI
         /// <param name="saturation"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<bool> SetColorTemperatureAsync(int temperature, int? smooth)
+        public async Task<bool> SetColorTemperatureAsync(int temperature, int? smooth = null)
         {
             List<object> parameters = new List<object>() { temperature };
 
@@ -209,6 +221,27 @@ namespace YeelightAPI
             CommandResult result = await ExecuteCommandWithResponseAsync(
                 method: METHODS.SetColorTemperature,
                 id: (int)METHODS.SetColorTemperature,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Change HSV color asynchronously
+        /// </summary>
+        /// <param name="hue"></param>
+        /// <param name="sat"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> SetHSVColorAsync(int hue, int sat, int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { hue, sat };
+
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult result = await ExecuteCommandWithResponseAsync(
+                method: METHODS.SetHSVColor,
+                id: (int)METHODS.SetHSVColor,
                 parameters: parameters);
 
             return result.IsOk();

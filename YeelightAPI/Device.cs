@@ -299,7 +299,7 @@ namespace YeelightAPI
                                     {
                                         CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(entry, this._serializerSettings);
 
-                                        if (commandResult != null && (commandResult.Result != null || commandResult.Error != null))
+                                        if (commandResult != null && commandResult.Result != null)
                                         {
                                             //command result
                                             _currentCommandResults[commandResult.Id] = commandResult;

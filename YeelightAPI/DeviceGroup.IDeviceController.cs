@@ -89,7 +89,7 @@ namespace YeelightAPI
         /// <param name="temperature"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public bool SetColorTemperature(int temperature, int? smooth)
+        public bool SetColorTemperature(int temperature, int? smooth = null)
         {
             bool result = true;
             foreach (Device device in this)
@@ -108,12 +108,30 @@ namespace YeelightAPI
         /// <param name="b"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public bool SetRGBColor(int r, int g, int b, int? smooth)
+        public bool SetRGBColor(int r, int g, int b, int? smooth = null)
         {
             bool result = true;
             foreach (Device device in this)
             {
                 result &= device.SetRGBColor(r, g, b, smooth);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Change HSV color for all devices
+        /// </summary>
+        /// <param name="hue"></param>
+        /// <param name="sat"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public bool SetHSVColor(int hue, int sat, int? smooth = null)
+        {
+            bool result = true;
+            foreach (Device device in this)
+            {
+                result &= device.SetHSVColor(hue, sat, smooth);
             }
 
             return result;
@@ -179,7 +197,7 @@ namespace YeelightAPI
         /// <param name="temperature"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<bool> SetColorTemperatureAsync(int temperature, int? smooth)
+        public async Task<bool> SetColorTemperatureAsync(int temperature, int? smooth = null)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
@@ -232,7 +250,7 @@ namespace YeelightAPI
         /// <param name="b"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<bool> SetRGBColorAsync(int r, int g, int b, int? smooth)
+        public async Task<bool> SetRGBColorAsync(int r, int g, int b, int? smooth = null)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
@@ -264,6 +282,33 @@ namespace YeelightAPI
             foreach (Device device in this)
             {
                 tasks.Add(device.ToggleAsync());
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (Task<bool> t in tasks)
+            {
+                result &= t.Result;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Change HSV color asynchronously for all devices
+        /// </summary>
+        /// <param name="hue"></param>
+        /// <param name="sat"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> SetHSVColorAsync(int hue, int sat, int? smooth = null)
+        {
+            bool result = true;
+            List<Task<bool>> tasks = new List<Task<bool>>();
+
+            foreach (Device device in this)
+            {
+                tasks.Add(device.SetHSVColorAsync(hue, sat, smooth));
             }
 
             await Task.WhenAll(tasks);
