@@ -4,9 +4,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
+using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPI
 {
+    /// <summary>
+    /// Yeelight Device
+    /// </summary>
     public partial class Device : IDeviceController
     {
 
@@ -98,6 +102,25 @@ namespace YeelightAPI
         public bool SetHSVColor(int hue, int sat, int? smooth = null)
         {
             return SetHSVColorAsync(hue, sat, smooth).Result;
+        }
+
+        /// <summary>
+        /// Starts a color flow 
+        /// </summary>
+        /// <param name="flow"></param>
+        /// <param name="action"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public bool StartColorFlow(ColorFlow flow)
+        {
+            List<object> parameters = new List<object>() { flow.RepetitionCount, (int)flow.EndAction, flow.GetColorFlowExpression() };
+
+            CommandResult result = ExecuteCommandWithResponse(
+                method: METHODS.StartColorFlow,
+                id: (int)METHODS.StartColorFlow,
+                parameters: parameters);
+
+            return result.IsOk();
         }
 
         #endregion synchronous
@@ -242,6 +265,25 @@ namespace YeelightAPI
             CommandResult result = await ExecuteCommandWithResponseAsync(
                 method: METHODS.SetHSVColor,
                 id: (int)METHODS.SetHSVColor,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Starts a color flow asynchronously
+        /// </summary>
+        /// <param name="flow"></param>
+        /// <param name="action"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public async Task<bool> StartColorFlowAsync(ColorFlow flow)
+        {
+            List<object> parameters = new List<object>() { flow.RepetitionCount, (int)flow.EndAction, flow.GetColorFlowExpression() };
+
+            CommandResult result = await ExecuteCommandWithResponseAsync(
+                method: METHODS.StartColorFlow,
+                id: (int)METHODS.StartColorFlow,
                 parameters: parameters);
 
             return result.IsOk();

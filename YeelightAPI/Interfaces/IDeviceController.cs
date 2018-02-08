@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPI
 {
@@ -26,6 +27,8 @@ namespace YeelightAPI
 
         bool SetColorTemperature(int temperature, int? smooth = null);
 
+        bool StartColorFlow(ColorFlow flow);
+
         Task<bool> ToggleAsync();
 
         Task<bool> SetPowerAsync(bool state = true);
@@ -37,5 +40,8 @@ namespace YeelightAPI
         Task<bool> SetHSVColorAsync(int hue, int sat, int? smooth = null);
 
         Task<bool> SetColorTemperatureAsync(int temperature, int? smooth = null);
+
+        Task<bool> StartColorFlowAsync(ColorFlow flow);
+        
     }
 }

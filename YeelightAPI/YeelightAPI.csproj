@@ -13,14 +13,11 @@
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
-    <PackageReleaseNotes>Add Background lights operations
-Factoring code
-Remove unused property "Id" on NotificationResult
-Add HSV Color support</PackageReleaseNotes>
+    <PackageReleaseNotes>Add Color Flow</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
     <Copyright>Copyright ©Romain ODDONE  2018</Copyright>
-    <AssemblyVersion>1.1.4.0</AssemblyVersion>
-    <FileVersion>1.1.4.0</FileVersion>
+    <AssemblyVersion>1.1.5.0</AssemblyVersion>
+    <FileVersion>1.1.5.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

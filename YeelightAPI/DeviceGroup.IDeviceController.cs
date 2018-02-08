@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPI
 {
+    /// <summary>
+    /// Yeelight group of devices
+    /// </summary>
     public partial class DeviceGroup : IDeviceController
     {
         #region synchronous
@@ -132,6 +136,24 @@ namespace YeelightAPI
             foreach (Device device in this)
             {
                 result &= device.SetHSVColor(hue, sat, smooth);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Starts a color flow for all devices
+        /// </summary>
+        /// <param name="flow"></param>
+        /// <param name="action"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public bool StartColorFlow(ColorFlow flow)
+        {
+            bool result = true;
+            foreach (Device device in this)
+            {
+                result &= device.StartColorFlow(flow);
             }
 
             return result;
@@ -309,6 +331,33 @@ namespace YeelightAPI
             foreach (Device device in this)
             {
                 tasks.Add(device.SetHSVColorAsync(hue, sat, smooth));
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (Task<bool> t in tasks)
+            {
+                result &= t.Result;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Starts a color flow for all devices asynchronously
+        /// </summary>
+        /// <param name="flow"></param>
+        /// <param name="action"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public async Task<bool> StartColorFlowAsync(ColorFlow flow)
+        {
+            bool result = true;
+            List<Task<bool>> tasks = new List<Task<bool>>();
+
+            foreach (Device device in this)
+            {
+                tasks.Add(device.StartColorFlowAsync(flow));
             }
 
             await Task.WhenAll(tasks);

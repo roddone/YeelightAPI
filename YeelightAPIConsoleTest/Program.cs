@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI;
 using YeelightAPI.Models;
+using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPIConsoleTest
 {
@@ -211,6 +212,17 @@ namespace YeelightAPIConsoleTest
             success &= await device.SetColorTemperatureAsync(6500, smooth);
             await Task.Delay(delay);
 
+            Console.WriteLine("Starting color flow ...");
+            int repeat = 3;
+            ColorFlow flow = new ColorFlow(repeat, ColorFlowEndAction.Restore);
+            flow.Add(new ColorFlowRGBExpression(255, 0, 0, smooth.Value));
+            flow.Add(new ColorFlowRGBExpression(0, 255, 0, smooth.Value));
+            flow.Add(new ColorFlowSleepExpression(smooth.Value));
+            flow.Add(new ColorFlowTemperatureExpression(1700, smooth.Value));
+            flow.Add(new ColorFlowTemperatureExpression(6500, smooth.Value));
+            success &= await device.StartColorFlowAsync(flow);
+            await Task.Delay(flow.Count() * smooth.Value * repeat);
+
             Console.WriteLine("Toggling bulb state...");
             success &= await device.ToggleAsync();
             await Task.Delay(delay);
@@ -279,6 +291,17 @@ namespace YeelightAPIConsoleTest
             Console.WriteLine("Setting Color Saturation to 6500k ...");
             success &= device.SetColorTemperature(6500, smooth);
             await Task.Delay(delay);
+
+            Console.WriteLine("Starting color flow ...");
+            int repeat = 3;
+            ColorFlow flow = new ColorFlow(repeat, ColorFlowEndAction.Restore);
+            flow.Add(new ColorFlowRGBExpression(255, 0, 0, smooth.Value));
+            flow.Add(new ColorFlowRGBExpression(0, 255, 0, smooth.Value));
+            flow.Add(new ColorFlowSleepExpression(smooth.Value));
+            flow.Add(new ColorFlowTemperatureExpression(1700, smooth.Value));
+            flow.Add(new ColorFlowTemperatureExpression(6500, smooth.Value));
+            success &= device.StartColorFlow(flow);
+            await Task.Delay(flow.Count() * smooth.Value * repeat);
 
             Console.WriteLine("Toggling bulb state...");
             success &= device.Toggle();
