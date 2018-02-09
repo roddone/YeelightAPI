@@ -100,7 +100,6 @@ namespace YeelightAPIConsoleTest
                         device.OnNotificationReceived += Device_OnNotificationReceived;
                         device.OnCommandError += Device_OnCommandError;
 
-                        Console.ReadLine();
                         Console.WriteLine("getting all props synchronously...");
                         Dictionary<PROPERTIES, object> result = device.GetAllProps();
                         Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
@@ -213,15 +212,20 @@ namespace YeelightAPIConsoleTest
             await Task.Delay(delay);
 
             Console.WriteLine("Starting color flow ...");
-            int repeat = 3;
+            int repeat = 0;
             ColorFlow flow = new ColorFlow(repeat, ColorFlowEndAction.Restore);
-            flow.Add(new ColorFlowRGBExpression(255, 0, 0, smooth.Value));
-            flow.Add(new ColorFlowRGBExpression(0, 255, 0, smooth.Value));
-            flow.Add(new ColorFlowSleepExpression(smooth.Value));
-            flow.Add(new ColorFlowTemperatureExpression(1700, smooth.Value));
-            flow.Add(new ColorFlowTemperatureExpression(6500, smooth.Value));
+            flow.Add(new ColorFlowRGBExpression(255, 0, 0, 1, 500));
+            flow.Add(new ColorFlowRGBExpression(0, 255, 0, 100, 500));
+            flow.Add(new ColorFlowRGBExpression(0, 0, 255, 50, 500));
+            flow.Add(new ColorFlowSleepExpression(2000));
+            flow.Add(new ColorFlowTemperatureExpression(2700, 100, 500));
+            flow.Add(new ColorFlowTemperatureExpression(5000, 1, 500));
             success &= await device.StartColorFlowAsync(flow);
-            await Task.Delay(flow.Count() * smooth.Value * repeat);
+            await Task.Delay(10 * 1000);
+
+            Console.WriteLine("Stoping color flow ...");
+            success &= await device.StopColorFlowAsync();
+            await Task.Delay(delay);
 
             Console.WriteLine("Toggling bulb state...");
             success &= await device.ToggleAsync();
@@ -293,15 +297,20 @@ namespace YeelightAPIConsoleTest
             await Task.Delay(delay);
 
             Console.WriteLine("Starting color flow ...");
-            int repeat = 3;
+            int repeat = 0;
             ColorFlow flow = new ColorFlow(repeat, ColorFlowEndAction.Restore);
-            flow.Add(new ColorFlowRGBExpression(255, 0, 0, smooth.Value));
-            flow.Add(new ColorFlowRGBExpression(0, 255, 0, smooth.Value));
-            flow.Add(new ColorFlowSleepExpression(smooth.Value));
-            flow.Add(new ColorFlowTemperatureExpression(1700, smooth.Value));
-            flow.Add(new ColorFlowTemperatureExpression(6500, smooth.Value));
+            flow.Add(new ColorFlowRGBExpression(255, 0, 0, 1, 500));
+            flow.Add(new ColorFlowRGBExpression(0, 255, 0, 100, 500));
+            flow.Add(new ColorFlowRGBExpression(0, 0, 255, 50, 500));
+            flow.Add(new ColorFlowSleepExpression(2000));
+            flow.Add(new ColorFlowTemperatureExpression(2700, 100, 500));
+            flow.Add(new ColorFlowTemperatureExpression(5000, 1, 500));
             success &= device.StartColorFlow(flow);
-            await Task.Delay(flow.Count() * smooth.Value * repeat);
+            await Task.Delay(10 * 1000);
+
+            Console.WriteLine("Stoping color flow ...");
+            success &= device.StopColorFlow();
+            await Task.Delay(delay);
 
             Console.WriteLine("Toggling bulb state...");
             success &= device.Toggle();

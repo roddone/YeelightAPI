@@ -17,9 +17,11 @@ namespace YeelightAPI.Models.ColorFlow
         /// <param name="b"></param>
         /// <param name="duration"></param>
         /// <param name="brightness"></param>
-        public ColorFlowRGBExpression(int r, int g, int b, int duration = 50, int brightness = -1)
+        public ColorFlowRGBExpression(int r, int g, int b, int brightness, int? duration = null)
         {
-            this.Duration = duration;
+            this.Duration = duration ?? 50;
+            this.Duration = Math.Max(50, this.Duration);
+
             this.Value = ((r) << 16) | ((g) << 8) | (b);
             this.Mode = ColorFlowMode.Color;
             this.Brightness = brightness;

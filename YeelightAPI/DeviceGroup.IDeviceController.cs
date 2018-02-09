@@ -370,6 +370,39 @@ namespace YeelightAPI
             return result;
         }
 
+        /// <summary>
+        /// stops the color flow of all devices
+        /// </summary>
+        /// <returns></returns>
+        public bool StopColorFlow()
+        {
+            return StopColorFlowAsync().Result;
+        }
+
+        /// <summary>
+        /// stops the color flow of all devices asynchronously
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> StopColorFlowAsync()
+        {
+            bool result = true;
+            List<Task<bool>> tasks = new List<Task<bool>>();
+
+            foreach (Device device in this)
+            {
+                tasks.Add(device.StopColorFlowAsync());
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (Task<bool> t in tasks)
+            {
+                result &= t.Result;
+            }
+
+            return result;
+        }
+
         #endregion asynchronous
     }
 }

@@ -11,8 +11,6 @@ namespace YeelightAPI
     {
         bool Connect();
 
-        Task<bool> ConnectAsync();
-
         void Disconnect();
 
         bool Toggle();
@@ -29,6 +27,10 @@ namespace YeelightAPI
 
         bool StartColorFlow(ColorFlow flow);
 
+        bool StopColorFlow();
+
+        Task<bool> ConnectAsync();
+
         Task<bool> ToggleAsync();
 
         Task<bool> SetPowerAsync(bool state = true);
@@ -42,6 +44,7 @@ namespace YeelightAPI
         Task<bool> SetColorTemperatureAsync(int temperature, int? smooth = null);
 
         Task<bool> StartColorFlowAsync(ColorFlow flow);
-        
+
+        Task<bool> StopColorFlowAsync();
     }
 }

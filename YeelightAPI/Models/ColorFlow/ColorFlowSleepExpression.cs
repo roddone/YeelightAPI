@@ -13,11 +13,13 @@ namespace YeelightAPI.Models.ColorFlow
         /// Constructor
         /// </summary>
         /// <param name="duration"></param>
-        public ColorFlowSleepExpression(int duration)
+        public ColorFlowSleepExpression(int? duration = null)
         {
+            this.Duration = duration ?? 50;
+            this.Duration = Math.Max(50, this.Duration);
+
             this.Mode = ColorFlowMode.Sleep;
             this.Value = 0;
-            this.Duration = duration;
             this.Brightness = 0;
         }
     }

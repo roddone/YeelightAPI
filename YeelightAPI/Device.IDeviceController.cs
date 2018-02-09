@@ -123,6 +123,15 @@ namespace YeelightAPI
             return result.IsOk();
         }
 
+        /// <summary>
+        /// Stops the color flow
+        /// </summary>
+        /// <returns></returns>
+        public bool StopColorFlow()
+        {
+            return StopColorFlowAsync().Result;
+        }
+
         #endregion synchronous
 
         #region asynchronous
@@ -285,6 +294,19 @@ namespace YeelightAPI
                 method: METHODS.StartColorFlow,
                 id: (int)METHODS.StartColorFlow,
                 parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Stops the color flow
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> StopColorFlowAsync()
+        {
+            CommandResult result = await ExecuteCommandWithResponseAsync(
+                            method: METHODS.StopColorFlow,
+                            id: (int)METHODS.StopColorFlow);
 
             return result.IsOk();
         }
