@@ -93,12 +93,12 @@ namespace YeelightAPIConsoleTest
 
                         Console.WriteLine("getting all props synchronously...");
                         Dictionary<PROPERTIES, object> result = await device.GetAllProps();
-                        Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
+                        Console.WriteLine($"\tprops : {JsonConvert.SerializeObject(result)}");
                         await Task.Delay(2000);
 
                         Console.WriteLine("getting all props asynchronously...");
                         result = await device.GetAllProps();
-                        Console.WriteLine("\tprops : " + JsonConvert.SerializeObject(result));
+                        Console.WriteLine($"\tprops : {JsonConvert.SerializeObject(result)}");
                         await Task.Delay(2000);
 
                         bool success = true;
@@ -110,7 +110,7 @@ namespace YeelightAPIConsoleTest
                         //with smooth value
                         WriteLineWithColor("Processing tests with smooth effect", ConsoleColor.Cyan);
                         success &= await ExecuteTests(device, 1000);
-
+                        
                         if (success)
                         {
                             WriteLineWithColor("All Tests are successfull", ConsoleColor.Green);
@@ -138,7 +138,7 @@ namespace YeelightAPIConsoleTest
 
         private static void Device_OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)
         {
-            WriteLineWithColor("Notification received !! value : " + JsonConvert.SerializeObject(arg.Result), ConsoleColor.DarkGray);
+            WriteLineWithColor($"Notification received !! value : {JsonConvert.SerializeObject(arg.Result)}", ConsoleColor.DarkGray);
         }
 
 
@@ -197,13 +197,15 @@ namespace YeelightAPIConsoleTest
 
             Console.WriteLine("Starting color flow ...");
             int repeat = 0;
-            ColorFlow flow = new ColorFlow(repeat, ColorFlowEndAction.Restore);
-            flow.Add(new ColorFlowRGBExpression(255, 0, 0, 1, 500));
-            flow.Add(new ColorFlowRGBExpression(0, 255, 0, 100, 500));
-            flow.Add(new ColorFlowRGBExpression(0, 0, 255, 50, 500));
-            flow.Add(new ColorFlowSleepExpression(2000));
-            flow.Add(new ColorFlowTemperatureExpression(2700, 100, 500));
-            flow.Add(new ColorFlowTemperatureExpression(5000, 1, 500));
+            ColorFlow flow = new ColorFlow(repeat, ColorFlowEndAction.Restore)
+            {
+                new ColorFlowRGBExpression(255, 0, 0, 1, 500),
+                new ColorFlowRGBExpression(0, 255, 0, 100, 500),
+                new ColorFlowRGBExpression(0, 0, 255, 50, 500),
+                new ColorFlowSleepExpression(2000),
+                new ColorFlowTemperatureExpression(2700, 100, 500),
+                new ColorFlowTemperatureExpression(5000, 1, 500)
+            };
             success &= await device.StartColorFlow(flow);
             await Task.Delay(10 * 1000);
 

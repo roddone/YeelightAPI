@@ -98,7 +98,7 @@ namespace YeelightAPI
             //autoconnect device if specified
             if (autoConnect)
             {
-                this.Connect();
+                this.Connect().Wait();
             }
         }
 
@@ -173,7 +173,7 @@ namespace YeelightAPI
         #endregion IDisposable
 
         /// <summary>
-        /// Execute a command and waits for a response during 1 second
+        /// Execute a command and waits for a response
         /// </summary>
         /// <param name="method"></param>
         /// <param name="id"></param>
