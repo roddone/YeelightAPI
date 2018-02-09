@@ -46,20 +46,20 @@ This class simply ihnerits from native .net `List<Device>` and implements the `I
 
 ### Color Flow
 You can create a Color Flow to "program" your device with different state changes. Changes can be : RGB color, color temperature and brightness.
-Just create a `new ColorFlow()`, add some `new ColorFlowExpression()` to it, and starts the color flow with this ColorFlow object.
-````csharp
-    ColorFlow flow = new ColorFlow(0, ColorFlowEndAction.Restore);
-    flow.Add(new ColorFlowRGBExpression(255, 0, 0, 1, 500)); // color : red / brightness : 1% / duration : 500
-    flow.Add(new ColorFlowRGBExpression(0, 255, 0, 100, 500)); // color : green / brightness : 100% / duration : 500
-    flow.Add(new ColorFlowRGBExpression(0, 0, 255, 50, 500)); // color : blue / brightness : 50% / duration : 500
-    flow.Add(new ColorFlowSleepExpression(2000)); // sleeps for 2 seconds
-    flow.Add(new ColorFlowTemperatureExpression(2700, 100, 500)); // color temperature : 2700k / brightness : 100 / duration : 500
-    flow.Add(new ColorFlowTemperatureExpression(5000, 1, 500)); // color temperature : 5000k / brightness : 100 / duration : 500
-    device.StartColorFlow(flow); // start
+Just create a `new ColorFlow()`, add some `new ColorFlowExpression()` to it, and starts the color flow with your ColorFlow object.
+```csharp
+    	ColorFlow flow = new ColorFlow(0, ColorFlowEndAction.Restore);
+    	flow.Add(new ColorFlowRGBExpression(255, 0, 0, 1, 500)); // color : red / brightness : 1% / duration : 500
+    	flow.Add(new ColorFlowRGBExpression(0, 255, 0, 100, 500)); // color : green / brightness : 100% / duration : 500
+    	flow.Add(new ColorFlowRGBExpression(0, 0, 255, 50, 500)); // color : blue / brightness : 50% / duration : 500
+    	flow.Add(new ColorFlowSleepExpression(2000)); // sleeps for 2 seconds
+    	flow.Add(new ColorFlowTemperatureExpression(2700, 100, 500)); // color temperature : 2700k / brightness : 100 / duration : 500
+    	flow.Add(new ColorFlowTemperatureExpression(5000, 1, 500)); // color temperature : 5000k / brightness : 100 / duration : 500
+    	device.StartColorFlow(flow); // start
 
 	/* Do Some amazing stuff ... */
 
-	device.StopColorFlow(); // stop
+	device.StopColorFlow(); // stop the color flow
 ```
 
 The `ColorFlow` constructor has 2 parameters : the first one defines the number of repetitions (or 0 for infinite), the second one defines what to do when the flow is stopped. you can choose to restore to the previous state, keep the last state or turn off the device.
