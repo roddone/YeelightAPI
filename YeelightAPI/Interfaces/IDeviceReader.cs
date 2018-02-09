@@ -15,5 +15,7 @@ namespace YeelightAPI
         Task<Dictionary<PROPERTIES, object>> GetProps(PROPERTIES props);
 
         Task<Dictionary<PROPERTIES, object>> GetAllProps();
+
+        Task<bool> SetName(string name);
     }
 }

@@ -9,7 +9,7 @@ namespace YeelightAPI
     public partial class Device : IDeviceReader
     {
 
-   
+
         /// <summary>
         /// Get a single property value asynchronously
         /// </summary>
@@ -66,6 +66,31 @@ namespace YeelightAPI
 
             return result;
         }
-        
+
+        /// <summary>
+        /// Set the name of the device
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public async Task<bool> SetName(string name)
+        {
+            List<object> parameters = new List<object>() { name };
+
+            CommandResult result = await ExecuteCommandWithResponse(
+                            method: METHODS.SetName,
+                            id: (int)METHODS.SetName,
+                            parameters: parameters);
+
+            if (result.IsOk())
+            {
+                this.Name = name;
+                return true;
+            }
+            else
+            {
+                return result.IsOk();
+            }
+        }
+
     }
 }

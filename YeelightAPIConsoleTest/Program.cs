@@ -87,9 +87,25 @@ namespace YeelightAPIConsoleTest
 
                     using (Device device = new Device(hostname, port))
                     {
-                        await device.Connect();
+                        bool success = true;
+
+                        Console.WriteLine("connecting device ...");
+                        success &= await device.Connect();
+
                         device.OnNotificationReceived += Device_OnNotificationReceived;
                         device.OnCommandError += Device_OnCommandError;
+
+                        Console.WriteLine("getting current name ...");
+                        string name = (await device.GetProp(PROPERTIES.name))?.ToString();
+                        Console.WriteLine($"current name : {name}");
+
+                        Console.WriteLine("setting name 'test' ...");
+                        success &= await device.SetName("test");
+                        await Task.Delay(2000);
+                        
+                        Console.WriteLine("restoring name '' ...");
+                        success &= await device.SetName(name);
+                        await Task.Delay(2000);
 
                         Console.WriteLine("getting all props synchronously...");
                         Dictionary<PROPERTIES, object> result = await device.GetAllProps();
@@ -101,8 +117,6 @@ namespace YeelightAPIConsoleTest
                         Console.WriteLine($"\tprops : {JsonConvert.SerializeObject(result)}");
                         await Task.Delay(2000);
 
-                        bool success = true;
-
                         //without smooth value (sudden)
                         WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
                         success &= await ExecuteTests(device, null);
@@ -110,7 +124,7 @@ namespace YeelightAPIConsoleTest
                         //with smooth value
                         WriteLineWithColor("Processing tests with smooth effect", ConsoleColor.Cyan);
                         success &= await ExecuteTests(device, 1000);
-                        
+
                         if (success)
                         {
                             WriteLineWithColor("All Tests are successfull", ConsoleColor.Green);
