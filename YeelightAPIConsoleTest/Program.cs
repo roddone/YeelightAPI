@@ -69,7 +69,6 @@ namespace YeelightAPIConsoleTest
                     else
                     {
                         WriteLineWithColor("No devices Found via SSDP !", ConsoleColor.Red);
-                        return;
                     }
                 }
                 else
