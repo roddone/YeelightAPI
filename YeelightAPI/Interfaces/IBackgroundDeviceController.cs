@@ -8,24 +8,15 @@ namespace YeelightAPI
 {
     public interface IBackgroundDeviceController
     {
-        bool BackgroundToggle();
 
-        bool BackgroundSetPower(bool state = true);
+        Task<bool> BackgroundToggle();
 
-        bool BackgroundSetBrightness(int value, int? smooth = null);
+        Task<bool> BackgroundSetPower(bool state = true);
 
-        bool BackgroundSetRGBColor(int r, int g, int b, int? smooth);
+        Task<bool> BackgroundSetBrightness(int value, int? smooth = null);
 
-        bool BackgroundSetColorTemperature(int temperature, int? smooth);
+        Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth);
 
-        Task<bool> BackgroundToggleAsync();
-
-        Task<bool> BackgroundSetPowerAsync(bool state = true);
-
-        Task<bool> BackgroundSetBrightnessAsync(int value, int? smooth = null);
-
-        Task<bool> BackgroundSetRGBColorAsync(int r, int g, int b, int? smooth);
-
-        Task<bool> BackgroundSetColorTemperatureAsync(int temperature, int? smooth);
+        Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth);
     }
 }

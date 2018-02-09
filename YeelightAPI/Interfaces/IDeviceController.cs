@@ -9,42 +9,25 @@ namespace YeelightAPI
 {
     public interface IDeviceController
     {
-        bool Connect();
 
         void Disconnect();
 
-        bool Toggle();
+        Task<bool> Connect();
 
-        bool SetPower(bool state = true);
+        Task<bool> Toggle();
 
-        bool SetBrightness(int value, int? smooth = null);
+        Task<bool> SetPower(bool state = true);
 
-        bool SetRGBColor(int r, int g, int b, int? smooth = null);
+        Task<bool> SetBrightness(int value, int? smooth = null);
 
-        bool SetHSVColor(int hue, int sat, int? smooth = null);
+        Task<bool> SetRGBColor(int r, int g, int b, int? smooth = null);
 
-        bool SetColorTemperature(int temperature, int? smooth = null);
+        Task<bool> SetHSVColor(int hue, int sat, int? smooth = null);
 
-        bool StartColorFlow(ColorFlow flow);
+        Task<bool> SetColorTemperature(int temperature, int? smooth = null);
 
-        bool StopColorFlow();
+        Task<bool> StartColorFlow(ColorFlow flow);
 
-        Task<bool> ConnectAsync();
-
-        Task<bool> ToggleAsync();
-
-        Task<bool> SetPowerAsync(bool state = true);
-
-        Task<bool> SetBrightnessAsync(int value, int? smooth = null);
-
-        Task<bool> SetRGBColorAsync(int r, int g, int b, int? smooth = null);
-
-        Task<bool> SetHSVColorAsync(int hue, int sat, int? smooth = null);
-
-        Task<bool> SetColorTemperatureAsync(int temperature, int? smooth = null);
-
-        Task<bool> StartColorFlowAsync(ColorFlow flow);
-
-        Task<bool> StopColorFlowAsync();
+        Task<bool> StopColorFlow();
     }
 }

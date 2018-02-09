@@ -173,38 +173,6 @@ namespace YeelightAPI
         #endregion IDisposable
 
         /// <summary>
-        /// Execute a command and waits for a response during 5 seconds
-        /// </summary>
-        /// <param name="method"></param>
-        /// <param name="id"></param>
-        /// <param name="parameters"></param>
-        /// <param name="smooth"></param>
-        /// <returns></returns>
-        public CommandResult ExecuteCommandWithResponse(METHODS method, int id = 0, List<object> parameters = null)
-        {
-            if (this._currentCommandResults.ContainsKey(id))
-            {
-                this._currentCommandResults.Remove(id);
-            }
-
-            ExecuteCommand(method, id, parameters);
-
-            DateTime startWait = DateTime.Now;
-            while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(5)) { } //wait for result during 1s
-
-            //save results and remove if from results list
-            if (this._currentCommandResults.ContainsKey(id))
-            {
-                CommandResult result = this._currentCommandResults[id];
-                this._currentCommandResults.Remove(id);
-
-                return result;
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Execute a command and waits for a response during 1 second
         /// </summary>
         /// <param name="method"></param>
@@ -212,7 +180,7 @@ namespace YeelightAPI
         /// <param name="parameters"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<CommandResult> ExecuteCommandWithResponseAsync(METHODS method, int id = 0, List<object> parameters = null)
+        public async Task<CommandResult> ExecuteCommandWithResponse(METHODS method, int id = 0, List<object> parameters = null)
         {
             if (this._currentCommandResults.ContainsKey(id))
             {

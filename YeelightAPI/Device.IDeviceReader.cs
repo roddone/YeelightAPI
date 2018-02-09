@@ -9,49 +9,15 @@ namespace YeelightAPI
     public partial class Device : IDeviceReader
     {
 
-        #region synchronous
-
-        /// <summary>
-        /// Get a single property value
-        /// </summary>
-        /// <param name="prop"></param>
-        /// <returns></returns>
-        public object GetProp(PROPERTIES prop)
-        {
-            return GetPropAsync(prop).Result;
-        }
-
-        /// <summary>
-        /// Get multiple properties 
-        /// </summary>
-        /// <param name="props"></param>
-        /// <returns></returns>
-        public Dictionary<PROPERTIES, object> GetProps(PROPERTIES props)
-        {
-            return GetPropsAsync(props).Result;
-        }
-
-        /// <summary>
-        /// Get all the properties
-        /// </summary>
-        /// <returns></returns>
-        public Dictionary<PROPERTIES, object> GetAllProps()
-        {
-            return GetAllPropsAsync().Result;
-        }
-
-        #endregion synchronous
-
-        #region asynchronous
-
+   
         /// <summary>
         /// Get a single property value asynchronously
         /// </summary>
         /// <param name="prop"></param>
         /// <returns></returns>
-        public async Task<object> GetPropAsync(PROPERTIES prop)
+        public async Task<object> GetProp(PROPERTIES prop)
         {
-            CommandResult result = await ExecuteCommandWithResponseAsync(
+            CommandResult result = await ExecuteCommandWithResponse(
                 method: METHODS.GetProp,
                 id: (int)METHODS.GetProp,
                 parameters: new List<object>() { prop.ToString() }
@@ -65,11 +31,11 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="props"></param>
         /// <returns></returns>
-        public async Task<Dictionary<PROPERTIES, object>> GetPropsAsync(PROPERTIES props)
+        public async Task<Dictionary<PROPERTIES, object>> GetProps(PROPERTIES props)
         {
             List<object> names = GetPropertiesRealNames(props);
 
-            CommandResult commandResult = await ExecuteCommandWithResponseAsync(
+            CommandResult commandResult = await ExecuteCommandWithResponse(
                 method: METHODS.GetProp,
                 id: ((int)METHODS.GetProp),// + 1000 + props.Count,
                 parameters: names
@@ -94,14 +60,12 @@ namespace YeelightAPI
         /// Get all the properties asynchronously
         /// </summary>
         /// <returns></returns>
-        public async Task<Dictionary<PROPERTIES, object>> GetAllPropsAsync()
+        public async Task<Dictionary<PROPERTIES, object>> GetAllProps()
         {
-            Dictionary<PROPERTIES, object> result = await GetPropsAsync(PROPERTIES.ALL);
+            Dictionary<PROPERTIES, object> result = await GetProps(PROPERTIES.ALL);
 
             return result;
         }
-
-        #endregion asynchronous
-
+        
     }
 }

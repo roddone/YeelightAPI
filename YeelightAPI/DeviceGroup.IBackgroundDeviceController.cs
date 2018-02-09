@@ -7,46 +7,15 @@ namespace YeelightAPI
 {
     public partial class DeviceGroup : IBackgroundDeviceController
     {
-
-        #region synchronous
-
-        public bool BackgroundSetBrightness(int value, int? smooth = null)
-        {
-            return BackgroundSetBrightnessAsync(value, smooth).Result;
-        }
-
-        public bool BackgroundSetColorTemperature(int temperature, int? smooth)
-        {
-            return BackgroundSetColorTemperatureAsync(temperature, smooth).Result;
-        }
-
-        public bool BackgroundSetPower(bool state = true)
-        {
-            return BackgroundSetPowerAsync(state).Result;
-        }
-
-        public bool BackgroundSetRGBColor(int r, int g, int b, int? smooth)
-        {
-            return BackgroundSetRGBColorAsync(r, g, b, smooth).Result;
-        }
-
-        public bool BackgroundToggle()
-        {
-            return BackgroundToggleAsync().Result;
-        }
-
-        #endregion synchronous
-
-        #region asynchronous
-
-        public async Task<bool> BackgroundSetBrightnessAsync(int value, int? smooth = null)
+        
+        public async Task<bool> BackgroundSetBrightness(int value, int? smooth = null)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.BackgroundSetBrightnessAsync(value, smooth));
+                tasks.Add(device.BackgroundSetBrightness(value, smooth));
             }
 
             await Task.WhenAll(tasks);
@@ -59,14 +28,14 @@ namespace YeelightAPI
             return result;
         }
 
-        public async Task<bool> BackgroundSetColorTemperatureAsync(int temperature, int? smooth)
+        public async Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.BackgroundSetColorTemperatureAsync(temperature, smooth));
+                tasks.Add(device.BackgroundSetColorTemperature(temperature, smooth));
             }
 
             await Task.WhenAll(tasks);
@@ -79,14 +48,14 @@ namespace YeelightAPI
             return result;
         }
 
-        public async Task<bool> BackgroundSetPowerAsync(bool state = true)
+        public async Task<bool> BackgroundSetPower(bool state = true)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.BackgroundSetPowerAsync(state));
+                tasks.Add(device.BackgroundSetPower(state));
             }
 
             await Task.WhenAll(tasks);
@@ -99,14 +68,14 @@ namespace YeelightAPI
             return result;
         }
 
-        public async Task<bool> BackgroundSetRGBColorAsync(int r, int g, int b, int? smooth)
+        public async Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.BackgroundSetRGBColorAsync(r, g, b, smooth));
+                tasks.Add(device.BackgroundSetRGBColor(r, g, b, smooth));
             }
 
             await Task.WhenAll(tasks);
@@ -119,14 +88,14 @@ namespace YeelightAPI
             return result;
         }
 
-        public async Task<bool> BackgroundToggleAsync()
+        public async Task<bool> BackgroundToggle()
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.BackgroundToggleAsync());
+                tasks.Add(device.BackgroundToggle());
             }
 
             await Task.WhenAll(tasks);
@@ -138,7 +107,6 @@ namespace YeelightAPI
 
             return result;
         }
-
-        #endregion asynchyronous
+        
     }
 }

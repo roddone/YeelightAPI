@@ -11,37 +11,6 @@ namespace YeelightAPI
     /// </summary>
     public partial class DeviceGroup : IDeviceController
     {
-        #region synchronous
-
-        /// <summary>
-        /// Toggle the power for all the devices
-        /// </summary>
-        /// <returns></returns>
-        public bool Toggle()
-        {
-            bool result = true;
-            foreach (Device device in this)
-            {
-                result &= device.Toggle();
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Connect all the devices
-        /// </summary>
-        /// <returns></returns>
-        public bool Connect()
-        {
-            bool result = true;
-            foreach (Device device in this)
-            {
-                result &= device.Connect();
-            }
-
-            return result;
-        }
 
         /// <summary>
         /// Disconnect all the devices
@@ -55,126 +24,17 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// Set the power for all the devices
-        /// </summary>
-        /// <param name="state"></param>
-        /// <returns></returns>
-        public bool SetPower(bool state = true)
-        {
-            bool result = true;
-            foreach (Device device in this)
-            {
-                result &= device.SetPower(state);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Set the brightness for all the devices
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="smooth"></param>
-        /// <returns></returns>
-        public bool SetBrightness(int value, int? smooth = null)
-        {
-            bool result = true;
-            foreach (Device device in this)
-            {
-                result &= device.SetBrightness(value, smooth);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Set the color temperature for all the devices
-        /// </summary>
-        /// <param name="temperature"></param>
-        /// <param name="smooth"></param>
-        /// <returns></returns>
-        public bool SetColorTemperature(int temperature, int? smooth = null)
-        {
-            bool result = true;
-            foreach (Device device in this)
-            {
-                result &= device.SetColorTemperature(temperature, smooth);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Set the RGB Color for all the devices
-        /// </summary>
-        /// <param name="r"></param>
-        /// <param name="g"></param>
-        /// <param name="b"></param>
-        /// <param name="smooth"></param>
-        /// <returns></returns>
-        public bool SetRGBColor(int r, int g, int b, int? smooth = null)
-        {
-            bool result = true;
-            foreach (Device device in this)
-            {
-                result &= device.SetRGBColor(r, g, b, smooth);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Change HSV color for all devices
-        /// </summary>
-        /// <param name="hue"></param>
-        /// <param name="sat"></param>
-        /// <param name="smooth"></param>
-        /// <returns></returns>
-        public bool SetHSVColor(int hue, int sat, int? smooth = null)
-        {
-            bool result = true;
-            foreach (Device device in this)
-            {
-                result &= device.SetHSVColor(hue, sat, smooth);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Starts a color flow for all devices
-        /// </summary>
-        /// <param name="flow"></param>
-        /// <param name="action"></param>
-        /// <param name="count"></param>
-        /// <returns></returns>
-        public bool StartColorFlow(ColorFlow flow)
-        {
-            bool result = true;
-            foreach (Device device in this)
-            {
-                result &= device.StartColorFlow(flow);
-            }
-
-            return result;
-        }
-
-        #endregion synchronous
-
-        #region asynchronous
-
-        /// <summary>
         /// Connect all the devices asynchronously
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> ConnectAsync()
+        public async Task<bool> Connect()
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.ConnectAsync());
+                tasks.Add(device.Connect());
             }
 
             await Task.WhenAll(tasks);
@@ -193,14 +53,14 @@ namespace YeelightAPI
         /// <param name="value"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<bool> SetBrightnessAsync(int value, int? smooth = null)
+        public async Task<bool> SetBrightness(int value, int? smooth = null)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.SetBrightnessAsync(value, smooth));
+                tasks.Add(device.SetBrightness(value, smooth));
             }
 
             await Task.WhenAll(tasks);
@@ -219,14 +79,14 @@ namespace YeelightAPI
         /// <param name="temperature"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<bool> SetColorTemperatureAsync(int temperature, int? smooth = null)
+        public async Task<bool> SetColorTemperature(int temperature, int? smooth = null)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.SetColorTemperatureAsync(temperature, smooth));
+                tasks.Add(device.SetColorTemperature(temperature, smooth));
             }
 
             await Task.WhenAll(tasks);
@@ -244,14 +104,14 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="state"></param>
         /// <returns></returns>
-        public async Task<bool> SetPowerAsync(bool state = true)
+        public async Task<bool> SetPower(bool state = true)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.SetPowerAsync(state));
+                tasks.Add(device.SetPower(state));
             }
 
             await Task.WhenAll(tasks);
@@ -272,14 +132,14 @@ namespace YeelightAPI
         /// <param name="b"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<bool> SetRGBColorAsync(int r, int g, int b, int? smooth = null)
+        public async Task<bool> SetRGBColor(int r, int g, int b, int? smooth = null)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.SetRGBColorAsync(r, g, b, smooth));
+                tasks.Add(device.SetRGBColor(r, g, b, smooth));
             }
 
             await Task.WhenAll(tasks);
@@ -296,14 +156,14 @@ namespace YeelightAPI
         /// Toggle the power for all the devices asynchronously
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> ToggleAsync()
+        public async Task<bool> Toggle()
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.ToggleAsync());
+                tasks.Add(device.Toggle());
             }
 
             await Task.WhenAll(tasks);
@@ -323,14 +183,14 @@ namespace YeelightAPI
         /// <param name="sat"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<bool> SetHSVColorAsync(int hue, int sat, int? smooth = null)
+        public async Task<bool> SetHSVColor(int hue, int sat, int? smooth = null)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.SetHSVColorAsync(hue, sat, smooth));
+                tasks.Add(device.SetHSVColor(hue, sat, smooth));
             }
 
             await Task.WhenAll(tasks);
@@ -350,14 +210,14 @@ namespace YeelightAPI
         /// <param name="action"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public async Task<bool> StartColorFlowAsync(ColorFlow flow)
+        public async Task<bool> StartColorFlow(ColorFlow flow)
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.StartColorFlowAsync(flow));
+                tasks.Add(device.StartColorFlow(flow));
             }
 
             await Task.WhenAll(tasks);
@@ -368,29 +228,20 @@ namespace YeelightAPI
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// stops the color flow of all devices
-        /// </summary>
-        /// <returns></returns>
-        public bool StopColorFlow()
-        {
-            return StopColorFlowAsync().Result;
         }
 
         /// <summary>
         /// stops the color flow of all devices asynchronously
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> StopColorFlowAsync()
+        public async Task<bool> StopColorFlow()
         {
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
-                tasks.Add(device.StopColorFlowAsync());
+                tasks.Add(device.StopColorFlow());
             }
 
             await Task.WhenAll(tasks);
@@ -402,7 +253,6 @@ namespace YeelightAPI
 
             return result;
         }
-
-        #endregion asynchronous
+        
     }
 }

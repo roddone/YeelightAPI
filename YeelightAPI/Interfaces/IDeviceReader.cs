@@ -9,16 +9,11 @@ namespace YeelightAPI
 {
     public interface IDeviceReader
     {
-        object GetProp(PROPERTIES prop);
 
-        Dictionary<PROPERTIES, object> GetProps(PROPERTIES props);
+        Task<object> GetProp(PROPERTIES prop);
 
-        Dictionary<PROPERTIES, object> GetAllProps();
+        Task<Dictionary<PROPERTIES, object>> GetProps(PROPERTIES props);
 
-        Task<object> GetPropAsync(PROPERTIES prop);
-
-        Task<Dictionary<PROPERTIES, object>> GetPropsAsync(PROPERTIES props);
-
-        Task<Dictionary<PROPERTIES, object>> GetAllPropsAsync();
+        Task<Dictionary<PROPERTIES, object>> GetAllProps();
     }
 }
