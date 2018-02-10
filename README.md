@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/roddone/YeelightAPI.svg?branch=master)](https://travis-ci.org/roddone/YeelightAPI)
+
 # YeelightAPI
 C# API (.Net) to control Xiaomi Yeelight Color Bulbs
 
@@ -71,15 +73,15 @@ If you want to find what devices are connected, you can use `YeelightAPI.DeviceL
 ```
 
 ### Async / Await
-If you have to deal with asynchronism, the API fully supports async / await. The methos are the same, but they have a "Async" suffix.
+Almost every methods are asynchronous and are awaitable tasks. you can either call them with await, or wait the result : 
 Example : 
 ```csharp
 	// with single device
 	await device.Connect();
-	await device.Toggle();
+	device.Toggle().Result;
 
 	//with groups
-	await group.Connect();
+	group.Connect().Result;
 	await group.Toggle();
 	...
 ```
