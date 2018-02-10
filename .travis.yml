@@ -1,2 +1,2 @@
 language: csharp
-solution: "./YeelightAPI/YeelightAPI.sln"
+solution: "YeelightAPI.sln"
