@@ -13,7 +13,8 @@
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
-    <PackageReleaseNotes>removing asynchronous / synchronous distinction, now everything is asynchronous</PackageReleaseNotes>
+    <PackageReleaseNotes>[Breaking change] removing asynchronous / synchronous distinction, now everything is asynchronous. 
+add set_name support</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
     <Copyright>Copyright ©Romain ODDONE  2018</Copyright>
     <AssemblyVersion>1.2.0.0</AssemblyVersion>
