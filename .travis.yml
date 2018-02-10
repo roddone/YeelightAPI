@@ -1,4 +1,7 @@
 language: csharp
 solution: "YeelightAPI.sln"
-install:
-- travis_retry nuget restore -source "https://www.nuget.org/api/v2" YeelightAPI.sln
+dotnet: 2.0.0
+before_script:
+- travis_retry msbuild /t:Restore YeelightAPI.sln
+script:
+- msbuild /p:Configuration=Release YeelightAPI.sln
