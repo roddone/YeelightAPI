@@ -44,8 +44,7 @@ namespace YeelightAPI.Models
 
             //read the attribute
             RealNameAttribute attribute;
-            MemberInfo memberInfo = enumValue.GetType().GetMember(enumValue.ToString())
-                                            .FirstOrDefault();
+            MemberInfo memberInfo = enumValue.GetType().GetMember(enumValue.ToString()).FirstOrDefault();
 
             if (memberInfo != null)
             {
