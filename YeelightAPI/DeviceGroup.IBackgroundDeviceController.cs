@@ -118,11 +118,11 @@ namespace YeelightAPI
         /// <param name="action"></param>
         /// <param name="property"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundAdjust(AdjustAction action, AdjustProperty property)
+        public async Task<bool> BackgroundSetAdjust(AdjustAction action, AdjustProperty property)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundAdjust(action, property);
+                return device.BackgroundSetAdjust(action, property);
             });
         }
 

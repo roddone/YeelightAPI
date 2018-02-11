@@ -31,6 +31,6 @@ namespace YeelightAPI
 
         Task<bool> StopColorFlow();
 
-        Task<bool> Adjust(AdjustAction action, AdjustProperty property);
+        Task<bool> SetAdjust(AdjustAction action, AdjustProperty property);
     }
 }

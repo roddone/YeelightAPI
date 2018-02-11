@@ -209,7 +209,7 @@ namespace YeelightAPI
         /// <param name="action"></param>
         /// <param name="property"></param>
         /// <returns></returns>
-        public async Task<bool> Adjust(AdjustAction action, AdjustProperty property)
+        public async Task<bool> SetAdjust(AdjustAction action, AdjustProperty property)
         {
             List<object> parameters = new List<object>() { action.ToString(), property.ToString() };
 

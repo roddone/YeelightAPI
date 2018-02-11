@@ -157,11 +157,11 @@ namespace YeelightAPI
         /// <param name="action"></param>
         /// <param name="property"></param>
         /// <returns></returns>
-        public async Task<bool> Adjust(AdjustAction action, AdjustProperty property)
+        public async Task<bool> SetAdjust(AdjustAction action, AdjustProperty property)
         {
             return await Process((Device device) =>
             {
-                return device.Adjust(action, property);
+                return device.SetAdjust(action, property);
             });
         }
     }

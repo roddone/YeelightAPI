@@ -27,6 +27,6 @@ namespace YeelightAPI
 
         Task<bool> BackgroundStopColorFlow();
 
-        Task<bool> BackgroundAdjust(AdjustAction action, AdjustProperty property);
+        Task<bool> BackgroundSetAdjust(AdjustAction action, AdjustProperty property);
     }
 }
