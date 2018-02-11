@@ -189,11 +189,11 @@ namespace YeelightAPI
 
             ExecuteCommand(method, id, parameters);
 
-            await Task.Factory.StartNew(() =>
+            DateTime startWait = DateTime.Now;
+            while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(5))
             {
-                DateTime startWait = DateTime.Now;
-                while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(1)) { } //wait for result during 1s
-            });
+                await Task.Delay(10);
+            } //wait for result during 5s
 
             //save results and remove if from results list
             if (this._currentCommandResults.ContainsKey(id))
