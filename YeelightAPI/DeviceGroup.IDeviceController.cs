@@ -8,7 +8,7 @@ using YeelightAPI.Models.ColorFlow;
 namespace YeelightAPI
 {
     /// <summary>
-    /// Yeelight group of devices
+    /// Group of Yeelight Devices : IDeviceController implementation
     /// </summary>
     public partial class DeviceGroup : IDeviceController
     {

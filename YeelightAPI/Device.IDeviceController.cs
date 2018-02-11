@@ -10,7 +10,7 @@ using YeelightAPI.Models.ColorFlow;
 namespace YeelightAPI
 {
     /// <summary>
-    /// Yeelight Device
+    /// Yeelight Device : IDeviceController implementation
     /// </summary>
     public partial class Device : IDeviceController
     {

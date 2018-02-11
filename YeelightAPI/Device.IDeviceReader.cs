@@ -6,9 +6,11 @@ using YeelightAPI.Models;
 
 namespace YeelightAPI
 {
+    /// <summary>
+    /// Yeelight Device : IDeviceReader implementation
+    /// </summary>
     public partial class Device : IDeviceReader
     {
-
 
         /// <summary>
         /// Get a single property value asynchronously

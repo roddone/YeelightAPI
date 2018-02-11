@@ -15,19 +15,31 @@ using YeelightAPI.Models;
 namespace YeelightAPI
 {
     /// <summary>
-    /// Yeelight Wifi Device Manager
+    /// Yeelight Device
     /// </summary>
     public partial class Device : IDisposable
     {
 
         #region PRIVATE ATTRIBUTES
 
+        /// <summary>
+        /// lock
+        /// </summary>
         private object _syncLock = new object();
 
+        /// <summary>
+        /// TCP client used to communicate with the device
+        /// </summary>
         private TcpClient tcpClient;
 
+        /// <summary>
+        /// Dictionary of results
+        /// </summary>
         private Dictionary<object, CommandResult> _currentCommandResults = new Dictionary<object, CommandResult>();
 
+        /// <summary>
+        /// Serializer settings
+        /// </summary>
         private JsonSerializerSettings _serializerSettings = new JsonSerializerSettings()
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver()

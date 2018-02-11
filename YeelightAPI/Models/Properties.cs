@@ -13,6 +13,9 @@ namespace YeelightAPI.Models
     [Flags]
     public enum PROPERTIES
     {
+        /// <summary>
+        /// None, only exists to prevent Casts exceptions if a value does not exists in the enum
+        /// </summary>
         NONE = 0,
 
         /// <summary>

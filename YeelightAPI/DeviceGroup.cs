@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace YeelightAPI
 {
     /// <summary>
-    /// Group of devices
+    /// Group of Yeelight Devices
     /// </summary>
     public partial class DeviceGroup : List<Device>, IDisposable
     {

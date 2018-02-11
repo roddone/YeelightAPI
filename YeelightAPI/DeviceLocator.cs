@@ -102,6 +102,11 @@ namespace YeelightAPI
             return devices;
         }
 
+        /// <summary>
+        /// Gets the informations from a raw SSDP message (host, port)
+        /// </summary>
+        /// <param name="ssdpMessage"></param>
+        /// <returns></returns>
         private static Tuple<string, int> GetDeviceInformationsFromSsdpMessage(string ssdpMessage)
         {
             if (ssdpMessage != null)

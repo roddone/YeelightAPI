@@ -8,8 +8,15 @@ using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPI
 {
+    /// <summary>
+    /// Yeelight Device : IBackgroundDeviceController implementation
+    /// </summary>
     public partial class Device : IBackgroundDeviceController
     {
+        /// <summary>
+        /// Toggle device
+        /// </summary>
+        /// <returns></returns>
         public async Task<bool> BackgroundToggle()
         {
             CommandResult result = await ExecuteCommandWithResponse(METHODS.ToggleBackgroundLight, id: (int)METHODS.ToggleBackgroundLight);
@@ -17,6 +24,11 @@ namespace YeelightAPI
             return result.IsOk();
         }
 
+        /// <summary>
+        /// Set the power of the device
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns></returns>
         public async Task<bool> BackgroundSetPower(bool state = true)
         {
             CommandResult result = await ExecuteCommandWithResponse(
@@ -28,6 +40,12 @@ namespace YeelightAPI
             return result.IsOk();
         }
 
+        /// <summary>
+        /// Set the brightness
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
         public async Task<bool> BackgroundSetBrightness(int value, int? smooth = null)
         {
             List<object> parameters = new List<object>() { value };
@@ -42,6 +60,14 @@ namespace YeelightAPI
             return result.IsOk();
         }
 
+        /// <summary>
+        /// set the RGB color
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="g"></param>
+        /// <param name="b"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
         public async Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth)
         {
             //Convert RGB into integer 0x00RRGGBB
@@ -58,6 +84,12 @@ namespace YeelightAPI
             return result.IsOk();
         }
 
+        /// <summary>
+        /// Set the background temperature
+        /// </summary>
+        /// <param name="temperature"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
         public async Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth)
         {
             List<object> parameters = new List<object>() { temperature };
@@ -122,6 +154,27 @@ namespace YeelightAPI
 
                 return result.IsOk();
             }
+        }
+
+        /// <summary>
+        /// Set the background light HSV color
+        /// </summary>
+        /// <param name="hue"></param>
+        /// <param name="sat"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundSetHSVColor(int hue, int sat, int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { hue, sat };
+
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult result = await ExecuteCommandWithResponse(
+                method: METHODS.SetBackgroundLightHSVColor,
+                id: (int)METHODS.SetBackgroundLightHSVColor,
+                parameters: parameters);
+
+            return result.IsOk();
         }
     }
 }
