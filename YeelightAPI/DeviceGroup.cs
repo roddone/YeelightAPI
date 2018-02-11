@@ -78,5 +78,30 @@ namespace YeelightAPI
 
         #endregion
 
+        /// <summary>
+        /// Execute code for all the devices
+        /// </summary>
+        /// <param name="f"></param>
+        /// <returns></returns>
+        protected async Task<bool> Process(Func<Device, Task<bool>> f)
+        {
+            bool result = true;
+            List<Task<bool>> tasks = new List<Task<bool>>();
+
+            foreach (Device device in this)
+            {
+                tasks.Add(f(device));
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (Task<bool> t in tasks)
+            {
+                result &= t.Result;
+            }
+
+            return result;
+        }
+
     }
 }

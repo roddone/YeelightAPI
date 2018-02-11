@@ -30,22 +30,10 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> Connect()
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.Connect());
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.Connect();
+            });
         }
 
         /// <summary>
@@ -56,22 +44,10 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> SetBrightness(int value, int? smooth = null)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.SetBrightness(value, smooth));
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.SetBrightness(value, smooth);
+            });
         }
 
         /// <summary>
@@ -82,22 +58,10 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> SetColorTemperature(int temperature, int? smooth = null)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.SetColorTemperature(temperature, smooth));
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.SetColorTemperature(temperature, smooth);
+            });
         }
 
         /// <summary>
@@ -107,22 +71,11 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> SetPower(bool state = true)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.SetPower(state));
-            }
+                return device.SetPower(state);
+            });
 
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -135,22 +88,11 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> SetRGBColor(int r, int g, int b, int? smooth = null)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.SetRGBColor(r, g, b, smooth));
-            }
+                return device.SetRGBColor(r, g, b, smooth);
+            });
 
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -159,22 +101,11 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> Toggle()
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.Toggle());
-            }
+                return device.Toggle();
+            });
 
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -186,22 +117,11 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> SetHSVColor(int hue, int sat, int? smooth = null)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.SetHSVColor(hue, sat, smooth));
-            }
+                return device.SetHSVColor(hue, sat, smooth);
+            });
 
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -213,22 +133,10 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> StartColorFlow(ColorFlow flow)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.StartColorFlow(flow));
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.StartColorFlow(flow);
+            });
         }
 
         /// <summary>
@@ -237,22 +145,10 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> StopColorFlow()
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.StopColorFlow());
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.StopColorFlow();
+            });
         }
 
         /// <summary>
@@ -263,22 +159,10 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> Adjust(AdjustAction action, AdjustProperty property)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.Adjust(action, property));
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.Adjust(action, property);
+            });
         }
     }
 }

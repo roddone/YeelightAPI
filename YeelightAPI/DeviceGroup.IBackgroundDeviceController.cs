@@ -9,105 +9,48 @@ namespace YeelightAPI
 {
     public partial class DeviceGroup : IBackgroundDeviceController
     {
-        
+
         public async Task<bool> BackgroundSetBrightness(int value, int? smooth = null)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.BackgroundSetBrightness(value, smooth));
-            }
+                return device.BackgroundSetBrightness(value, smooth);
+            });
 
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
         }
 
         public async Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.BackgroundSetColorTemperature(temperature, smooth));
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.BackgroundSetColorTemperature(temperature, smooth);
+            });
         }
 
         public async Task<bool> BackgroundSetPower(bool state = true)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.BackgroundSetPower(state));
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.BackgroundSetPower(state);
+            });
         }
 
         public async Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.BackgroundSetRGBColor(r, g, b, smooth));
-            }
+                return device.BackgroundSetRGBColor(r, g, b, smooth);
+            });
 
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
         }
 
         public async Task<bool> BackgroundToggle()
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.BackgroundToggle());
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.BackgroundToggle();
+            });
+            
         }
 
         /// <summary>
@@ -119,22 +62,10 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> BackgroundStartColorFlow(ColorFlow flow)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.BackgroundStartColorFlow(flow));
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.BackgroundStartColorFlow(flow);
+            });
         }
 
         /// <summary>
@@ -143,42 +74,19 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> BackgroundStopColorFlow()
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.BackgroundStopColorFlow());
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.BackgroundStopColorFlow();
+            });
+            
         }
 
         public async Task<bool> BackgroundAdjust(AdjustAction action, AdjustProperty property)
         {
-            bool result = true;
-            List<Task<bool>> tasks = new List<Task<bool>>();
-
-            foreach (Device device in this)
+            return await Process((Device device) =>
             {
-                tasks.Add(device.BackgroundAdjust(action, property));
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (Task<bool> t in tasks)
-            {
-                result &= t.Result;
-            }
-
-            return result;
+                return device.BackgroundAdjust(action, property);
+            });
         }
     }
 }
