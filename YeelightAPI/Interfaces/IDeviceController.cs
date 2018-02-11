@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPI
@@ -29,5 +30,7 @@ namespace YeelightAPI
         Task<bool> StartColorFlow(ColorFlow flow);
 
         Task<bool> StopColorFlow();
+
+        Task<bool> Adjust(AdjustAction action, AdjustProperty property);
     }
 }

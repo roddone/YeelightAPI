@@ -14,7 +14,10 @@
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
     <PackageReleaseNotes>[Breaking change] removing asynchronous / synchronous distinction, now everything is asynchronous. 
-add set_name support</PackageReleaseNotes>
+add set_name support
+add background color flow support
+add set_adjust support
+CPU improvement when a command is waiting for a response</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
     <Copyright>Copyright ©Romain ODDONE  2018</Copyright>
     <AssemblyVersion>1.2.0.0</AssemblyVersion>

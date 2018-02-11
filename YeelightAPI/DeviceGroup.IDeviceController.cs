@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPI
@@ -253,6 +254,31 @@ namespace YeelightAPI
 
             return result;
         }
-        
+
+        /// <summary>
+        /// Adjusts the state of all the devices
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public async Task<bool> Adjust(AdjustAction action, AdjustProperty property)
+        {
+            bool result = true;
+            List<Task<bool>> tasks = new List<Task<bool>>();
+
+            foreach (Device device in this)
+            {
+                tasks.Add(device.Adjust(action, property));
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (Task<bool> t in tasks)
+            {
+                result &= t.Result;
+            }
+
+            return result;
+        }
     }
 }

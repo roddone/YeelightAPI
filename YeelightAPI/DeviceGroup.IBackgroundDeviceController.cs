@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using YeelightAPI.Models.Adjust;
+using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPI
 {
@@ -107,6 +109,76 @@ namespace YeelightAPI
 
             return result;
         }
-        
+
+        /// <summary>
+        /// Starts a color flow asynchronously
+        /// </summary>
+        /// <param name="flow"></param>
+        /// <param name="action"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundStartColorFlow(ColorFlow flow)
+        {
+            bool result = true;
+            List<Task<bool>> tasks = new List<Task<bool>>();
+
+            foreach (Device device in this)
+            {
+                tasks.Add(device.BackgroundStartColorFlow(flow));
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (Task<bool> t in tasks)
+            {
+                result &= t.Result;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Stops the color flow
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> BackgroundStopColorFlow()
+        {
+            bool result = true;
+            List<Task<bool>> tasks = new List<Task<bool>>();
+
+            foreach (Device device in this)
+            {
+                tasks.Add(device.BackgroundStopColorFlow());
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (Task<bool> t in tasks)
+            {
+                result &= t.Result;
+            }
+
+            return result;
+        }
+
+        public async Task<bool> BackgroundAdjust(AdjustAction action, AdjustProperty property)
+        {
+            bool result = true;
+            List<Task<bool>> tasks = new List<Task<bool>>();
+
+            foreach (Device device in this)
+            {
+                tasks.Add(device.BackgroundAdjust(action, property));
+            }
+
+            await Task.WhenAll(tasks);
+
+            foreach (Task<bool> t in tasks)
+            {
+                result &= t.Result;
+            }
+
+            return result;
+        }
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
+using YeelightAPI.Models.Adjust;
+using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPI
 {
@@ -69,6 +71,57 @@ namespace YeelightAPI
 
             return result.IsOk();
         }
-        
+
+        /// <summary>
+        /// Starts a background color flow 
+        /// </summary>
+        /// <param name="flow"></param>
+        /// <param name="action"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundStartColorFlow(ColorFlow flow)
+        {
+            List<object> parameters = new List<object>() { flow.RepetitionCount, (int)flow.EndAction, flow.GetColorFlowExpression() };
+
+            CommandResult result = await ExecuteCommandWithResponse(
+                method: METHODS.StartBackgroundLightColorFlow,
+                id: (int)METHODS.StartBackgroundLightColorFlow,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Stops the background color flow
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> BackgroundStopColorFlow()
+        {
+            CommandResult result = await ExecuteCommandWithResponse(
+                            method: METHODS.StopBackgroundLightColorFlow,
+                            id: (int)METHODS.StopBackgroundLightColorFlow);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Adjusts the background light state
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundAdjust(AdjustAction action, AdjustProperty property)
+        {
+            {
+                List<object> parameters = new List<object>() { action.ToString(), property.ToString() };
+
+                CommandResult result = await ExecuteCommandWithResponse(
+                    method: METHODS.SetBackgroundLightAdjust,
+                    id: (int)METHODS.SetBackgroundLightAdjust,
+                    parameters: parameters);
+
+                return result.IsOk();
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
+using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPI
@@ -201,7 +202,23 @@ namespace YeelightAPI
 
             return result.IsOk();
         }
-        
 
+        /// <summary>
+        /// Adjusts the state of the device
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public async Task<bool> Adjust(AdjustAction action, AdjustProperty property)
+        {
+            List<object> parameters = new List<object>() { action.ToString(), property.ToString() };
+
+            CommandResult result = await ExecuteCommandWithResponse(
+                method: METHODS.SetAdjust,
+                id: (int)METHODS.SetAdjust,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
     }
 }

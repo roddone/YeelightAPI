@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YeelightAPI.Models.Adjust;
+using YeelightAPI.Models.ColorFlow;
 
 namespace YeelightAPI
 {
@@ -18,5 +20,11 @@ namespace YeelightAPI
         Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth);
 
         Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth);
+
+        Task<bool> BackgroundStartColorFlow(ColorFlow flow);
+
+        Task<bool> BackgroundStopColorFlow();
+
+        Task<bool> BackgroundAdjust(AdjustAction action, AdjustProperty property);
     }
 }
