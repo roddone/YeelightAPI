@@ -1,14 +1,9 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
 
@@ -25,7 +20,7 @@ namespace YeelightAPI
         /// <summary>
         /// lock
         /// </summary>
-        private object _syncLock = new object();
+        private readonly object _syncLock = new object();
 
         /// <summary>
         /// TCP client used to communicate with the device
@@ -35,12 +30,12 @@ namespace YeelightAPI
         /// <summary>
         /// Dictionary of results
         /// </summary>
-        private Dictionary<object, object> _currentCommandResults = new Dictionary<object, object>();
+        private readonly Dictionary<object, object> _currentCommandResults = new Dictionary<object, object>();
 
         /// <summary>
         /// Serializer settings
         /// </summary>
-        private JsonSerializerSettings _serializerSettings = new JsonSerializerSettings()
+        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings()
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
@@ -80,12 +75,12 @@ namespace YeelightAPI
         /// <summary>
         /// HostName
         /// </summary>
-        public string Hostname { get; set; }
+        public string Hostname { get; }
 
         /// <summary>
         /// Port number
         /// </summary>
-        public int Port { get; set; }
+        public int Port { get; }
 
         #endregion PUBLIC PROPERTIES
 
@@ -123,7 +118,7 @@ namespace YeelightAPI
         /// <summary>
         /// List of device properties
         /// </summary>
-        public Dictionary<string, object> Properties = new Dictionary<string, object>();
+        public readonly Dictionary<string, object> Properties = new Dictionary<string, object>();
 
         /// <summary>
         /// Access property from its enum value
@@ -263,7 +258,7 @@ namespace YeelightAPI
                 Params = parameters ?? new List<object>()
             };
 
-            string data = JsonConvert.SerializeObject(command, this._serializerSettings);
+            string data = JsonConvert.SerializeObject(command, _serializerSettings);
             byte[] sentData = Encoding.ASCII.GetBytes(data + "\r\n"); // \r\n is the end of the message, it needs to be sent for the message to be read by the device
 
             lock (_syncLock)
@@ -305,7 +300,7 @@ namespace YeelightAPI
                                     //get every messages in the pipe
                                     foreach (string entry in datas.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
                                     {
-                                        CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(entry, this._serializerSettings);
+                                        CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(entry, _serializerSettings);
 
                                         if (commandResult != null && commandResult.Result != null)
                                         {
@@ -319,7 +314,7 @@ namespace YeelightAPI
                                         }
                                         else
                                         {
-                                            NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(entry, this._serializerSettings);
+                                            NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(entry, _serializerSettings);
 
                                             if (notificationResult != null && notificationResult.Method != null)
                                             {
