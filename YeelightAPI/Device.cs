@@ -96,11 +96,11 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="hostname"></param>
         /// <param name="port"></param>
-        public Device(string hostname, int port = Common.DefaultPort, string name = null, bool autoConnect = false)
+        /// <param name="autoConnect"></param>
+        public Device(string hostname, int port = Common.DefaultPort, bool autoConnect = false)
         {
             this.Hostname = hostname;
             this.Port = port;
-            this.Name = name;
 
             //autoconnect device if specified
             if (autoConnect)
