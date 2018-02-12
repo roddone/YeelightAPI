@@ -35,7 +35,7 @@ namespace YeelightAPI
         /// <summary>
         /// Dictionary of results
         /// </summary>
-        private Dictionary<object, CommandResult> _currentCommandResults = new Dictionary<object, CommandResult>();
+        private Dictionary<object, object> _currentCommandResults = new Dictionary<object, object>();
 
         /// <summary>
         /// Serializer settings
@@ -192,7 +192,7 @@ namespace YeelightAPI
         /// <param name="parameters"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<CommandResult> ExecuteCommandWithResponse(METHODS method, int id = 0, List<object> parameters = null)
+        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null) 
         {
             if (this._currentCommandResults.ContainsKey(id))
             {
@@ -210,13 +210,27 @@ namespace YeelightAPI
             //save results and remove if from results list
             if (this._currentCommandResults.ContainsKey(id))
             {
-                CommandResult result = this._currentCommandResults[id];
+                CommandResult<T> result = this._currentCommandResults[id] as CommandResult<T>;
                 this._currentCommandResults.Remove(id);
 
                 return result;
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Execute a command and waits for a response
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="id"></param>
+        /// <param name="parameters"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<CommandResult> ExecuteCommandWithResponse(METHODS method, int id = 0, List<object> parameters = null)
+        {
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(method, id, parameters);
+            return result as CommandResult;
         }
 
         /// <summary>

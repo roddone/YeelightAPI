@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
+using YeelightAPI.Models.Cron;
 
 namespace YeelightAPI
 {
@@ -17,5 +18,7 @@ namespace YeelightAPI
         Task<Dictionary<PROPERTIES, object>> GetAllProps();
 
         Task<bool> SetName(string name);
+
+        Task<CronResult> CronGet(CronType type = CronType.PowerOff);
     }
 }

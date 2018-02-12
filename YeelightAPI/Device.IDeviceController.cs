@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
+using YeelightAPI.Models.Cron;
 
 namespace YeelightAPI
 {
@@ -216,6 +217,41 @@ namespace YeelightAPI
             CommandResult result = await ExecuteCommandWithResponse(
                 method: METHODS.SetAdjust,
                 id: (int)METHODS.SetAdjust,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Add a cron job
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public async Task<bool> CronAdd(int value, CronType type = CronType.PowerOff)
+        {
+            List<object> parameters = new List<object>() { (int)type, value };
+
+            CommandResult result = await ExecuteCommandWithResponse(
+                method: METHODS.AddCron,
+                id: (int)METHODS.AddCron,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Delete a cron job
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public async Task<bool> CronDelete(CronType type = CronType.PowerOff)
+        {
+            List<object> parameters = new List<object>() { (int)type };
+
+            CommandResult result = await ExecuteCommandWithResponse(
+                method: METHODS.DeleteCron,
+                id: (int)METHODS.DeleteCron,
                 parameters: parameters);
 
             return result.IsOk();

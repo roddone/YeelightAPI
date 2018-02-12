@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
+using YeelightAPI.Models.Cron;
 
 namespace YeelightAPI
 {
@@ -94,5 +95,22 @@ namespace YeelightAPI
             }
         }
 
+        /// <summary>
+        /// Get a cron JOB
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public async Task<CronResult> CronGet(CronType type = CronType.PowerOff)
+        {
+            List<object> parameters = new List<object>() { (int) type };
+
+            CommandResult<CronResult> result = await ExecuteCommandWithResponse<CronResult>(
+                            method: METHODS.SetName,
+                            id: (int)METHODS.SetName,
+                            parameters: parameters);
+
+            return result?.Result;
+
+        }
     }
 }

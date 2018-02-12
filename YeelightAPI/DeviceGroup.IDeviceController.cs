@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
+using YeelightAPI.Models.Cron;
 
 namespace YeelightAPI
 {
@@ -162,6 +163,33 @@ namespace YeelightAPI
             return await Process((Device device) =>
             {
                 return device.SetAdjust(action, property);
+            });
+        }
+
+        /// <summary>
+        /// Add a cron task for all devices
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public async Task<bool> CronAdd(int value, CronType type = CronType.PowerOff)
+        {
+            return await Process((Device device) =>
+            {
+                return device.CronAdd(value, type);
+            });
+        }
+
+        /// <summary>
+        /// Delete a cron task for all devices
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public async Task<bool> CronDelete(CronType type = CronType.PowerOff)
+        {
+            return await Process((Device device) =>
+            {
+                return device.CronDelete(type);
             });
         }
     }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
+using YeelightAPI.Models.Cron;
 
 namespace YeelightAPI
 {
@@ -32,5 +33,9 @@ namespace YeelightAPI
         Task<bool> StopColorFlow();
 
         Task<bool> SetAdjust(AdjustAction action, AdjustProperty property);
+
+        Task<bool> CronAdd(int value, CronType type = CronType.PowerOff);
+
+        Task<bool> CronDelete(CronType type = CronType.PowerOff);
     }
 }

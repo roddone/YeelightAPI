@@ -7,9 +7,14 @@ using System.Threading.Tasks;
 namespace YeelightAPI.Models
 {
     /// <summary>
+    /// Default command result
+    /// </summary>
+    public class CommandResult : CommandResult<List<string>> { }
+
+    /// <summary>
     /// Result received after a Command has been sent
     /// </summary>
-    public class CommandResult
+    public class CommandResult<T>
     {
         /// <summary>
         /// Request Id (mirrored from the sent request)
@@ -24,7 +29,7 @@ namespace YeelightAPI.Models
         /// <summary>
         /// Result
         /// </summary>
-        public List<string> Result { get; set; }
+        public T Result { get; set; }
 
         /// <summary>
         /// Error model
