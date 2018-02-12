@@ -36,7 +36,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<Dictionary<PROPERTIES, object>> GetProps(PROPERTIES props)
         {
-            List<object> names = GetPropertiesRealNames(props);
+            List<object> names = props.GetRealNames();
 
             CommandResult commandResult = await ExecuteCommandWithResponse(
                 method: METHODS.GetProp,

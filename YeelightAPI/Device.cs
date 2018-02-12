@@ -87,11 +87,6 @@ namespace YeelightAPI
         /// </summary>
         public int Port { get; set; }
 
-        /// <summary>
-        /// Name of the device
-        /// </summary>
-        public string Name { get; set; }
-
         #endregion PUBLIC PROPERTIES
 
         #region CONSTRUCTOR
@@ -112,6 +107,13 @@ namespace YeelightAPI
             {
                 this.Connect().Wait();
             }
+        }
+
+        internal Device(string hostname, int port, Dictionary<string, object> properties)
+        {
+            this.Hostname = hostname;
+            this.Port = port;
+            this.Properties = properties;
         }
 
         #endregion CONSTRUCTOR
@@ -168,6 +170,18 @@ namespace YeelightAPI
             }
         }
 
+        public string Name
+        {
+            get
+            {
+                return this[PROPERTIES.name] as string;
+            }
+            set
+            {
+                this[PROPERTIES.name] = value;
+            }
+        }
+
         #endregion PROPERTIES ACCESS
 
         #region PUBLIC METHODS
@@ -192,7 +206,7 @@ namespace YeelightAPI
         /// <param name="parameters"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null) 
+        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
         {
             if (this._currentCommandResults.ContainsKey(id))
             {
@@ -334,22 +348,6 @@ namespace YeelightAPI
                     await Task.Delay(100);
                 }
             }, TaskCreationOptions.LongRunning);
-        }
-
-        /// <summary>
-        /// Get the real name of the properties
-        /// </summary>
-        /// <param name="properties"></param>
-        /// <returns></returns>
-        private static List<object> GetPropertiesRealNames(PROPERTIES properties)
-        {
-            var vals = Enum.GetValues(typeof(PROPERTIES));
-            return vals
-                         .Cast<PROPERTIES>()
-                         .Where(m => properties.HasFlag(m) && m != PROPERTIES.ALL && m != PROPERTIES.NONE)
-                         .Cast<PROPERTIES>()
-                         .Select(x => x.ToString())
-                         .ToList<object>();
         }
 
         /// <summary>
