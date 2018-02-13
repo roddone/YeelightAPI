@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using YeelightAPI.Models;
 
 namespace YeelightAPI
 {
@@ -19,6 +20,8 @@ namespace YeelightAPI
         private static readonly IPEndPoint _multicastEndPoint = new IPEndPoint(IPAddress.Parse("239.255.255.250"), 1982);
         private const string _ssdpMessage = "M-SEARCH * HTTP/1.1\r\nHOST: 239.255.255.250:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
         private static readonly byte[] _ssdpDiagram = Encoding.ASCII.GetBytes(_ssdpMessage);
+        private static readonly List<object> _allPropertyRealNames = PROPERTIES.ALL.GetRealNames();
+        private static readonly char[] _colon = new char[] { ':' };
 
         /// <summary>
         /// Discover devices in LAN
@@ -69,17 +72,12 @@ namespace YeelightAPI
                                                 if (i > 0)
                                                 {
                                                     string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
-                                                    Tuple<string, int> host = GetDeviceInformationsFromSsdpMessage(response);
+                                                    Device device = GetDeviceInformationsFromSsdpMessage(response);
 
-                                                    if (!devices.Any(d => d.Hostname == host.Item1))
+                                                    //add only if no device already matching
+                                                    if (!devices.Any(d => d.Hostname == device.Hostname))
                                                     {
-                                                        Device device = new Device(host.Item1, host.Item2);
-
-                                                        //add only if no device already matching
-                                                        if (!devices.Any(d => d.Hostname == device.Hostname))
-                                                        {
-                                                            devices.Add(device);
-                                                        }
+                                                        devices.Add(device);
                                                     }
                                                 }
                                             }
@@ -107,20 +105,22 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="ssdpMessage"></param>
         /// <returns></returns>
-        private static Tuple<string, int> GetDeviceInformationsFromSsdpMessage(string ssdpMessage)
+        private static Device GetDeviceInformationsFromSsdpMessage(string ssdpMessage)
         {
+
             if (ssdpMessage != null)
             {
                 string[] split = ssdpMessage.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 string host = null;
                 int port = Common.DefaultPort;
+                Dictionary<string, object> properties = new Dictionary<string, object>();
 
                 foreach (string part in split)
                 {
                     if (part.StartsWith(_yeelightlocationMatch))
                     {
                         string url = part.Substring(_yeelightlocationMatch.Length);
-                        string[] hostnameParts = url.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] hostnameParts = url.Split(_colon, StringSplitOptions.RemoveEmptyEntries);
                         if (hostnameParts.Length >= 1)
                         {
                             host = hostnameParts[0];
@@ -129,10 +129,22 @@ namespace YeelightAPI
                         {
                             int.TryParse(hostnameParts[1], out port);
                         }
-                        break;
+                    }
+                    else
+                    {
+                        string[] property = part.Split(_colon);
+                        if (property.Length == 2)
+                        {
+                            string propertyName = property[0].Trim();
+                            if (_allPropertyRealNames.Contains(propertyName))
+                            {
+                                string propertyValue = property[1].Trim();
+                                properties.Add(propertyName, propertyValue);
+                            }
+                        }
                     }
                 }
-                return new Tuple<string, int>(host, port);
+                return new Device(host, port, properties);
             }
 
             return null;

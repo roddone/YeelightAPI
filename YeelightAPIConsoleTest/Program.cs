@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI;
 using YeelightAPI.Models;
@@ -103,8 +101,8 @@ namespace YeelightAPIConsoleTest
                         success &= await device.SetName("test");
                         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                         await Task.Delay(2000);
-                        
-                        Console.WriteLine("restoring name '' ...");
+
+                        Console.WriteLine("restoring name '{0}' ...", name);
                         success &= await device.SetName(name);
                         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                         await Task.Delay(2000);

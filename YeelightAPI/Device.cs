@@ -1,14 +1,9 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
 
@@ -25,7 +20,7 @@ namespace YeelightAPI
         /// <summary>
         /// lock
         /// </summary>
-        private object _syncLock = new object();
+        private readonly object _syncLock = new object();
 
         /// <summary>
         /// TCP client used to communicate with the device
@@ -35,12 +30,12 @@ namespace YeelightAPI
         /// <summary>
         /// Dictionary of results
         /// </summary>
-        private Dictionary<object, object> _currentCommandResults = new Dictionary<object, object>();
+        private readonly Dictionary<object, object> _currentCommandResults = new Dictionary<object, object>();
 
         /// <summary>
         /// Serializer settings
         /// </summary>
-        private JsonSerializerSettings _serializerSettings = new JsonSerializerSettings()
+        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings()
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
@@ -80,17 +75,12 @@ namespace YeelightAPI
         /// <summary>
         /// HostName
         /// </summary>
-        public string Hostname { get; set; }
+        public string Hostname { get; }
 
         /// <summary>
         /// Port number
         /// </summary>
-        public int Port { get; set; }
-
-        /// <summary>
-        /// Name of the device
-        /// </summary>
-        public string Name { get; set; }
+        public int Port { get; }
 
         #endregion PUBLIC PROPERTIES
 
@@ -101,17 +91,24 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="hostname"></param>
         /// <param name="port"></param>
-        public Device(string hostname, int port = Common.DefaultPort, string name = null, bool autoConnect = false)
+        /// <param name="autoConnect"></param>
+        public Device(string hostname, int port = Common.DefaultPort, bool autoConnect = false)
         {
             this.Hostname = hostname;
             this.Port = port;
-            this.Name = name;
 
             //autoconnect device if specified
             if (autoConnect)
             {
                 this.Connect().Wait();
             }
+        }
+
+        internal Device(string hostname, int port, Dictionary<string, object> properties)
+        {
+            this.Hostname = hostname;
+            this.Port = port;
+            this.Properties = properties;
         }
 
         #endregion CONSTRUCTOR
@@ -121,7 +118,7 @@ namespace YeelightAPI
         /// <summary>
         /// List of device properties
         /// </summary>
-        public Dictionary<string, object> Properties = new Dictionary<string, object>();
+        public readonly Dictionary<string, object> Properties = new Dictionary<string, object>();
 
         /// <summary>
         /// Access property from its enum value
@@ -168,6 +165,18 @@ namespace YeelightAPI
             }
         }
 
+        public string Name
+        {
+            get
+            {
+                return this[PROPERTIES.name] as string;
+            }
+            set
+            {
+                this[PROPERTIES.name] = value;
+            }
+        }
+
         #endregion PROPERTIES ACCESS
 
         #region PUBLIC METHODS
@@ -192,7 +201,7 @@ namespace YeelightAPI
         /// <param name="parameters"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null) 
+        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
         {
             if (this._currentCommandResults.ContainsKey(id))
             {
@@ -249,7 +258,7 @@ namespace YeelightAPI
                 Params = parameters ?? new List<object>()
             };
 
-            string data = JsonConvert.SerializeObject(command, this._serializerSettings);
+            string data = JsonConvert.SerializeObject(command, _serializerSettings);
             byte[] sentData = Encoding.ASCII.GetBytes(data + "\r\n"); // \r\n is the end of the message, it needs to be sent for the message to be read by the device
 
             lock (_syncLock)
@@ -291,7 +300,7 @@ namespace YeelightAPI
                                     //get every messages in the pipe
                                     foreach (string entry in datas.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
                                     {
-                                        CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(entry, this._serializerSettings);
+                                        CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(entry, _serializerSettings);
 
                                         if (commandResult != null && commandResult.Result != null)
                                         {
@@ -305,7 +314,7 @@ namespace YeelightAPI
                                         }
                                         else
                                         {
-                                            NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(entry, this._serializerSettings);
+                                            NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(entry, _serializerSettings);
 
                                             if (notificationResult != null && notificationResult.Method != null)
                                             {
@@ -334,22 +343,6 @@ namespace YeelightAPI
                     await Task.Delay(100);
                 }
             }, TaskCreationOptions.LongRunning);
-        }
-
-        /// <summary>
-        /// Get the real name of the properties
-        /// </summary>
-        /// <param name="properties"></param>
-        /// <returns></returns>
-        private static List<object> GetPropertiesRealNames(PROPERTIES properties)
-        {
-            var vals = Enum.GetValues(typeof(PROPERTIES));
-            return vals
-                         .Cast<PROPERTIES>()
-                         .Where(m => properties.HasFlag(m) && m != PROPERTIES.ALL && m != PROPERTIES.NONE)
-                         .Cast<PROPERTIES>()
-                         .Select(x => x.ToString())
-                         .ToList<object>();
         }
 
         /// <summary>
