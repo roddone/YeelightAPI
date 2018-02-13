@@ -25,7 +25,7 @@ namespace YeelightAPI
         /// <summary>
         /// TCP client used to communicate with the device
         /// </summary>
-        private TcpClient tcpClient;
+        private TcpClient _tcpClient;
 
         /// <summary>
         /// Dictionary of results
@@ -94,21 +94,21 @@ namespace YeelightAPI
         /// <param name="autoConnect"></param>
         public Device(string hostname, int port = Common.DefaultPort, bool autoConnect = false)
         {
-            this.Hostname = hostname;
-            this.Port = port;
+            Hostname = hostname;
+            Port = port;
 
             //autoconnect device if specified
             if (autoConnect)
             {
-                this.Connect().Wait();
+                Connect().Wait();
             }
         }
 
         internal Device(string hostname, int port, Dictionary<string, object> properties)
         {
-            this.Hostname = hostname;
-            this.Port = port;
-            this.Properties = properties;
+            Hostname = hostname;
+            Port = port;
+            Properties = properties;
         }
 
         #endregion CONSTRUCTOR
@@ -146,21 +146,21 @@ namespace YeelightAPI
         {
             get
             {
-                if (this.Properties.ContainsKey(propertyName))
+                if (Properties.ContainsKey(propertyName))
                 {
-                    return this.Properties[propertyName];
+                    return Properties[propertyName];
                 }
                 return null;
             }
             set
             {
-                if (this.Properties.ContainsKey(propertyName))
+                if (Properties.ContainsKey(propertyName))
                 {
-                    this.Properties[propertyName] = value;
+                    Properties[propertyName] = value;
                 }
                 else if (!string.IsNullOrWhiteSpace(propertyName))
                 {
-                    this.Properties.Add(propertyName, value);
+                    Properties.Add(propertyName, value);
                 }
             }
         }
@@ -188,7 +188,7 @@ namespace YeelightAPI
         /// </summary>
         public void Dispose()
         {
-            this.Disconnect();
+            Disconnect();
         }
 
         #endregion IDisposable
@@ -203,24 +203,24 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
         {
-            if (this._currentCommandResults.ContainsKey(id))
+            if (_currentCommandResults.ContainsKey(id))
             {
-                this._currentCommandResults.Remove(id);
+                _currentCommandResults.Remove(id);
             }
 
             ExecuteCommand(method, id, parameters);
 
             DateTime startWait = DateTime.Now;
-            while (!this._currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(5))
+            while (!_currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(5))
             {
                 await Task.Delay(10);
             } //wait for result during 5s
 
             //save results and remove if from results list
-            if (this._currentCommandResults.ContainsKey(id))
+            if (_currentCommandResults.ContainsKey(id))
             {
-                CommandResult<T> result = this._currentCommandResults[id] as CommandResult<T>;
-                this._currentCommandResults.Remove(id);
+                CommandResult<T> result = _currentCommandResults[id] as CommandResult<T>;
+                _currentCommandResults.Remove(id);
 
                 return result;
             }
@@ -263,7 +263,7 @@ namespace YeelightAPI
 
             lock (_syncLock)
             {
-                this.tcpClient.Client.Send(sentData);
+                _tcpClient.Client.Send(sentData);
             }
         }
 
@@ -280,17 +280,17 @@ namespace YeelightAPI
             await Task.Factory.StartNew(async () =>
             {
                 //while device is connected
-                while (this.tcpClient != null)
+                while (_tcpClient != null)
                 {
                     lock (_syncLock)
                     {
                         //there is data avaiblable in the pipe
-                        if (this.tcpClient.Client.Available > 0)
+                        if (_tcpClient.Client.Available > 0)
                         {
-                            byte[] bytes = new byte[this.tcpClient.Client.Available];
+                            byte[] bytes = new byte[_tcpClient.Client.Available];
 
                             //read datas
-                            this.tcpClient.Client.Receive(bytes);
+                            _tcpClient.Client.Receive(bytes);
 
                             try
                             {

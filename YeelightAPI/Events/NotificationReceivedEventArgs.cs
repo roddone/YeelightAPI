@@ -21,7 +21,7 @@ namespace YeelightAPI
         /// <param name="result"></param>
         public NotificationReceivedEventArgs(NotificationResult result)
         {
-            this.Result = result;
+            Result = result;
         }
 
         /// <summary>

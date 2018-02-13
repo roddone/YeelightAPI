@@ -29,7 +29,7 @@ namespace YeelightAPI
         /// <param name="device"></param>
         public DeviceGroup(string name = null)
         {
-            this.Name = name;
+            Name = name;
         }
 
         /// <summary>
@@ -38,8 +38,8 @@ namespace YeelightAPI
         /// <param name="device"></param>
         public DeviceGroup(Device device, string name = null)
         {
-            this.Add(device);
-            this.Name = name;
+            Add(device);
+            Name = name;
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace YeelightAPI
         /// <param name="devices"></param>
         public DeviceGroup(params Device[] devices)
         {
-            this.AddRange(devices);
+            AddRange(devices);
         }
 
         /// <summary>
@@ -57,8 +57,8 @@ namespace YeelightAPI
         /// <param name="devices"></param>
         public DeviceGroup(IEnumerable<Device> devices, string name = null)
         {
-            this.AddRange(devices);
-            this.Name = name;
+            AddRange(devices);
+            Name = name;
         }
 
         #endregion CONSTRUCTOR

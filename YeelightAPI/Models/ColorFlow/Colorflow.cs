@@ -38,9 +38,9 @@ namespace YeelightAPI.Models.ColorFlow
         /// <param name="expressions"></param>
         public ColorFlow(int repetitionCount, ColorFlowEndAction endAction, IEnumerable<ColorFlowExpression> expressions)
         {
-            this.RepetitionCount = repetitionCount;
-            this.EndAction = endAction;
-            this.AddRange(expressions);
+            RepetitionCount = repetitionCount;
+            EndAction = endAction;
+            AddRange(expressions);
         }
 
         /// <summary>

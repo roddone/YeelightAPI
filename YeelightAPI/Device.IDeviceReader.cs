@@ -86,7 +86,7 @@ namespace YeelightAPI
 
             if (result.IsOk())
             {
-                this.Name = name;
+                Name = name;
                 return true;
             }
             else

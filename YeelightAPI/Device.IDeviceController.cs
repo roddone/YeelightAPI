@@ -22,10 +22,10 @@ namespace YeelightAPI
         /// <returns></returns>
         public void Disconnect()
         {
-            if (this.tcpClient != null)
+            if (_tcpClient != null)
             {
-                this.tcpClient.Close();
-                this.tcpClient = null;
+                _tcpClient.Close();
+                _tcpClient = null;
             }
         }
 
@@ -35,24 +35,24 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> Connect()
         {
-            this.Disconnect();
+            Disconnect();
 
-            this.tcpClient = new TcpClient();
+            _tcpClient = new TcpClient();
             //IPEndPoint endPoint = GetIPEndPointFromHostName(this.Hostname, this.Port);
-            await this.tcpClient.ConnectAsync(this.Hostname, this.Port);
+            await _tcpClient.ConnectAsync(Hostname, Port);
 
-            if (!this.tcpClient.Connected)
+            if (!_tcpClient.Connected)
             {
                 return false;
             }
 
             //continuous receiving
 #pragma warning disable 4014
-            this.Watch();
+            Watch();
 #pragma warning restore 4014
 
             //initialiazing all properties
-            foreach (KeyValuePair<PROPERTIES, object> property in await this.GetAllProps())
+            foreach (KeyValuePair<PROPERTIES, object> property in await GetAllProps())
             {
                 this[property.Key] = property.Value;
             }

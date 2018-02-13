@@ -15,7 +15,7 @@ namespace YeelightAPI.Models
     {
         public RealNameAttribute(string name)
         {
-            this.PropertyName = name;
+            PropertyName = name;
         }
 
         public string PropertyName { get; set; }

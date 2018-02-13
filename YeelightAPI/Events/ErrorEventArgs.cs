@@ -21,7 +21,7 @@ namespace YeelightAPI
         /// <param name="result"></param>
         public CommandErrorEventArgs(CommandResult.CommandErrorResult result)
         {
-            this.Error = result;
+            Error = result;
         }
 
         /// <summary>

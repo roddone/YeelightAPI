@@ -17,12 +17,12 @@ namespace YeelightAPI.Models.ColorFlow
         /// <param name="brightness"></param>
         public ColorFlowTemperatureExpression(int temperature, int brightness, int? duration = null)
         {
-            this.Duration = duration ?? 50;
-            this.Duration = Math.Max(50, this.Duration);
+            Duration = duration ?? 50;
+            Duration = Math.Max(50, Duration);
 
-            this.Mode = ColorFlowMode.ColorTemperature;
-            this.Value = temperature;
-            this.Brightness = brightness;
+            Mode = ColorFlowMode.ColorTemperature;
+            Value = temperature;
+            Brightness = brightness;
         }
     }
 }

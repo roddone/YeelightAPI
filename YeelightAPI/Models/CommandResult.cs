@@ -52,7 +52,7 @@ namespace YeelightAPI.Models
             /// <returns></returns>
             public override string ToString()
             {
-                return $"{this.Code} - {this.Message}";
+                return $"{Code} - {Message}";
             }
         }
     }

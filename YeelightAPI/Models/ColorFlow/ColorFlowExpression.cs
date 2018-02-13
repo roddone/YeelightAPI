@@ -37,10 +37,10 @@ namespace YeelightAPI.Models.ColorFlow
         {
             return new List<int>(4)
             {
-                this.Duration,
-                (int)this.Mode,
-                this.Value,
-                this.Brightness
+                Duration,
+                (int)Mode,
+                Value,
+                Brightness
             };
         }
     }
