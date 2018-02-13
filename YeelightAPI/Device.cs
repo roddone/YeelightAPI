@@ -92,7 +92,7 @@ namespace YeelightAPI
         /// <param name="hostname"></param>
         /// <param name="port"></param>
         /// <param name="autoConnect"></param>
-        public Device(string hostname, int port = Common.DefaultPort, bool autoConnect = false)
+        public Device(string hostname, int port = Constantes.DefaultPort, bool autoConnect = false)
         {
             Hostname = hostname;
             Port = port;
@@ -259,7 +259,7 @@ namespace YeelightAPI
             };
 
             string data = JsonConvert.SerializeObject(command, _serializerSettings);
-            byte[] sentData = Encoding.ASCII.GetBytes(data + "\r\n"); // \r\n is the end of the message, it needs to be sent for the message to be read by the device
+            byte[] sentData = Encoding.ASCII.GetBytes(data + Constantes.LineSeparator); // \r\n is the end of the message, it needs to be sent for the message to be read by the device
 
             lock (_syncLock)
             {
@@ -298,7 +298,7 @@ namespace YeelightAPI
                                 if (!string.IsNullOrEmpty(datas))
                                 {
                                     //get every messages in the pipe
-                                    foreach (string entry in datas.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
+                                    foreach (string entry in datas.Split(new string[] { Constantes.LineSeparator }, StringSplitOptions.RemoveEmptyEntries))
                                     {
                                         CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(entry, _serializerSettings);
 

@@ -110,9 +110,9 @@ namespace YeelightAPI
 
             if (ssdpMessage != null)
             {
-                string[] split = ssdpMessage.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] split = ssdpMessage.Split(new string[] { Constantes.LineSeparator }, StringSplitOptions.RemoveEmptyEntries);
                 string host = null;
-                int port = Common.DefaultPort;
+                int port = Constantes.DefaultPort;
                 Dictionary<string, object> properties = new Dictionary<string, object>();
 
                 foreach (string part in split)
