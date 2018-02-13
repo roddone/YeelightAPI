@@ -16,6 +16,7 @@
     <PackageReleaseNotes>[Breaking change] removing asynchronous / synchronous distinction, now everything is asynchronous. 
 add set_name support
 add background color flow support
+add properties initialization on device discovery
 add set_adjust support
 CPU improvement when a command is waiting for a response</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
