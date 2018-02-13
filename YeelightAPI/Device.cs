@@ -165,6 +165,9 @@ namespace YeelightAPI
             }
         }
 
+        /// <summary>
+        /// Name of the device
+        /// </summary>
         public string Name
         {
             get
