@@ -176,5 +176,16 @@ namespace YeelightAPI
 
             return result.IsOk();
         }
+
+        /// <summary>
+        /// Toggle Both Background and normal light
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> DevToggle()
+        {
+            CommandResult result = await ExecuteCommandWithResponse(METHODS.ToggleDev, id: (int)METHODS.ToggleDev);
+
+            return result.IsOk();
+        }
     }
 }

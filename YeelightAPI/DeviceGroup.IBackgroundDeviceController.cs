@@ -140,5 +140,17 @@ namespace YeelightAPI
                 return device.BackgroundSetHSVColor(hue, sat, smooth);
             });
         }
+
+        /// <summary>
+        /// Toggle Both Background and normal light
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> DevToggle()
+        {
+            return await Process((Device device) =>
+            {
+                return device.DevToggle();
+            });
+        }
     }
 }
