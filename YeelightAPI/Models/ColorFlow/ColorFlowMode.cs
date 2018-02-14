@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YeelightAPI.Models.ColorFlow
+﻿namespace YeelightAPI.Models.ColorFlow
 {
     /// <summary>
     /// Mode of the color flow

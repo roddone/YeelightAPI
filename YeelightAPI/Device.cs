@@ -14,8 +14,20 @@ namespace YeelightAPI
     /// </summary>
     public partial class Device : IDisposable
     {
-
         #region PRIVATE ATTRIBUTES
+
+        /// <summary>
+        /// Serializer settings
+        /// </summary>
+        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings()
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
+        };
+
+        /// <summary>
+        /// Dictionary of results
+        /// </summary>
+        private readonly Dictionary<object, object> _currentCommandResults = new Dictionary<object, object>();
 
         /// <summary>
         /// lock
@@ -27,29 +39,14 @@ namespace YeelightAPI
         /// </summary>
         private TcpClient _tcpClient;
 
-        /// <summary>
-        /// Dictionary of results
-        /// </summary>
-        private readonly Dictionary<object, object> _currentCommandResults = new Dictionary<object, object>();
-
-        /// <summary>
-        /// Serializer settings
-        /// </summary>
-        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings()
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
-
         #endregion PRIVATE ATTRIBUTES
 
         #region EVENTS
 
         /// <summary>
-        /// Notification Received event handler
+        /// Error Received event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public delegate void NotificationReceivedEventHandler(object sender, NotificationReceivedEventArgs e);
+        public event CommandErrorEventHandler OnCommandError;
 
         /// <summary>
         /// Notification Received event
@@ -64,9 +61,11 @@ namespace YeelightAPI
         public delegate void CommandErrorEventHandler(object sender, CommandErrorEventArgs e);
 
         /// <summary>
-        /// Error Received event
+        /// Notification Received event handler
         /// </summary>
-        public event CommandErrorEventHandler OnCommandError;
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public delegate void NotificationReceivedEventHandler(object sender, NotificationReceivedEventArgs e);
 
         #endregion EVENTS
 
@@ -121,6 +120,21 @@ namespace YeelightAPI
         public readonly Dictionary<string, object> Properties = new Dictionary<string, object>();
 
         /// <summary>
+        /// Name of the device
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+                return this[PROPERTIES.name] as string;
+            }
+            set
+            {
+                this[PROPERTIES.name] = value;
+            }
+        }
+
+        /// <summary>
         /// Access property from its enum value
         /// </summary>
         /// <param name="property"></param>
@@ -165,21 +179,6 @@ namespace YeelightAPI
             }
         }
 
-        /// <summary>
-        /// Name of the device
-        /// </summary>
-        public string Name
-        {
-            get
-            {
-                return this[PROPERTIES.name] as string;
-            }
-            set
-            {
-                this[PROPERTIES.name] = value;
-            }
-        }
-
         #endregion PROPERTIES ACCESS
 
         #region PUBLIC METHODS
@@ -195,6 +194,31 @@ namespace YeelightAPI
         }
 
         #endregion IDisposable
+
+        /// <summary>
+        /// Execute a command
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="id"></param>
+        /// <param name="parameters"></param>
+        /// <param name="smooth"></param>
+        public void ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null)
+        {
+            Command command = new Command()
+            {
+                Id = id,
+                Method = method.GetRealName(),
+                Params = parameters ?? new List<object>()
+            };
+
+            string data = JsonConvert.SerializeObject(command, _serializerSettings);
+            byte[] sentData = Encoding.ASCII.GetBytes(data + Constantes.LineSeparator); // \r\n is the end of the message, it needs to be sent for the message to be read by the device
+
+            lock (_syncLock)
+            {
+                _tcpClient.Client.Send(sentData);
+            }
+        }
 
         /// <summary>
         /// Execute a command and waits for a response
@@ -245,34 +269,33 @@ namespace YeelightAPI
             return result as CommandResult;
         }
 
-        /// <summary>
-        /// Execute a command
-        /// </summary>
-        /// <param name="method"></param>
-        /// <param name="id"></param>
-        /// <param name="parameters"></param>
-        /// <param name="smooth"></param>
-        public void ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null)
-        {
-            Command command = new Command()
-            {
-                Id = id,
-                Method = method.GetRealName(),
-                Params = parameters ?? new List<object>()
-            };
-
-            string data = JsonConvert.SerializeObject(command, _serializerSettings);
-            byte[] sentData = Encoding.ASCII.GetBytes(data + Constantes.LineSeparator); // \r\n is the end of the message, it needs to be sent for the message to be read by the device
-
-            lock (_syncLock)
-            {
-                _tcpClient.Client.Send(sentData);
-            }
-        }
-
         #endregion PUBLIC METHODS
 
         #region PRIVATE METHODS
+
+        /// <summary>
+        /// Generate valid parameters for smooth values
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="smooth"></param>
+        private static void HandleSmoothValue(ref List<object> parameters, int? smooth)
+        {
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
+            if (smooth.HasValue)
+            {
+                parameters.Add("smooth");
+                parameters.Add(smooth.Value);
+            }
+            else
+            {
+                parameters.Add("sudden");
+                parameters.Add(null); // two parameters needed
+            }
+        }
 
         /// <summary>
         /// Watch for device responses and notifications
@@ -346,30 +369,6 @@ namespace YeelightAPI
                     await Task.Delay(100);
                 }
             }, TaskCreationOptions.LongRunning);
-        }
-
-        /// <summary>
-        /// Generate valid parameters for smooth values
-        /// </summary>
-        /// <param name="parameters"></param>
-        /// <param name="smooth"></param>
-        private static void HandleSmoothValue(ref List<object> parameters, int? smooth)
-        {
-            if (parameters == null)
-            {
-                throw new ArgumentNullException(nameof(parameters));
-            }
-
-            if (smooth.HasValue)
-            {
-                parameters.Add("smooth");
-                parameters.Add(smooth.Value);
-            }
-            else
-            {
-                parameters.Add("sudden");
-                parameters.Add(null); // two parameters needed
-            }
         }
 
         #endregion PRIVATE METHODS

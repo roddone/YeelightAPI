@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace YeelightAPI.Models.ColorFlow
 {
@@ -9,6 +7,13 @@ namespace YeelightAPI.Models.ColorFlow
     /// </summary>
     public class ColorFlowExpression
     {
+        #region Public Properties
+
+        /// <summary>
+        /// Brightness (-1 or 1~100)
+        /// </summary>
+        public int Brightness { get; set; }
+
         /// <summary>
         /// Duration of the effect
         /// </summary>
@@ -24,10 +29,9 @@ namespace YeelightAPI.Models.ColorFlow
         /// </summary>
         public int Value { get; set; }
 
-        /// <summary>
-        /// Brightness (-1 or 1~100)
-        /// </summary>
-        public int Brightness { get; set; }
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// returns the flow expression
@@ -43,5 +47,7 @@ namespace YeelightAPI.Models.ColorFlow
                 Brightness
             };
         }
+
+        #endregion Public Methods
     }
 }

@@ -6,6 +6,8 @@ namespace YeelightAPI.Models
 {
     internal static class PropertiesExtensions
     {
+        #region Public Methods
+
         /// <summary>
         /// Get the real name of the properties
         /// </summary>
@@ -20,5 +22,7 @@ namespace YeelightAPI.Models
                 .Select(x => x.ToString())
                 .ToList<object>();
         }
+
+        #endregion Public Methods
     }
 }

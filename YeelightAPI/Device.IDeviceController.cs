@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
@@ -15,7 +13,6 @@ namespace YeelightAPI
     /// </summary>
     public partial class Device : IDeviceController
     {
-
         /// <summary>
         /// Disconnect the current device
         /// </summary>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YeelightAPI.Models.Adjust
+﻿namespace YeelightAPI.Models.Adjust
 {
     /// <summary>
     /// Property to adjust in an adjust command

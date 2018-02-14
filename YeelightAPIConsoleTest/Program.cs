@@ -10,6 +10,8 @@ namespace YeelightAPIConsoleTest
 {
     public class Program
     {
+        #region Public Methods
+
         public static async Task Main(string[] args)
         {
             try
@@ -35,7 +37,6 @@ namespace YeelightAPIConsoleTest
                         Console.WriteLine($"{devices.Count} device(s) found !");
                         using (DeviceGroup group = new DeviceGroup(devices))
                         {
-
                             await group.Connect();
 
                             foreach (Device device in group)
@@ -112,7 +113,6 @@ namespace YeelightAPIConsoleTest
                         Console.WriteLine($"\tprops : {JsonConvert.SerializeObject(result)}");
                         await Task.Delay(2000);
 
-
                         //without smooth value (sudden)
                         WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
                         success &= await ExecuteTests(device, null);
@@ -141,6 +141,10 @@ namespace YeelightAPIConsoleTest
             Console.ReadLine();
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+
         private static void Device_OnCommandError(object sender, CommandErrorEventArgs arg)
         {
             WriteLineWithColor($"An error occurred : {arg.Error}", ConsoleColor.DarkRed);
@@ -151,14 +155,13 @@ namespace YeelightAPIConsoleTest
             WriteLineWithColor($"Notification received !! value : {JsonConvert.SerializeObject(arg.Result)}", ConsoleColor.DarkGray);
         }
 
-
         private static async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         {
             bool success = true, globalSuccess = true;
             int delay = 1500;
 
             Console.WriteLine("powering on ...");
-            success =await device.SetPower(true);
+            success = await device.SetPower(true);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -299,5 +302,7 @@ namespace YeelightAPIConsoleTest
             Console.WriteLine(text);
             Console.ResetColor();
         }
+
+        #endregion Private Methods
     }
 }

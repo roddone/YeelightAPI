@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace YeelightAPI.Models
 {
@@ -11,6 +7,8 @@ namespace YeelightAPI.Models
     /// </summary>
     public class Command
     {
+        #region Public Properties
+
         /// <summary>
         /// Request Id
         /// </summary>
@@ -26,5 +24,6 @@ namespace YeelightAPI.Models
         /// </summary>
         public IList<object> Params { get; set; }
 
+        #endregion Public Properties
     }
 }

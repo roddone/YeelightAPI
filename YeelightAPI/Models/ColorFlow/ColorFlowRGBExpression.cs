@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace YeelightAPI.Models.ColorFlow
 {
@@ -9,6 +7,8 @@ namespace YeelightAPI.Models.ColorFlow
     /// </summary>
     public class ColorFlowRGBExpression : ColorFlowExpression
     {
+        #region Public Constructors
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -26,5 +26,7 @@ namespace YeelightAPI.Models.ColorFlow
             Mode = ColorFlowMode.Color;
             Brightness = brightness;
         }
+
+        #endregion Public Constructors
     }
 }

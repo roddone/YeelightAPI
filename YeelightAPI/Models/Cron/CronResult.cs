@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YeelightAPI.Models.Cron
+﻿namespace YeelightAPI.Models.Cron
 {
     /// <summary>
     /// Cron result
     /// </summary>
     public class CronResult
     {
-        /// <summary>
-        /// Type of the cron task
-        /// </summary>
-        public int Type { get; set; }
+        #region Public Properties
 
         /// <summary>
         /// ???
@@ -23,5 +16,12 @@ namespace YeelightAPI.Models.Cron
         /// ???
         /// </summary>
         public int Mix { get; set; }
+
+        /// <summary>
+        /// Type of the cron task
+        /// </summary>
+        public int Type { get; set; }
+
+        #endregion Public Properties
     }
 }

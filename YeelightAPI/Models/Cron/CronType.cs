@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YeelightAPI.Models.Cron
+﻿namespace YeelightAPI.Models.Cron
 {
     /// <summary>
     /// Cron Type

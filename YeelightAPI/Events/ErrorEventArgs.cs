@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using YeelightAPI.Models;
 
 namespace YeelightAPI
@@ -10,6 +8,17 @@ namespace YeelightAPI
     /// </summary>
     public class CommandErrorEventArgs : EventArgs
     {
+        #region Public Properties
+
+        /// <summary>
+        /// Notification Result
+        /// </summary>
+        public CommandResult.CommandErrorResult Error { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Constructors
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -24,10 +33,6 @@ namespace YeelightAPI
             Error = result;
         }
 
-        /// <summary>
-        /// Notification Result
-        /// </summary>
-        public CommandResult.CommandErrorResult Error { get; set; }
-
+        #endregion Public Constructors
     }
 }

@@ -1,11 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace YeelightAPI.Models
 {
+    /// <summary>
+    /// Extensions for CommandResult
+    /// </summary>
+    public static class CommandResultExtensions
+    {
+        #region Public Methods
+
+        /// <summary>
+        /// Determine if the result is a classical OK result ({"id":1, "result":["ok"]})
+        /// </summary>
+        /// <param name="this"></param>
+        /// <returns></returns>
+        public static bool IsOk(this CommandResult @this)
+        {
+            return @this != null && @this.Error == null && @this.Result?[0] == "ok";
+        }
+
+        #endregion Public Methods
+    }
+
     /// <summary>
     /// Default command result
     /// </summary>
@@ -16,10 +32,7 @@ namespace YeelightAPI.Models
     /// </summary>
     public class CommandResult<T>
     {
-        /// <summary>
-        /// Request Id (mirrored from the sent request)
-        /// </summary>
-        public int Id { get; set; }
+        #region Public Properties
 
         /// <summary>
         /// Error, null if command is successful
@@ -27,15 +40,26 @@ namespace YeelightAPI.Models
         public CommandErrorResult Error { get; set; }
 
         /// <summary>
+        /// Request Id (mirrored from the sent request)
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
         /// Result
         /// </summary>
         public T Result { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Classes
 
         /// <summary>
         /// Error model
         /// </summary>
         public class CommandErrorResult
         {
+            #region Public Properties
+
             /// <summary>
             /// Error code
             /// </summary>
@@ -46,6 +70,10 @@ namespace YeelightAPI.Models
             /// </summary>
             public string Message { get; set; }
 
+            #endregion Public Properties
+
+            #region Public Methods
+
             /// <summary>
             /// ToString override
             /// </summary>
@@ -54,23 +82,10 @@ namespace YeelightAPI.Models
             {
                 return $"{Code} - {Message}";
             }
-        }
-    }
 
-    /// <summary>
-    /// Extensions for CommandResult
-    /// </summary>
-    public static class CommandResultExtensions
-    {
-        /// <summary>
-        /// Determine if the result is a classical OK result ({"id":1, "result":["ok"]})
-        /// </summary>
-        /// <param name="this"></param>
-        /// <returns></returns>
-        public static bool IsOk(this CommandResult @this)
-        {
-            return @this != null && @this.Error == null && @this.Result?[0] == "ok";
+            #endregion Public Methods
         }
-    }
 
+        #endregion Public Classes
+    }
 }

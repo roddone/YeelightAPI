@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace YeelightAPI
@@ -11,7 +9,6 @@ namespace YeelightAPI
     /// </summary>
     public partial class DeviceGroup : List<Device>, IDisposable
     {
-
         #region PUBLIC PROPERTIES
 
         /// <summary>
@@ -70,13 +67,15 @@ namespace YeelightAPI
         /// </summary>
         public void Dispose()
         {
-            foreach(Device device in this)
+            foreach (Device device in this)
             {
                 device.Dispose();
             }
         }
 
-        #endregion
+        #endregion IDisposable
+
+        #region Protected Methods
 
         /// <summary>
         /// Execute code for all the devices
@@ -103,5 +102,6 @@ namespace YeelightAPI
             return result;
         }
 
+        #endregion Protected Methods
     }
 }

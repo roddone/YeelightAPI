@@ -16,12 +16,18 @@ namespace YeelightAPI
     /// </summary>
     public static class DeviceLocator
     {
-        private static string _yeelightlocationMatch = "Location: yeelight://";
-        private static readonly IPEndPoint _multicastEndPoint = new IPEndPoint(IPAddress.Parse("239.255.255.250"), 1982);
+        #region Private Fields
+
         private const string _ssdpMessage = "M-SEARCH * HTTP/1.1\r\nHOST: 239.255.255.250:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
-        private static readonly byte[] _ssdpDiagram = Encoding.ASCII.GetBytes(_ssdpMessage);
         private static readonly List<object> _allPropertyRealNames = PROPERTIES.ALL.GetRealNames();
         private static readonly char[] _colon = new char[] { ':' };
+        private static readonly IPEndPoint _multicastEndPoint = new IPEndPoint(IPAddress.Parse("239.255.255.250"), 1982);
+        private static readonly byte[] _ssdpDiagram = Encoding.ASCII.GetBytes(_ssdpMessage);
+        private static string _yeelightlocationMatch = "Location: yeelight://";
+
+        #endregion Private Fields
+
+        #region Public Methods
 
         /// <summary>
         /// Discover devices in LAN
@@ -100,6 +106,10 @@ namespace YeelightAPI
             return devices;
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+
         /// <summary>
         /// Gets the informations from a raw SSDP message (host, port)
         /// </summary>
@@ -107,7 +117,6 @@ namespace YeelightAPI
         /// <returns></returns>
         private static Device GetDeviceInformationsFromSsdpMessage(string ssdpMessage)
         {
-
             if (ssdpMessage != null)
             {
                 string[] split = ssdpMessage.Split(new string[] { Constantes.LineSeparator }, StringSplitOptions.RemoveEmptyEntries);
@@ -149,5 +158,7 @@ namespace YeelightAPI
 
             return null;
         }
+
+        #endregion Private Methods
     }
 }

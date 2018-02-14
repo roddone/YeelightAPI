@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace YeelightAPI.Models.ColorFlow
@@ -10,15 +8,21 @@ namespace YeelightAPI.Models.ColorFlow
     /// </summary>
     public class ColorFlow : List<ColorFlowExpression>
     {
-        /// <summary>
-        /// Number of repetitions
-        /// </summary>
-        public int RepetitionCount { get; set; }
+        #region Public Properties
 
         /// <summary>
         /// Action taken when the flow stops
         /// </summary>
         public ColorFlowEndAction EndAction { get; set; }
+
+        /// <summary>
+        /// Number of repetitions
+        /// </summary>
+        public int RepetitionCount { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Constructors
 
         /// <summary>
         /// Constructor
@@ -43,6 +47,10 @@ namespace YeelightAPI.Models.ColorFlow
             AddRange(expressions);
         }
 
+        #endregion Public Constructors
+
+        #region Public Methods
+
         /// <summary>
         /// Returns the flow expression
         /// </summary>
@@ -51,12 +59,14 @@ namespace YeelightAPI.Models.ColorFlow
         {
             List<int> flow = new List<int>();
 
-            foreach(ColorFlowExpression expression in this)
+            foreach (ColorFlowExpression expression in this)
             {
                 flow.AddRange(expression.GetFlow());
             }
 
             return string.Join(",", flow);
         }
+
+        #endregion Public Methods
     }
 }

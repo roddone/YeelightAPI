@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 using YeelightAPI.Models.Cron;
@@ -11,31 +7,34 @@ namespace YeelightAPI
 {
     public interface IDeviceController
     {
-
-        void Disconnect();
+        #region Public Methods
 
         Task<bool> Connect();
 
-        Task<bool> Toggle();
+        Task<bool> CronAdd(int value, CronType type = CronType.PowerOff);
 
-        Task<bool> SetPower(bool state = true);
+        Task<bool> CronDelete(CronType type = CronType.PowerOff);
+
+        void Disconnect();
+
+        Task<bool> SetAdjust(AdjustAction action, AdjustProperty property);
 
         Task<bool> SetBrightness(int value, int? smooth = null);
 
-        Task<bool> SetRGBColor(int r, int g, int b, int? smooth = null);
+        Task<bool> SetColorTemperature(int temperature, int? smooth = null);
 
         Task<bool> SetHSVColor(int hue, int sat, int? smooth = null);
 
-        Task<bool> SetColorTemperature(int temperature, int? smooth = null);
+        Task<bool> SetPower(bool state = true);
+
+        Task<bool> SetRGBColor(int r, int g, int b, int? smooth = null);
 
         Task<bool> StartColorFlow(ColorFlow flow);
 
         Task<bool> StopColorFlow();
 
-        Task<bool> SetAdjust(AdjustAction action, AdjustProperty property);
+        Task<bool> Toggle();
 
-        Task<bool> CronAdd(int value, CronType type = CronType.PowerOff);
-
-        Task<bool> CronDelete(CronType type = CronType.PowerOff);
+        #endregion Public Methods
     }
 }

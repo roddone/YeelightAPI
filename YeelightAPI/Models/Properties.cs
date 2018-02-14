@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace YeelightAPI.Models
 {
@@ -119,7 +114,7 @@ namespace YeelightAPI.Models
         bg_hue = 1 << 19,
 
         /// <summary>
-        /// Saturation of background light    
+        /// Saturation of background light
         /// </summary>
         bg_sat = 1 << 20,
 

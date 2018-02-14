@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 
@@ -12,6 +9,22 @@ namespace YeelightAPI
     /// </summary>
     public partial class DeviceGroup : IBackgroundDeviceController
     {
+        #region Public Methods
+
+        /// <summary>
+        /// Adjusts background light
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundSetAdjust(AdjustAction action, AdjustProperty property)
+        {
+            return await Process((Device device) =>
+            {
+                return device.BackgroundSetAdjust(action, property);
+            });
+        }
+
         /// <summary>
         /// Set background light color
         /// </summary>
@@ -24,7 +37,6 @@ namespace YeelightAPI
             {
                 return device.BackgroundSetBrightness(value, smooth);
             });
-
         }
 
         /// <summary>
@@ -38,6 +50,21 @@ namespace YeelightAPI
             return await Process((Device device) =>
             {
                 return device.BackgroundSetColorTemperature(temperature, smooth);
+            });
+        }
+
+        /// <summary>
+        /// Set background light HSV color
+        /// </summary>
+        /// <param name="hue"></param>
+        /// <param name="sat"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundSetHSVColor(int hue, int sat, int? smooth = null)
+        {
+            return await Process((Device device) =>
+            {
+                return device.BackgroundSetHSVColor(hue, sat, smooth);
             });
         }
 
@@ -68,20 +95,6 @@ namespace YeelightAPI
             {
                 return device.BackgroundSetRGBColor(r, g, b, smooth);
             });
-
-        }
-
-        /// <summary>
-        /// Toggle background light
-        /// </summary>
-        /// <returns></returns>
-        public async Task<bool> BackgroundToggle()
-        {
-            return await Process((Device device) =>
-            {
-                return device.BackgroundToggle();
-            });
-            
         }
 
         /// <summary>
@@ -109,35 +122,17 @@ namespace YeelightAPI
             {
                 return device.BackgroundStopColorFlow();
             });
-            
         }
 
         /// <summary>
-        /// Adjusts background light
+        /// Toggle background light
         /// </summary>
-        /// <param name="action"></param>
-        /// <param name="property"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetAdjust(AdjustAction action, AdjustProperty property)
+        public async Task<bool> BackgroundToggle()
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundSetAdjust(action, property);
-            });
-        }
-
-        /// <summary>
-        /// Set background light HSV color
-        /// </summary>
-        /// <param name="hue"></param>
-        /// <param name="sat"></param>
-        /// <param name="smooth"></param>
-        /// <returns></returns>
-        public async Task<bool> BackgroundSetHSVColor(int hue, int sat, int? smooth = null)
-        {
-            return await Process((Device device) =>
-            {
-                return device.BackgroundSetHSVColor(hue, sat, smooth);
+                return device.BackgroundToggle();
             });
         }
 
@@ -152,5 +147,7 @@ namespace YeelightAPI
                 return device.DevToggle();
             });
         }
+
+        #endregion Public Methods
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Cron;
@@ -12,6 +11,35 @@ namespace YeelightAPI
     /// </summary>
     public partial class Device : IDeviceReader
     {
+        #region Public Methods
+
+        /// <summary>
+        /// Get a cron JOB
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public async Task<CronResult> CronGet(CronType type = CronType.PowerOff)
+        {
+            List<object> parameters = new List<object>() { (int)type };
+
+            CommandResult<CronResult> result = await ExecuteCommandWithResponse<CronResult>(
+                            method: METHODS.SetName,
+                            id: (int)METHODS.SetName,
+                            parameters: parameters);
+
+            return result?.Result;
+        }
+
+        /// <summary>
+        /// Get all the properties asynchronously
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Dictionary<PROPERTIES, object>> GetAllProps()
+        {
+            Dictionary<PROPERTIES, object> result = await GetProps(PROPERTIES.ALL);
+
+            return result;
+        }
 
         /// <summary>
         /// Get a single property value asynchronously
@@ -60,17 +88,6 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// Get all the properties asynchronously
-        /// </summary>
-        /// <returns></returns>
-        public async Task<Dictionary<PROPERTIES, object>> GetAllProps()
-        {
-            Dictionary<PROPERTIES, object> result = await GetProps(PROPERTIES.ALL);
-
-            return result;
-        }
-
-        /// <summary>
         /// Set the name of the device
         /// </summary>
         /// <param name="name"></param>
@@ -95,22 +112,6 @@ namespace YeelightAPI
             }
         }
 
-        /// <summary>
-        /// Get a cron JOB
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public async Task<CronResult> CronGet(CronType type = CronType.PowerOff)
-        {
-            List<object> parameters = new List<object>() { (int) type };
-
-            CommandResult<CronResult> result = await ExecuteCommandWithResponse<CronResult>(
-                            method: METHODS.SetName,
-                            id: (int)METHODS.SetName,
-                            parameters: parameters);
-
-            return result?.Result;
-
-        }
+        #endregion Public Methods
     }
 }

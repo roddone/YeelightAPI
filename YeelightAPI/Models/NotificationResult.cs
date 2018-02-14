@@ -1,9 +1,4 @@
-﻿using Newtonsoft.Json.Converters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace YeelightAPI.Models
 {
@@ -12,6 +7,7 @@ namespace YeelightAPI.Models
     /// </summary>
     public class NotificationResult
     {
+        #region Public Properties
 
         /// <summary>
         /// Method
@@ -23,5 +19,6 @@ namespace YeelightAPI.Models
         /// </summary>
         public Dictionary<PROPERTIES, object> Params { get; set; }
 
+        #endregion Public Properties
     }
 }
