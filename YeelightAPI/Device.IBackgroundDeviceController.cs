@@ -24,7 +24,7 @@ namespace YeelightAPI
             {
                 List<object> parameters = new List<object>() { action.ToString(), property.ToString() };
 
-                CommandResult result = await ExecuteCommandWithResponse(
+                CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                     method: METHODS.SetBackgroundLightAdjust,
                     id: (int)METHODS.SetBackgroundLightAdjust,
                     parameters: parameters);
@@ -45,7 +45,7 @@ namespace YeelightAPI
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightBrightness,
                 id: (int)METHODS.SetBackgroundLightBrightness,
                 parameters: parameters);
@@ -65,7 +65,7 @@ namespace YeelightAPI
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundColorTemperature,
                 id: (int)METHODS.SetBackgroundColorTemperature,
                 parameters: parameters);
@@ -86,7 +86,7 @@ namespace YeelightAPI
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightHSVColor,
                 id: (int)METHODS.SetBackgroundLightHSVColor,
                 parameters: parameters);
@@ -101,7 +101,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> BackgroundSetPower(bool state = true)
         {
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightPower,
                 id: (int)METHODS.SetBackgroundLightPower,
                 parameters: new List<object>() { state ? "on" : "off" }
@@ -126,7 +126,7 @@ namespace YeelightAPI
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightRGBColor,
                 id: (int)METHODS.SetBackgroundLightRGBColor,
                 parameters: parameters);
@@ -145,7 +145,7 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { flow.RepetitionCount, (int)flow.EndAction, flow.GetColorFlowExpression() };
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.StartBackgroundLightColorFlow,
                 id: (int)METHODS.StartBackgroundLightColorFlow,
                 parameters: parameters);
@@ -159,7 +159,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> BackgroundStopColorFlow()
         {
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.StopBackgroundLightColorFlow,
                             id: (int)METHODS.StopBackgroundLightColorFlow);
 
@@ -172,7 +172,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> BackgroundToggle()
         {
-            CommandResult result = await ExecuteCommandWithResponse(METHODS.ToggleBackgroundLight, id: (int)METHODS.ToggleBackgroundLight);
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.ToggleBackgroundLight, id: (int)METHODS.ToggleBackgroundLight);
 
             return result.IsOk();
         }
@@ -183,7 +183,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> DevToggle()
         {
-            CommandResult result = await ExecuteCommandWithResponse(METHODS.ToggleDev, id: (int)METHODS.ToggleDev);
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.ToggleDev, id: (int)METHODS.ToggleDev);
 
             return result.IsOk();
         }

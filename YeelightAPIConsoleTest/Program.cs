@@ -42,7 +42,6 @@ namespace YeelightAPIConsoleTest
                             foreach (Device device in group)
                             {
                                 device.OnNotificationReceived += Device_OnNotificationReceived;
-                                device.OnCommandError += Device_OnCommandError;
                             }
 
                             bool success = true;
@@ -92,7 +91,6 @@ namespace YeelightAPIConsoleTest
                         success &= await device.Connect();
 
                         device.OnNotificationReceived += Device_OnNotificationReceived;
-                        device.OnCommandError += Device_OnCommandError;
 
                         Console.WriteLine("getting current name ...");
                         string name = (await device.GetProp(PROPERTIES.name))?.ToString();
@@ -144,11 +142,6 @@ namespace YeelightAPIConsoleTest
         #endregion Public Methods
 
         #region Private Methods
-
-        private static void Device_OnCommandError(object sender, CommandErrorEventArgs arg)
-        {
-            WriteLineWithColor($"An error occurred : {arg.Error}", ConsoleColor.DarkRed);
-        }
 
         private static void Device_OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)
         {

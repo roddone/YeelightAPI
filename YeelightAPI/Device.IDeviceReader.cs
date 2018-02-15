@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Cron;
@@ -22,12 +23,12 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { (int)type };
 
-            CommandResult<CronResult> result = await ExecuteCommandWithResponse<CronResult>(
+            CommandResult<CronResult[]> result = await ExecuteCommandWithResponse<CronResult[]>(
                             method: METHODS.GetCron,
                             id: (int)METHODS.GetCron,
                             parameters: parameters);
 
-            return result?.Result;
+            return result?.Result.FirstOrDefault();
         }
 
         /// <summary>
@@ -48,7 +49,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<object> GetProp(PROPERTIES prop)
         {
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.GetProp,
                 id: (int)METHODS.GetProp,
                 parameters: new List<object>() { prop.ToString() }
@@ -66,7 +67,7 @@ namespace YeelightAPI
         {
             List<object> names = props.GetRealNames();
 
-            CommandResult commandResult = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> commandResult = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.GetProp,
                 id: ((int)METHODS.GetProp),// + 1000 + props.Count,
                 parameters: names
@@ -96,7 +97,7 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { name };
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetName,
                             id: (int)METHODS.SetName,
                             parameters: parameters);

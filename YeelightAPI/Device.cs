@@ -27,7 +27,7 @@ namespace YeelightAPI
         /// <summary>
         /// Dictionary of results
         /// </summary>
-        private readonly Dictionary<object, object> _currentCommandResults = new Dictionary<object, object>();
+        private readonly Dictionary<int, ICommandResultHandler> _currentCommandResults = new Dictionary<int, ICommandResultHandler>();
 
         /// <summary>
         /// lock
@@ -42,11 +42,6 @@ namespace YeelightAPI
         #endregion PRIVATE ATTRIBUTES
 
         #region EVENTS
-
-        /// <summary>
-        /// Error Received event
-        /// </summary>
-        public event CommandErrorEventHandler OnCommandError;
 
         /// <summary>
         /// Notification Received event
@@ -228,45 +223,24 @@ namespace YeelightAPI
         /// <param name="parameters"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
+        public Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
         {
-            if (_currentCommandResults.ContainsKey(id))
+            CommandResultHandler<T> commandResultHandler;
+            lock (_currentCommandResults)
             {
-                _currentCommandResults.Remove(id);
+                if (_currentCommandResults.TryGetValue(id, out var oldHandler))
+                {
+                    oldHandler.TrySetCanceled();
+                    _currentCommandResults.Remove(id);
+                }
+
+                commandResultHandler = new CommandResultHandler<T>();
+                _currentCommandResults.Add(id, commandResultHandler);
             }
 
             ExecuteCommand(method, id, parameters);
 
-            DateTime startWait = DateTime.Now;
-            while (!_currentCommandResults.ContainsKey(id) && DateTime.Now - startWait < TimeSpan.FromSeconds(5))
-            {
-                await Task.Delay(10);
-            } //wait for result during 5s
-
-            //save results and remove if from results list
-            if (_currentCommandResults.ContainsKey(id))
-            {
-                CommandResult<T> result = _currentCommandResults[id] as CommandResult<T>;
-                _currentCommandResults.Remove(id);
-
-                return result;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Execute a command and waits for a response
-        /// </summary>
-        /// <param name="method"></param>
-        /// <param name="id"></param>
-        /// <param name="parameters"></param>
-        /// <param name="smooth"></param>
-        /// <returns></returns>
-        public async Task<CommandResult> ExecuteCommandWithResponse(METHODS method, int id = 0, List<object> parameters = null)
-        {
-            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(method, id, parameters);
-            return result as CommandResult;
+            return commandResultHandler.Task;
         }
 
         #endregion PUBLIC METHODS
@@ -324,37 +298,50 @@ namespace YeelightAPI
                                 if (!string.IsNullOrEmpty(datas))
                                 {
                                     //get every messages in the pipe
-                                    foreach (string entry in datas.Split(new string[] { Constantes.LineSeparator }, StringSplitOptions.RemoveEmptyEntries))
+                                    foreach (string entry in datas.Split(new string[] {Constantes.LineSeparator},
+                                        StringSplitOptions.RemoveEmptyEntries))
                                     {
-                                        CommandResult commandResult = JsonConvert.DeserializeObject<CommandResult>(entry, _serializerSettings);
+                                        CommandResult commandResult =
+                                            JsonConvert.DeserializeObject<CommandResult>(entry, _serializerSettings);
+                                        if (commandResult != null && commandResult.Id != 0)
+                                        {
+                                            ICommandResultHandler commandResultHandler;
+                                            lock (_currentCommandResults)
+                                            {
+                                                commandResultHandler = _currentCommandResults[commandResult.Id];
+                                            }
 
-                                        if (commandResult != null && commandResult.Result != null)
-                                        {
-                                            //command result
-                                            _currentCommandResults[commandResult.Id] = commandResult;
-                                        }
-                                        else if (commandResult != null && commandResult.Error != null)
-                                        {
-                                            //error result
-                                            OnCommandError?.Invoke(this, new CommandErrorEventArgs(commandResult.Error));
+                                            if (commandResult.Error == null)
+                                            {
+                                                commandResult = (CommandResult)JsonConvert.DeserializeObject(entry, commandResultHandler.ResultType, _serializerSettings);
+                                                commandResultHandler.SetResult(commandResult);
+                                            }
+                                            else
+                                            {
+                                                commandResultHandler.SetError(commandResult.Error);
+                                            }
                                         }
                                         else
                                         {
-                                            NotificationResult notificationResult = JsonConvert.DeserializeObject<NotificationResult>(entry, _serializerSettings);
+                                            NotificationResult notificationResult =
+                                                JsonConvert.DeserializeObject<NotificationResult>(entry,
+                                                    _serializerSettings);
 
                                             if (notificationResult != null && notificationResult.Method != null)
                                             {
                                                 if (notificationResult.Params != null)
                                                 {
                                                     //save properties
-                                                    foreach (KeyValuePair<PROPERTIES, object> property in notificationResult.Params)
+                                                    foreach (KeyValuePair<PROPERTIES, object> property in
+                                                        notificationResult.Params)
                                                     {
                                                         this[property.Key] = property.Value;
                                                     }
                                                 }
 
                                                 //notification result
-                                                OnNotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(notificationResult));
+                                                OnNotificationReceived?.Invoke(this,
+                                                    new NotificationReceivedEventArgs(notificationResult));
                                             }
                                         }
                                     }
@@ -366,6 +353,7 @@ namespace YeelightAPI
                             }
                         }
                     }
+
                     await Task.Delay(100);
                 }
             }, TaskCreationOptions.LongRunning);
