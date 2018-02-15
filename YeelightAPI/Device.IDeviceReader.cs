@@ -23,8 +23,8 @@ namespace YeelightAPI
             List<object> parameters = new List<object>() { (int)type };
 
             CommandResult<CronResult> result = await ExecuteCommandWithResponse<CronResult>(
-                            method: METHODS.SetName,
-                            id: (int)METHODS.SetName,
+                            method: METHODS.GetCron,
+                            id: (int)METHODS.GetCron,
                             parameters: parameters);
 
             return result?.Result;
