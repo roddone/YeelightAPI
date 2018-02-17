@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using YeelightAPI;
 using YeelightAPI.Models;
 using YeelightAPI.Models.ColorFlow;
+using YeelightAPI.Models.Cron;
 
 namespace YeelightAPIConsoleTest
 {
@@ -92,25 +93,6 @@ namespace YeelightAPIConsoleTest
 
                         device.OnNotificationReceived += Device_OnNotificationReceived;
 
-                        Console.WriteLine("getting current name ...");
-                        string name = (await device.GetProp(PROPERTIES.name))?.ToString();
-                        Console.WriteLine($"current name : {name}");
-
-                        Console.WriteLine("setting name 'test' ...");
-                        success &= await device.SetName("test");
-                        WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-                        await Task.Delay(2000);
-
-                        Console.WriteLine("restoring name '{0}' ...", name);
-                        success &= await device.SetName(name);
-                        WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-                        await Task.Delay(2000);
-
-                        Console.WriteLine("getting all props ...");
-                        Dictionary<PROPERTIES, object> result = await device.GetAllProps();
-                        Console.WriteLine($"\tprops : {JsonConvert.SerializeObject(result)}");
-                        await Task.Delay(2000);
-
                         //without smooth value (sudden)
                         WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
                         success &= await ExecuteTests(device, null);
@@ -155,6 +137,45 @@ namespace YeelightAPIConsoleTest
 
             Console.WriteLine("powering on ...");
             success = await device.SetPower(true);
+            globalSuccess &= success;
+            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+            await Task.Delay(delay);
+
+            Console.WriteLine("add cron ...");
+            success = await device.CronAdd(15, YeelightAPI.Models.Cron.CronType.PowerOff);
+            globalSuccess &= success;
+            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+            await Task.Delay(delay);
+
+            if (device is IDeviceReader deviceReader)
+            {
+                Console.WriteLine("get cron ...");
+                CronResult cronResult = await deviceReader.CronGet(YeelightAPI.Models.Cron.CronType.PowerOff);
+                globalSuccess &= (cronResult != null);
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+
+                Console.WriteLine("getting current name ...");
+                string name = (await deviceReader.GetProp(PROPERTIES.name))?.ToString();
+                Console.WriteLine($"current name : {name}");
+
+                Console.WriteLine("setting name 'test' ...");
+                success &= await deviceReader.SetName("test");
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(2000);
+
+                Console.WriteLine("restoring name '{0}' ...", name);
+                success &= await deviceReader.SetName(name);
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(2000);
+
+                Console.WriteLine("getting all props ...");
+                Dictionary<PROPERTIES, object> result = await deviceReader.GetAllProps();
+                Console.WriteLine($"\tprops : {JsonConvert.SerializeObject(result)}");
+                await Task.Delay(2000);
+            }
+            Console.WriteLine("delete cron ...");
+            success = await device.CronDelete(YeelightAPI.Models.Cron.CronType.PowerOff);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);

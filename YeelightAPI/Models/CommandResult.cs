@@ -16,7 +16,7 @@ namespace YeelightAPI.Models
         /// <returns></returns>
         public static bool IsOk(this CommandResult<List<string>> @this)
         {
-            return @this != null && @this.Error == null && @this.Result?[0] == "ok";
+            return @this?.Error == null && @this?.Result?[0] == "ok";
         }
 
         #endregion Public Methods

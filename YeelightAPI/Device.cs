@@ -218,17 +218,41 @@ namespace YeelightAPI
         /// <summary>
         /// Execute a command and waits for a response
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="method"></param>
+        /// <param name="id"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
+        {
+            try
+            {
+                return await UnsafeExecuteCommandWithResponse<T>(method, id, parameters);
+            }
+            catch (TaskCanceledException) { }
+
+            return null;
+        }
+
+        #endregion PUBLIC METHODS
+
+        #region PRIVATE METHODS
+
+        /// <summary>
+        /// Execute a command and waits for a response (Unsafe because of Task Cancelation)
+        /// </summary>
         /// <param name="method"></param>
         /// <param name="id"></param>
         /// <param name="parameters"></param>
         /// <param name="smooth"></param>
+        /// <exception cref="TaskCanceledException"></exception>
         /// <returns></returns>
-        public Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
+        private Task<CommandResult<T>> UnsafeExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
         {
             CommandResultHandler<T> commandResultHandler;
             lock (_currentCommandResults)
             {
-                if (_currentCommandResults.TryGetValue(id, out var oldHandler))
+                if (_currentCommandResults.TryGetValue(id, out ICommandResultHandler oldHandler))
                 {
                     oldHandler.TrySetCanceled();
                     _currentCommandResults.Remove(id);
@@ -242,10 +266,6 @@ namespace YeelightAPI
 
             return commandResultHandler.Task;
         }
-
-        #endregion PUBLIC METHODS
-
-        #region PRIVATE METHODS
 
         /// <summary>
         /// Generate valid parameters for smooth values
@@ -298,7 +318,7 @@ namespace YeelightAPI
                                 if (!string.IsNullOrEmpty(datas))
                                 {
                                     //get every messages in the pipe
-                                    foreach (string entry in datas.Split(new string[] {Constantes.LineSeparator},
+                                    foreach (string entry in datas.Split(new string[] { Constantes.LineSeparator },
                                         StringSplitOptions.RemoveEmptyEntries))
                                     {
                                         CommandResult commandResult =

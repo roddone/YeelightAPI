@@ -49,12 +49,18 @@ namespace YeelightAPI
 #pragma warning restore 4014
 
             //initialiazing all properties
-            foreach (KeyValuePair<PROPERTIES, object> property in await GetAllProps())
-            {
-                this[property.Key] = property.Value;
-            }
+            Dictionary<PROPERTIES, object> properties = await GetAllProps();
 
-            return true;
+            if (properties != null)
+            {
+                foreach (KeyValuePair<PROPERTIES, object> property in properties)
+                {
+                    this[property.Key] = property.Value;
+                }
+
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

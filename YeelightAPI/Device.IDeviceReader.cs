@@ -28,7 +28,7 @@ namespace YeelightAPI
                             id: (int)METHODS.GetCron,
                             parameters: parameters);
 
-            return result?.Result.FirstOrDefault();
+            return result?.Result?.FirstOrDefault();
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace YeelightAPI
                 parameters: new List<object>() { prop.ToString() }
                 );
 
-            return result.Result != null && result.Result.Count == 1 ? result.Result[0] : null;
+            return result?.Result?.Count == 1 ? result.Result[0] : null;
         }
 
         /// <summary>
@@ -73,19 +73,23 @@ namespace YeelightAPI
                 parameters: names
                 );
 
-            Dictionary<PROPERTIES, object> result = new Dictionary<PROPERTIES, object>();
-
-            for (int n = 0; n < names.Count; n++)
+            if (commandResult != null)
             {
-                string name = names[n].ToString();
+                Dictionary<PROPERTIES, object> result = new Dictionary<PROPERTIES, object>();
 
-                if (Enum.TryParse<PROPERTIES>(name, out PROPERTIES p))
+                for (int n = 0; n < names.Count; n++)
                 {
-                    result.Add(p, commandResult.Result[n]);
-                }
-            }
+                    string name = names[n].ToString();
 
-            return result;
+                    if (Enum.TryParse<PROPERTIES>(name, out PROPERTIES p))
+                    {
+                        result.Add(p, commandResult.Result[n]);
+                    }
+                }
+
+                return result;
+            }
+            return null;
         }
 
         /// <summary>
@@ -109,7 +113,7 @@ namespace YeelightAPI
             }
             else
             {
-                return result.IsOk();
+                return false;
             }
         }
 
