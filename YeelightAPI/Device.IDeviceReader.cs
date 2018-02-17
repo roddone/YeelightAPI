@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Cron;
@@ -22,12 +23,12 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { (int)type };
 
-            CommandResult<CronResult> result = await ExecuteCommandWithResponse<CronResult>(
+            CommandResult<CronResult[]> result = await ExecuteCommandWithResponse<CronResult[]>(
                             method: METHODS.GetCron,
                             id: (int)METHODS.GetCron,
                             parameters: parameters);
 
-            return result?.Result;
+            return result?.Result?.FirstOrDefault();
         }
 
         /// <summary>
@@ -48,13 +49,13 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<object> GetProp(PROPERTIES prop)
         {
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.GetProp,
                 id: (int)METHODS.GetProp,
                 parameters: new List<object>() { prop.ToString() }
                 );
 
-            return result.Result != null && result.Result.Count == 1 ? result.Result[0] : null;
+            return result?.Result?.Count == 1 ? result.Result[0] : null;
         }
 
         /// <summary>
@@ -66,25 +67,29 @@ namespace YeelightAPI
         {
             List<object> names = props.GetRealNames();
 
-            CommandResult commandResult = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> commandResult = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.GetProp,
                 id: ((int)METHODS.GetProp),// + 1000 + props.Count,
                 parameters: names
                 );
 
-            Dictionary<PROPERTIES, object> result = new Dictionary<PROPERTIES, object>();
-
-            for (int n = 0; n < names.Count; n++)
+            if (commandResult != null)
             {
-                string name = names[n].ToString();
+                Dictionary<PROPERTIES, object> result = new Dictionary<PROPERTIES, object>();
 
-                if (Enum.TryParse<PROPERTIES>(name, out PROPERTIES p))
+                for (int n = 0; n < names.Count; n++)
                 {
-                    result.Add(p, commandResult.Result[n]);
-                }
-            }
+                    string name = names[n].ToString();
 
-            return result;
+                    if (Enum.TryParse<PROPERTIES>(name, out PROPERTIES p))
+                    {
+                        result.Add(p, commandResult.Result[n]);
+                    }
+                }
+
+                return result;
+            }
+            return null;
         }
 
         /// <summary>
@@ -96,7 +101,7 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { name };
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetName,
                             id: (int)METHODS.SetName,
                             parameters: parameters);
@@ -108,7 +113,7 @@ namespace YeelightAPI
             }
             else
             {
-                return result.IsOk();
+                return false;
             }
         }
 

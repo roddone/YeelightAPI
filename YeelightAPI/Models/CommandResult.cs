@@ -14,9 +14,9 @@ namespace YeelightAPI.Models
         /// </summary>
         /// <param name="this"></param>
         /// <returns></returns>
-        public static bool IsOk(this CommandResult @this)
+        public static bool IsOk(this CommandResult<List<string>> @this)
         {
-            return @this != null && @this.Error == null && @this.Result?[0] == "ok";
+            return @this?.Error == null && @this?.Result?[0] == "ok";
         }
 
         #endregion Public Methods
@@ -25,12 +25,7 @@ namespace YeelightAPI.Models
     /// <summary>
     /// Default command result
     /// </summary>
-    public class CommandResult : CommandResult<List<string>> { }
-
-    /// <summary>
-    /// Result received after a Command has been sent
-    /// </summary>
-    public class CommandResult<T>
+    public class CommandResult
     {
         #region Public Properties
 
@@ -43,11 +38,6 @@ namespace YeelightAPI.Models
         /// Request Id (mirrored from the sent request)
         /// </summary>
         public int Id { get; set; }
-
-        /// <summary>
-        /// Result
-        /// </summary>
-        public T Result { get; set; }
 
         #endregion Public Properties
 
@@ -87,5 +77,21 @@ namespace YeelightAPI.Models
         }
 
         #endregion Public Classes
+    }
+
+    /// <summary>
+    /// Result received after a Command has been sent
+    /// </summary>
+    public class CommandResult<T> : CommandResult
+    {
+        #region Public Properties
+
+        /// <summary>
+        /// Result
+        /// </summary>
+        public T Result { get; set; }
+
+        #endregion Public Properties
+
     }
 }

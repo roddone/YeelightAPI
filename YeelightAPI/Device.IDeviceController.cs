@@ -49,12 +49,18 @@ namespace YeelightAPI
 #pragma warning restore 4014
 
             //initialiazing all properties
-            foreach (KeyValuePair<PROPERTIES, object> property in await GetAllProps())
-            {
-                this[property.Key] = property.Value;
-            }
+            Dictionary<PROPERTIES, object> properties = await GetAllProps();
 
-            return true;
+            if (properties != null)
+            {
+                foreach (KeyValuePair<PROPERTIES, object> property in properties)
+                {
+                    this[property.Key] = property.Value;
+                }
+
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -63,7 +69,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> Toggle()
         {
-            CommandResult result = await ExecuteCommandWithResponse(METHODS.Toggle, id: (int)METHODS.Toggle);
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.Toggle, id: (int)METHODS.Toggle);
 
             return result.IsOk();
         }
@@ -75,7 +81,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> SetPower(bool state = true)
         {
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetPower,
                 id: (int)METHODS.SetPower,
                 parameters: new List<object>() { state ? "on" : "off" }
@@ -96,7 +102,7 @@ namespace YeelightAPI
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBrightness,
                 id: (int)METHODS.SetBrightness,
                 parameters: parameters);
@@ -120,7 +126,7 @@ namespace YeelightAPI
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetRGBColor,
                 id: (int)METHODS.SetRGBColor,
                 parameters: parameters);
@@ -140,7 +146,7 @@ namespace YeelightAPI
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetColorTemperature,
                 id: (int)METHODS.SetColorTemperature,
                 parameters: parameters);
@@ -161,7 +167,7 @@ namespace YeelightAPI
 
             HandleSmoothValue(ref parameters, smooth);
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetHSVColor,
                 id: (int)METHODS.SetHSVColor,
                 parameters: parameters);
@@ -180,7 +186,7 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { flow.RepetitionCount, (int)flow.EndAction, flow.GetColorFlowExpression() };
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.StartColorFlow,
                 id: (int)METHODS.StartColorFlow,
                 parameters: parameters);
@@ -194,7 +200,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> StopColorFlow()
         {
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.StopColorFlow,
                             id: (int)METHODS.StopColorFlow);
 
@@ -211,7 +217,7 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { action.ToString(), property.ToString() };
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetAdjust,
                 id: (int)METHODS.SetAdjust,
                 parameters: parameters);
@@ -229,7 +235,7 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { (int)type, value };
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.AddCron,
                 id: (int)METHODS.AddCron,
                 parameters: parameters);
@@ -246,7 +252,7 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { (int)type };
 
-            CommandResult result = await ExecuteCommandWithResponse(
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.DeleteCron,
                 id: (int)METHODS.DeleteCron,
                 parameters: parameters);
