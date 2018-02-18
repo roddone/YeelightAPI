@@ -92,6 +92,5 @@ namespace YeelightAPI.Models
         public T Result { get; set; }
 
         #endregion Public Properties
-
     }
 }

@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using YeelightAPI.Core;
 using YeelightAPI.Models;
 
 namespace YeelightAPI
@@ -15,14 +15,6 @@ namespace YeelightAPI
     public partial class Device : IDisposable
     {
         #region PRIVATE ATTRIBUTES
-
-        /// <summary>
-        /// Serializer settings
-        /// </summary>
-        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings()
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
 
         /// <summary>
         /// Dictionary of results
@@ -44,23 +36,16 @@ namespace YeelightAPI
         #region EVENTS
 
         /// <summary>
-        /// Notification Received event
-        /// </summary>
-        public event NotificationReceivedEventHandler OnNotificationReceived;
-
-        /// <summary>
-        /// Error Received event handler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public delegate void CommandErrorEventHandler(object sender, CommandErrorEventArgs e);
-
-        /// <summary>
         /// Notification Received event handler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public delegate void NotificationReceivedEventHandler(object sender, NotificationReceivedEventArgs e);
+
+        /// <summary>
+        /// Notification Received event
+        /// </summary>
+        public event NotificationReceivedEventHandler OnNotificationReceived;
 
         #endregion EVENTS
 
@@ -206,7 +191,7 @@ namespace YeelightAPI
                 Params = parameters ?? new List<object>()
             };
 
-            string data = JsonConvert.SerializeObject(command, _serializerSettings);
+            string data = JsonConvert.SerializeObject(command, Constantes.DeviceSerializerSettings);
             byte[] sentData = Encoding.ASCII.GetBytes(data + Constantes.LineSeparator); // \r\n is the end of the message, it needs to be sent for the message to be read by the device
 
             lock (_syncLock)
@@ -239,6 +224,30 @@ namespace YeelightAPI
         #region PRIVATE METHODS
 
         /// <summary>
+        /// Generate valid parameters for smooth values
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="smooth"></param>
+        private static void HandleSmoothValue(ref List<object> parameters, int? smooth)
+        {
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
+            if (smooth.HasValue)
+            {
+                parameters.Add("smooth");
+                parameters.Add(smooth.Value);
+            }
+            else
+            {
+                parameters.Add("sudden");
+                parameters.Add(null); // two parameters needed
+            }
+        }
+
+        /// <summary>
         /// Execute a command and waits for a response (Unsafe because of Task Cancelation)
         /// </summary>
         /// <param name="method"></param>
@@ -265,30 +274,6 @@ namespace YeelightAPI
             ExecuteCommand(method, id, parameters);
 
             return commandResultHandler.Task;
-        }
-
-        /// <summary>
-        /// Generate valid parameters for smooth values
-        /// </summary>
-        /// <param name="parameters"></param>
-        /// <param name="smooth"></param>
-        private static void HandleSmoothValue(ref List<object> parameters, int? smooth)
-        {
-            if (parameters == null)
-            {
-                throw new ArgumentNullException(nameof(parameters));
-            }
-
-            if (smooth.HasValue)
-            {
-                parameters.Add("smooth");
-                parameters.Add(smooth.Value);
-            }
-            else
-            {
-                parameters.Add("sudden");
-                parameters.Add(null); // two parameters needed
-            }
         }
 
         /// <summary>
@@ -322,7 +307,7 @@ namespace YeelightAPI
                                         StringSplitOptions.RemoveEmptyEntries))
                                     {
                                         CommandResult commandResult =
-                                            JsonConvert.DeserializeObject<CommandResult>(entry, _serializerSettings);
+                                            JsonConvert.DeserializeObject<CommandResult>(entry, Constantes.DeviceSerializerSettings);
                                         if (commandResult != null && commandResult.Id != 0)
                                         {
                                             ICommandResultHandler commandResultHandler;
@@ -333,7 +318,7 @@ namespace YeelightAPI
 
                                             if (commandResult.Error == null)
                                             {
-                                                commandResult = (CommandResult)JsonConvert.DeserializeObject(entry, commandResultHandler.ResultType, _serializerSettings);
+                                                commandResult = (CommandResult)JsonConvert.DeserializeObject(entry, commandResultHandler.ResultType, Constantes.DeviceSerializerSettings);
                                                 commandResultHandler.SetResult(commandResult);
                                             }
                                             else
@@ -345,7 +330,7 @@ namespace YeelightAPI
                                         {
                                             NotificationResult notificationResult =
                                                 JsonConvert.DeserializeObject<NotificationResult>(entry,
-                                                    _serializerSettings);
+                                                    Constantes.DeviceSerializerSettings);
 
                                             if (notificationResult != null && notificationResult.Method != null)
                                             {

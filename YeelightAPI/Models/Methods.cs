@@ -1,4 +1,6 @@
-﻿namespace YeelightAPI.Models
+﻿using YeelightAPI.Core;
+
+namespace YeelightAPI.Models
 {
     /// <summary>
     /// Available Methodss

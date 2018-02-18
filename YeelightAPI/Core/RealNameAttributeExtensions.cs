@@ -3,12 +3,12 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 
-namespace YeelightAPI.Models
+namespace YeelightAPI.Core
 {
     /// <summary>
-    /// Real-name handling Extensions
+    /// Extensions for RealNameAttribute
     /// </summary>
-    public static class RealNameAttributeExtension
+    internal static class RealNameAttributeExtension
     {
         #region Private Fields
 
@@ -49,26 +49,5 @@ namespace YeelightAPI.Models
         }
 
         #endregion Public Methods
-    }
-
-    /// <summary>
-    /// Attribute to set the real name of a Yeelight Enum
-    /// </summary>
-    public class RealNameAttribute : Attribute
-    {
-        #region Public Properties
-
-        public string PropertyName { get; set; }
-
-        #endregion Public Properties
-
-        #region Public Constructors
-
-        public RealNameAttribute(string name)
-        {
-            PropertyName = name;
-        }
-
-        #endregion Public Constructors
     }
 }
