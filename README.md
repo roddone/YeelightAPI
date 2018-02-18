@@ -112,8 +112,14 @@ Example :
 ## VNext
 * ~~turn into a nuget package~~
 * ~~handle dns host name for bulb discovery~~
-* ~~add device discovery method in the DeviceManager~~
-* add more native methods in the DeviceManager
+* ~~add a Device Locator~~
+* add more native methods in the Device : 
+	* set_default
+	* set_scene
+	* set_music
+	* bg_set_scene
+	* bg_set_default
+	* dev_toggle
 * ~~full use of async / await~~
 * ~~allow to group devices to control multiple devices~~
 * correct bugs if needed
