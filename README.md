@@ -100,28 +100,23 @@ Example :
 ```
 
 ### Errors
-When a method returns an error, it fires a "OnCommandError" event.
+When an unknown error occurs, a "OnError" event is fired.
 Example : 
 ```csharp
-   device.OnCommandError += (object sender, CommandErrorEventArgs arg) =>
+   device.OnError += (object sender, UnhandledExceptionEventArgs e) =>
    {
-       Console.WriteLine($"An error occurred : {arg.Error}");
+       Console.WriteLine($"An error occurred : {e.ExceptionObject}");
    };
 ```
 
 ## VNext
-* ~~turn into a nuget package~~
-* ~~handle dns host name for bulb discovery~~
-* ~~add a Device Locator~~
 * add more native methods in the Device : 
 	* ~~set_default~~
 	* set_scene
-	* set_music
+	* set_music ??
 	* bg_set_scene
 	* bg_set_default
 	* dev_toggle
-* ~~full use of async / await~~
-* ~~allow to group devices to control multiple devices~~
 * correct bugs if needed
 
 ## Help
