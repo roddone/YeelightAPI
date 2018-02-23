@@ -24,7 +24,6 @@ namespace YeelightAPI
             Disconnect();
 
             _tcpClient = new TcpClient();
-            //IPEndPoint endPoint = GetIPEndPointFromHostName(this.Hostname, this.Port);
             await _tcpClient.ConnectAsync(Hostname, Port);
 
             if (!_tcpClient.Connected)
