@@ -223,7 +223,7 @@ namespace YeelightAPI
         {
             return await Process((Device device) =>
             {
-                return device.StopMusicMode(hostName, port);
+                return device.StopMusicMode();
             });
         }
 
