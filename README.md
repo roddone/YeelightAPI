@@ -114,7 +114,7 @@ Example :
 * ~~handle dns host name for bulb discovery~~
 * ~~add a Device Locator~~
 * add more native methods in the Device : 
-	* set_default
+	* ~~set_default~~
 	* set_scene
 	* set_music
 	* bg_set_scene
