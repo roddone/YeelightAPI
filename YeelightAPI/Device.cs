@@ -38,7 +38,19 @@ namespace YeelightAPI
         /// <summary>
         /// Notification Received event
         /// </summary>
+        public event ErrorEventHandler OnError;
+
+        /// <summary>
+        /// Notification Received event
+        /// </summary>
         public event NotificationReceivedEventHandler OnNotificationReceived;
+
+        /// <summary>
+        /// Notification Received event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public delegate void ErrorEventHandler(object sender, UnhandledExceptionEventArgs e);
 
         /// <summary>
         /// Notification Received event handler
@@ -354,7 +366,7 @@ namespace YeelightAPI
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"Error while reading through pipe : {ex.Message}");
+                                OnError?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
                             }
                         }
                     }

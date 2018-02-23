@@ -43,6 +43,7 @@ namespace YeelightAPIConsoleTest
                             foreach (Device device in group)
                             {
                                 device.OnNotificationReceived += Device_OnNotificationReceived;
+                                device.OnError += Device_OnError;
                             }
 
                             bool success = true;
@@ -92,6 +93,7 @@ namespace YeelightAPIConsoleTest
                         success &= await device.Connect();
 
                         device.OnNotificationReceived += Device_OnNotificationReceived;
+                        device.OnError += Device_OnError;
 
                         //without smooth value (sudden)
                         WriteLineWithColor("Processing tests", ConsoleColor.Cyan);
@@ -124,6 +126,11 @@ namespace YeelightAPIConsoleTest
         #endregion Public Methods
 
         #region Private Methods
+
+        private static void Device_OnError(object sender, UnhandledExceptionEventArgs e)
+        {
+            WriteLineWithColor($"An Error ocurred !! {e.ExceptionObject}", ConsoleColor.Red);
+        }
 
         private static void Device_OnNotificationReceived(object sender, NotificationReceivedEventArgs arg)
         {
