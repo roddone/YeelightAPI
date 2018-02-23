@@ -1,4 +1,5 @@
 ﻿using System;
+using YeelightAPI.Core;
 
 namespace YeelightAPI.Models.ColorFlow
 {
@@ -13,11 +14,9 @@ namespace YeelightAPI.Models.ColorFlow
         /// Constructor
         /// </summary>
         /// <param name="duration"></param>
-        public ColorFlowSleepExpression(int? duration = null)
+        public ColorFlowSleepExpression(int duration = Constantes.MinimumFlowExpressionDuration)
         {
-            Duration = duration ?? 50;
-            Duration = Math.Max(50, Duration);
-
+            Duration = duration;
             Mode = ColorFlowMode.Sleep;
             Value = 0;
             Brightness = 0;

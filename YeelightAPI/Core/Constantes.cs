@@ -26,6 +26,16 @@ namespace YeelightAPI.Core
         public const string LineSeparator = "\r\n";
 
         /// <summary>
+        /// Minimum Flow duration
+        /// </summary>
+        public const int MinimumFlowExpressionDuration = 50;
+
+        /// <summary>
+        /// Minimum Smooth value
+        /// </summary>
+        public const int MinimumSmoothDuration = 30;
+
+        /// <summary>
         /// Serializer settings
         /// </summary>
         public static readonly JsonSerializerSettings DeviceSerializerSettings = new JsonSerializerSettings()

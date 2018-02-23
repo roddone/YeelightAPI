@@ -15,7 +15,7 @@ namespace YeelightAPI.Models.ColorFlow
         public int Brightness { get; set; }
 
         /// <summary>
-        /// Duration of the effect
+        /// Duration of the effect 
         /// </summary>
         public int Duration { get; set; }
 

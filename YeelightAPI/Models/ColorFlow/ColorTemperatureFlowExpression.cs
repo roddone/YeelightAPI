@@ -1,4 +1,5 @@
 ﻿using System;
+using YeelightAPI.Core;
 
 namespace YeelightAPI.Models.ColorFlow
 {
@@ -15,11 +16,9 @@ namespace YeelightAPI.Models.ColorFlow
         /// <param name="temperature"></param>
         /// <param name="duration"></param>
         /// <param name="brightness"></param>
-        public ColorFlowTemperatureExpression(int temperature, int brightness, int? duration = null)
+        public ColorFlowTemperatureExpression(int temperature, int brightness, int duration = Constantes.MinimumFlowExpressionDuration)
         {
-            Duration = duration ?? 50;
-            Duration = Math.Max(50, Duration);
-
+            Duration = duration;
             Mode = ColorFlowMode.ColorTemperature;
             Value = temperature;
             Brightness = brightness;

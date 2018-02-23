@@ -36,16 +36,16 @@ namespace YeelightAPI
         #region EVENTS
 
         /// <summary>
+        /// Notification Received event
+        /// </summary>
+        public event NotificationReceivedEventHandler OnNotificationReceived;
+
+        /// <summary>
         /// Notification Received event handler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public delegate void NotificationReceivedEventHandler(object sender, NotificationReceivedEventArgs e);
-
-        /// <summary>
-        /// Notification Received event
-        /// </summary>
-        public event NotificationReceivedEventHandler OnNotificationReceived;
 
         #endregion EVENTS
 
@@ -238,7 +238,7 @@ namespace YeelightAPI
             if (smooth.HasValue)
             {
                 parameters.Add("smooth");
-                parameters.Add(smooth.Value);
+                parameters.Add(Math.Max(smooth.Value, Constantes.MinimumSmoothDuration));
             }
             else
             {

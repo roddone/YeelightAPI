@@ -1,4 +1,5 @@
 ﻿using System;
+using YeelightAPI.Core;
 
 namespace YeelightAPI.Models.ColorFlow
 {
@@ -17,11 +18,9 @@ namespace YeelightAPI.Models.ColorFlow
         /// <param name="b"></param>
         /// <param name="duration"></param>
         /// <param name="brightness"></param>
-        public ColorFlowRGBExpression(int r, int g, int b, int brightness, int? duration = null)
+        public ColorFlowRGBExpression(int r, int g, int b, int brightness, int duration = Constantes.MinimumFlowExpressionDuration)
         {
-            Duration = duration ?? 50;
-            Duration = Math.Max(50, Duration);
-
+            Duration = duration;
             Value = ((r) << 16) | ((g) << 8) | (b);
             Mode = ColorFlowMode.Color;
             Brightness = brightness;
