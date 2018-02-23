@@ -1,5 +1,4 @@
-﻿using System;
-using YeelightAPI.Core;
+﻿using YeelightAPI.Core;
 
 namespace YeelightAPI.Models.ColorFlow
 {
