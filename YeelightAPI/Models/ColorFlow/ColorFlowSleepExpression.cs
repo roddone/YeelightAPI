@@ -13,7 +13,7 @@ namespace YeelightAPI.Models.ColorFlow
         /// Constructor
         /// </summary>
         /// <param name="duration"></param>
-        public ColorFlowSleepExpression(int duration = Constantes.MinimumFlowExpressionDuration)
+        public ColorFlowSleepExpression(int duration = Constants.MinimumFlowExpressionDuration)
         {
             Duration = duration;
             Mode = ColorFlowMode.Sleep;
