@@ -5,6 +5,7 @@ using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 using YeelightAPI.Models.Cron;
+using YeelightAPI.Models.Music;
 using YeelightAPI.Models.Scene;
 
 namespace YeelightAPI
@@ -267,6 +268,24 @@ namespace YeelightAPI
         }
 
         /// <summary>
+        /// Starts the music mode
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public async Task<bool> StartMusicMode(string hostName, int port)
+        {
+            List<object> parameters = new List<object>() { (int)MusicAction.On, hostName, port };
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                            method: METHODS.SetMusicMode,
+                            id: (int)METHODS.SetMusicMode,
+                            parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
         /// Stops the color flow
         /// </summary>
         /// <returns></returns>
@@ -275,6 +294,22 @@ namespace YeelightAPI
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.StopColorFlow,
                             id: (int)METHODS.StopColorFlow);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Stops the music mode
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> StopMusicMode()
+        {
+            List<object> parameters = new List<object>() { (int)MusicAction.Off };
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                            method: METHODS.SetMusicMode,
+                            id: (int)METHODS.SetMusicMode,
+                            parameters: parameters);
 
             return result.IsOk();
         }

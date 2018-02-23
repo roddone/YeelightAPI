@@ -190,6 +190,20 @@ namespace YeelightAPI
         }
 
         /// <summary>
+        /// starts the music mode for all devices
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public async Task<bool> StartMusicMode(string hostName, int port)
+        {
+            return await Process((Device device) =>
+            {
+                return device.StartMusicMode(hostName, port);
+            });
+        }
+
+        /// <summary>
         /// stops the color flow of all devices
         /// </summary>
         /// <returns></returns>
@@ -198,6 +212,18 @@ namespace YeelightAPI
             return await Process((Device device) =>
             {
                 return device.StopColorFlow();
+            });
+        }
+
+        /// <summary>
+        /// stops the music mode for all devices
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> StopMusicMode()
+        {
+            return await Process((Device device) =>
+            {
+                return device.StopMusicMode(hostName, port);
             });
         }
 

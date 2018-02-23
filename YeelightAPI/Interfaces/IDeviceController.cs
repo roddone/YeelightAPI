@@ -36,7 +36,11 @@ namespace YeelightAPI
 
         Task<bool> StartColorFlow(ColorFlow flow);
 
+        Task<bool> StartMusicMode(string hostName, int port);
+
         Task<bool> StopColorFlow();
+
+        Task<bool> StopMusicMode();
 
         Task<bool> Toggle();
 

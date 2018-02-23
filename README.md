@@ -110,9 +110,9 @@ Example :
 ```
 
 ## VNext
-* add the last native methods in the Device : 
-	* set_music ??
 * correct bugs if needed
+
+Nothing else planned, if you have any ideas please contact me at ["romain.oddone.github@outlook.com"](mailto:romain.oddone.github@outlook.com) 
 
 ## Help
 If there is a functionality that you need which is not implemented, or even worse if there is a bug, you can create a pull request or contacts me at ["romain.oddone.github@outlook.com"](mailto:romain.oddone.github@outlook.com)
