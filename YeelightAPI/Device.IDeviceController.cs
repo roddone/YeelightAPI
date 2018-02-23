@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using YeelightAPI.Core;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
@@ -218,7 +219,7 @@ namespace YeelightAPI
         public async Task<bool> SetRGBColor(int r, int g, int b, int? smooth = null)
         {
             //Convert RGB into integer 0x00RRGGBB
-            int value = ((r) << 16) | ((g) << 8) | (b);
+            int value = ColorHelper.ComputeRGBColor(r, g, b);
             List<object> parameters = new List<object>() { value };
 
             HandleSmoothValue(ref parameters, smooth);

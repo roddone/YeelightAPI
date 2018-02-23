@@ -20,7 +20,7 @@ namespace YeelightAPI.Models.ColorFlow
         public ColorFlowRGBExpression(int r, int g, int b, int brightness, int duration = Constantes.MinimumFlowExpressionDuration)
         {
             Duration = duration;
-            Value = ((r) << 16) | ((g) << 8) | (b);
+            Value = ColorHelper.ComputeRGBColor(r, g, b);
             Mode = ColorFlowMode.Color;
             Brightness = brightness;
         }

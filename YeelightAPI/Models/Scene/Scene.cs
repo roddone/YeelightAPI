@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using YeelightAPI.Core;
 
 namespace YeelightAPI.Models.Scene
 {
@@ -115,7 +116,7 @@ namespace YeelightAPI.Models.Scene
             List<object> parameters = new List<object>()
             {
                 SceneClass.color.ToString(),
-                ((r) << 16) | ((g) << 8) | (b),
+                ColorHelper.ComputeRGBColor(r, g, b),
                 brightness
             };
 
