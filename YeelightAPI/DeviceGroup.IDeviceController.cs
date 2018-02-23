@@ -2,6 +2,7 @@
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 using YeelightAPI.Models.Cron;
+using YeelightAPI.Models.Scene;
 
 namespace YeelightAPI
 {
@@ -13,7 +14,7 @@ namespace YeelightAPI
         #region Public Methods
 
         /// <summary>
-        /// Connect all the devices asynchronously
+        /// Connect all the devices
         /// </summary>
         /// <returns></returns>
         public async Task<bool> Connect()
@@ -77,7 +78,7 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// Set the brightness for all the devices asynchronously
+        /// Set the brightness for all the devices
         /// </summary>
         /// <param name="value"></param>
         /// <param name="smooth"></param>
@@ -91,7 +92,7 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// Set the color temperature for all the devices asynchronously
+        /// Set the color temperature for all the devices
         /// </summary>
         /// <param name="temperature"></param>
         /// <param name="smooth"></param>
@@ -132,7 +133,7 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// Set the power for all the devices asynchronously
+        /// Set the power for all the devices
         /// </summary>
         /// <param name="state"></param>
         /// <returns></returns>
@@ -145,7 +146,7 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// Set the RGB Color for all the devices asynchronously
+        /// Set the RGB Color for all the devices
         /// </summary>
         /// <param name="r"></param>
         /// <param name="g"></param>
@@ -161,7 +162,20 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// Starts a color flow for all devices asynchronously
+        ///
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <returns></returns>
+        public async Task<bool> SetScene(Scene scene)
+        {
+            return await Process((Device device) =>
+            {
+                return device.SetScene(scene);
+            });
+        }
+
+        /// <summary>
+        /// Starts a color flow for all devices
         /// </summary>
         /// <param name="flow"></param>
         /// <param name="action"></param>
@@ -176,7 +190,7 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// stops the color flow of all devices asynchronously
+        /// stops the color flow of all devices
         /// </summary>
         /// <returns></returns>
         public async Task<bool> StopColorFlow()
@@ -188,7 +202,7 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// Toggle the power for all the devices asynchronously
+        /// Toggle the power for all the devices
         /// </summary>
         /// <returns></returns>
         public async Task<bool> Toggle()

@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
+using YeelightAPI.Models.Scene;
 
 namespace YeelightAPI
 {
@@ -21,6 +22,8 @@ namespace YeelightAPI
         Task<bool> BackgroundSetPower(bool state = true);
 
         Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth);
+
+        Task<bool> BackgroundSetScene(Scene scene);
 
         Task<bool> BackgroundStartColorFlow(ColorFlow flow);
 

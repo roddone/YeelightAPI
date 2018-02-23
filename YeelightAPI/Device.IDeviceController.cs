@@ -5,6 +5,7 @@ using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 using YeelightAPI.Models.Cron;
+using YeelightAPI.Models.Scene;
 
 namespace YeelightAPI
 {
@@ -224,6 +225,23 @@ namespace YeelightAPI
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetRGBColor,
                 id: (int)METHODS.SetRGBColor,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Set a Scene
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <returns></returns>
+        public async Task<bool> SetScene(Scene scene)
+        {
+            List<object> parameters = scene;
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.SetScene,
+                id: (int)METHODS.SetScene,
                 parameters: parameters);
 
             return result.IsOk();

@@ -111,9 +111,7 @@ Example :
 
 ## VNext
 * add the last native methods in the Device : 
-	* set_scene
 	* set_music ??
-	* bg_set_scene
 * correct bugs if needed
 
 ## Help

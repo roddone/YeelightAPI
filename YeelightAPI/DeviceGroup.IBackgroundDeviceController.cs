@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
+using YeelightAPI.Models.Scene;
 
 namespace YeelightAPI
 {
@@ -110,7 +111,20 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// Starts a color flow asynchronously
+        /// Set background scene
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundSetScene(Scene scene)
+        {
+            return await Process((Device device) =>
+            {
+                return device.BackgroundSetScene(scene);
+            });
+        }
+
+        /// <summary>
+        /// Starts a color flow
         /// </summary>
         /// <param name="flow"></param>
         /// <param name="action"></param>

@@ -2,6 +2,7 @@
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 using YeelightAPI.Models.Cron;
+using YeelightAPI.Models.Scene;
 
 namespace YeelightAPI
 {
@@ -30,6 +31,8 @@ namespace YeelightAPI
         Task<bool> SetPower(bool state = true);
 
         Task<bool> SetRGBColor(int r, int g, int b, int? smooth = null);
+
+        Task<bool> SetScene(Scene scene);
 
         Task<bool> StartColorFlow(ColorFlow flow);
 

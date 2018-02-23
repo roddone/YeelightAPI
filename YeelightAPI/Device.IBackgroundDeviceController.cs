@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
+using YeelightAPI.Models.Scene;
 
 namespace YeelightAPI
 {
@@ -140,6 +141,23 @@ namespace YeelightAPI
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightRGBColor,
                 id: (int)METHODS.SetBackgroundLightRGBColor,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Sets the background Scene
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundSetScene(Scene scene)
+        {
+            List<object> parameters = scene;
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.SetBackgroundLightScene,
+                id: (int)METHODS.SetBackgroundLightScene,
                 parameters: parameters);
 
             return result.IsOk();
