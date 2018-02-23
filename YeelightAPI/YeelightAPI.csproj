@@ -4,7 +4,7 @@
     <TargetFrameworks> netstandard2.0; net45; net46; net47;</TargetFrameworks>
     <Authors>Romain ODDONE</Authors>
     <Company>Romain ODDONE</Company>
-    <Version>1.2.1</Version>
+    <Version>1.2.3</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://raw.githubusercontent.com/roddone/YeelightAPI/master/LICENSE</PackageLicenseUrl>
@@ -13,11 +13,13 @@
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
-    <PackageReleaseNotes>Correct cron get method</PackageReleaseNotes>
+    <PackageReleaseNotes>Optimization for operations which waits for a response
+Add "set_scene" and "bg_set_scene" support
+Add "set_music" support</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
     <Copyright>Copyright ©Romain ODDONE  2018</Copyright>
-    <AssemblyVersion>1.2.1.0</AssemblyVersion>
-    <FileVersion>1.2.1.0</FileVersion>
+    <AssemblyVersion>1.2.3.0</AssemblyVersion>
+    <FileVersion>1.2.3.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
