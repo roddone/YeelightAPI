@@ -110,13 +110,10 @@ Example :
 ```
 
 ## VNext
-* add more native methods in the Device : 
-	* ~~set_default~~
+* add the last native methods in the Device : 
 	* set_scene
 	* set_music ??
 	* bg_set_scene
-	* bg_set_default
-	* dev_toggle
 * correct bugs if needed
 
 ## Help
