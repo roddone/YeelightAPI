@@ -54,6 +54,18 @@ namespace YeelightAPI
         }
 
         /// <summary>
+        /// Set the background current state as the default one
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> BackgroundSetDefault()
+        {
+            return await Process((Device device) =>
+            {
+                return device.BackgroundSetDefault();
+            });
+        }
+
+        /// <summary>
         /// Set background light HSV color
         /// </summary>
         /// <param name="hue"></param>

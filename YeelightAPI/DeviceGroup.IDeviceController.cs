@@ -105,6 +105,18 @@ namespace YeelightAPI
         }
 
         /// <summary>
+        /// Set the current state as the default one
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> SetDefault()
+        {
+            return await Process((Device device) =>
+            {
+                return device.SetDefault();
+            });
+        }
+
+        /// <summary>
         /// Change HSV color asynchronously for all devices
         /// </summary>
         /// <param name="hue"></param>

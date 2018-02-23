@@ -259,5 +259,12 @@ namespace YeelightAPI
 
             return result.IsOk();
         }
+
+        public async Task<bool> SetDefault()
+        {
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.SetDefault, id: (int)METHODS.SetDefault);
+
+            return result.IsOk();
+        }
     }
 }

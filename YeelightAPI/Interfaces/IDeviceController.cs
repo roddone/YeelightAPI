@@ -23,6 +23,8 @@ namespace YeelightAPI
 
         Task<bool> SetColorTemperature(int temperature, int? smooth = null);
 
+        Task<bool> SetDefault();
+
         Task<bool> SetHSVColor(int hue, int sat, int? smooth = null);
 
         Task<bool> SetPower(bool state = true);

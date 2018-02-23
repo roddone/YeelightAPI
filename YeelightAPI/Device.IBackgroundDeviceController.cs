@@ -74,6 +74,17 @@ namespace YeelightAPI
         }
 
         /// <summary>
+        /// Save the background current state as the default one
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> BackgroundSetDefault()
+        {
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.SetBackgroundLightDefault, id: (int)METHODS.SetBackgroundLightDefault);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
         /// Set the background light HSV color
         /// </summary>
         /// <param name="hue"></param>

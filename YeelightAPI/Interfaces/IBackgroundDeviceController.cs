@@ -14,6 +14,8 @@ namespace YeelightAPI
 
         Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth);
 
+        Task<bool> BackgroundSetDefault();
+
         Task<bool> BackgroundSetHSVColor(int hue, int sat, int? smooth = null);
 
         Task<bool> BackgroundSetPower(bool state = true);
