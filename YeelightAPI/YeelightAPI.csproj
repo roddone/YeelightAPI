@@ -19,6 +19,7 @@ Add "set_music" support
 Performance optimizations</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
     <Copyright>Copyright ©Romain ODDONE  2018</Copyright>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyVersion>1.2.3.0</AssemblyVersion>
     <FileVersion>1.2.3.0</FileVersion>
   </PropertyGroup>
