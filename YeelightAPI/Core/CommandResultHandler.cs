@@ -16,7 +16,7 @@ namespace YeelightAPI.Core
         /// <summary>
         /// Cancellation Token Source
         /// </summary>
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource(Constantes.DefaultTimeout);
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource(Constants.DefaultTimeout);
 
         /// <summary>
         /// Task Completion Source

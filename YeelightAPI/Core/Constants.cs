@@ -6,7 +6,7 @@ namespace YeelightAPI.Core
     /// <summary>
     /// Common
     /// </summary>
-    internal class Constantes
+    internal static class Constants
     {
         #region Public Fields
 

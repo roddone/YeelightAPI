@@ -17,7 +17,7 @@ namespace YeelightAPI.Models.ColorFlow
         /// <param name="b"></param>
         /// <param name="duration"></param>
         /// <param name="brightness"></param>
-        public ColorFlowRGBExpression(int r, int g, int b, int brightness, int duration = Constantes.MinimumFlowExpressionDuration)
+        public ColorFlowRGBExpression(int r, int g, int b, int brightness, int duration = Constants.MinimumFlowExpressionDuration)
         {
             Duration = duration;
             Value = ColorHelper.ComputeRGBColor(r, g, b);

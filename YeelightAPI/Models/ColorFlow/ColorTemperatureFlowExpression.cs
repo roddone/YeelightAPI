@@ -15,7 +15,7 @@ namespace YeelightAPI.Models.ColorFlow
         /// <param name="temperature"></param>
         /// <param name="duration"></param>
         /// <param name="brightness"></param>
-        public ColorFlowTemperatureExpression(int temperature, int brightness, int duration = Constantes.MinimumFlowExpressionDuration)
+        public ColorFlowTemperatureExpression(int temperature, int brightness, int duration = Constants.MinimumFlowExpressionDuration)
         {
             Duration = duration;
             Mode = ColorFlowMode.ColorTemperature;
