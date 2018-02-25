@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YeelightAPI.Core
+﻿namespace YeelightAPI.Core
 {
     /// <summary>
     /// Helper for colors
     /// </summary>
     internal static class ColorHelper
     {
+        #region Internal Methods
+
         /// <summary>
         /// Compute a RGB color
         /// </summary>
@@ -20,5 +18,7 @@ namespace YeelightAPI.Core
         {
             return ((r) << 16) | ((g) << 8) | (b);
         }
+
+        #endregion Internal Methods
     }
 }

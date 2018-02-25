@@ -71,7 +71,7 @@ namespace YeelightAPI
                                         ssdpSocket.SendTo(_ssdpDiagram, SocketFlags.None, _multicastEndPoint);
 
                                         DateTime start = DateTime.Now;
-                                        while ( DateTime.Now - start < TimeSpan.FromSeconds(1))
+                                        while (DateTime.Now - start < TimeSpan.FromSeconds(1))
                                         {
                                             int available = ssdpSocket.Available;
                                             if (available > 0)
@@ -89,7 +89,6 @@ namespace YeelightAPI
                                                         devices.Add(device);
                                                     }
                                                 }
-                                                
                                             }
                                             Thread.Sleep(10);
                                         }

@@ -36,16 +36,6 @@ namespace YeelightAPI
         #region EVENTS
 
         /// <summary>
-        /// Notification Received event
-        /// </summary>
-        public event ErrorEventHandler OnError;
-
-        /// <summary>
-        /// Notification Received event
-        /// </summary>
-        public event NotificationReceivedEventHandler OnNotificationReceived;
-
-        /// <summary>
         /// Notification Received event handler
         /// </summary>
         /// <param name="sender"></param>
@@ -59,6 +49,16 @@ namespace YeelightAPI
         /// <param name="e"></param>
         public delegate void NotificationReceivedEventHandler(object sender, NotificationReceivedEventArgs e);
 
+        /// <summary>
+        /// Notification Received event
+        /// </summary>
+        public event ErrorEventHandler OnError;
+
+        /// <summary>
+        /// Notification Received event
+        /// </summary>
+        public event NotificationReceivedEventHandler OnNotificationReceived;
+
         #endregion EVENTS
 
         #region PUBLIC PROPERTIES
@@ -69,11 +69,6 @@ namespace YeelightAPI
         public string Hostname { get; }
 
         /// <summary>
-        /// Port number
-        /// </summary>
-        public int Port { get; }
-
-        /// <summary>
         /// The ID.
         /// </summary>
         public string Id { get; }
@@ -82,6 +77,11 @@ namespace YeelightAPI
         /// The model.
         /// </summary>
         public MODEL Model { get; }
+
+        /// <summary>
+        /// Port number
+        /// </summary>
+        public int Port { get; }
 
         #endregion PUBLIC PROPERTIES
 
