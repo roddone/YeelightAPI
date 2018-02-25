@@ -15,7 +15,8 @@
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
     <PackageReleaseNotes>Optimization for operations which waits for a response
 Add "set_scene" and "bg_set_scene" support
-Add "set_music" support</PackageReleaseNotes>
+Add "set_music" support
+Performance optimizations</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
     <Copyright>Copyright ©Romain ODDONE  2018</Copyright>
     <AssemblyVersion>1.2.3.0</AssemblyVersion>
