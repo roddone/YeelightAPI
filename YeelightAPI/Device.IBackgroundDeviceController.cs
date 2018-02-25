@@ -168,8 +168,6 @@ namespace YeelightAPI
         /// Starts a background color flow
         /// </summary>
         /// <param name="flow"></param>
-        /// <param name="action"></param>
-        /// <param name="count"></param>
         /// <returns></returns>
         public async Task<bool> BackgroundStartColorFlow(ColorFlow flow)
         {

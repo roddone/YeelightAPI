@@ -205,7 +205,6 @@ namespace YeelightAPI
         /// <param name="method"></param>
         /// <param name="id"></param>
         /// <param name="parameters"></param>
-        /// <param name="smooth"></param>
         public void ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null)
         {
             Command command = new Command()
@@ -277,7 +276,6 @@ namespace YeelightAPI
         /// <param name="method"></param>
         /// <param name="id"></param>
         /// <param name="parameters"></param>
-        /// <param name="smooth"></param>
         /// <exception cref="TaskCanceledException"></exception>
         /// <returns></returns>
         private Task<CommandResult<T>> UnsafeExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
