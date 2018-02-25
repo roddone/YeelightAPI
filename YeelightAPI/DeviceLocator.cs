@@ -123,10 +123,12 @@ namespace YeelightAPI
         {
             if (ssdpMessage != null)
             {
-                string[] split = ssdpMessage.Split(new string[] { Constantes.LineSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                string[] split = ssdpMessage.Split(new string[] { Constants.LineSeparator }, StringSplitOptions.RemoveEmptyEntries);
                 string host = null;
-                int port = Constantes.DefaultPort;
+                int port = Constants.DefaultPort;
                 Dictionary<string, object> properties = new Dictionary<string, object>();
+                string id = null;
+                MODEL model = default(MODEL);
 
                 foreach (string part in split)
                 {
@@ -154,10 +156,21 @@ namespace YeelightAPI
                                 string propertyValue = property[1].Trim();
                                 properties.Add(propertyName, propertyValue);
                             }
+                            else if (propertyName == "id")
+                            {
+                                id = property[1].Trim();
+                            }
+                            else if (propertyName == "model")
+                            {
+                                if (!RealNameAttributeExtension.TryParseByRealName(property[1].Trim(), out model))
+                                {
+                                    model = default(MODEL);
+                                }
+                            }
                         }
                     }
                 }
-                return new Device(host, port, properties);
+                return new Device(host, port, id, model, properties);
             }
 
             return null;

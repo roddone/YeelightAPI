@@ -12,7 +12,7 @@ namespace YeelightAPI.Core
     {
         #region Private Fields
 
-        private static ConcurrentDictionary<Enum, string> _realNames = new ConcurrentDictionary<Enum, string>();
+        private static readonly ConcurrentDictionary<Enum, string> _realNames = new ConcurrentDictionary<Enum, string>();
 
         #endregion Private Fields
 
@@ -46,6 +46,33 @@ namespace YeelightAPI.Core
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Gets the enum value with the given <see cref="RealNameAttribute"/>.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of the enum.</typeparam>
+        /// <param name="realName">The name of the <see cref="RealNameAttribute"/>.</param>
+        /// <param name="result">The enum value.</param>
+        /// <returns><see langword="true"/> if a matching enum value was found; otherwise <see langword="false"/>.</returns>
+        public static bool TryParseByRealName<TEnum>(string realName, out TEnum result) where TEnum : struct
+        {
+            // we don't cache anything here, because
+            // a) it would require for each enum type a dictionary of realName to value
+            // b) the method is only used by device locator and therefore seldom called.
+
+            foreach (FieldInfo fieldInfo in typeof(TEnum).GetFields())
+            {
+                RealNameAttribute attribute = fieldInfo.GetCustomAttribute<RealNameAttribute>();
+                if (attribute?.PropertyName == realName)
+                {
+                    result = (TEnum)fieldInfo.GetValue(null);
+                    return true;
+                }
+            }
+
+            result = default(TEnum);
+            return false;
         }
 
         #endregion Public Methods
