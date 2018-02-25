@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -37,7 +38,7 @@ namespace YeelightAPI
         public static async Task<List<Device>> Discover()
         {
             List<Task> tasks = new List<Task>();
-            List<Device> devices = new List<Device>();
+            ConcurrentBag<Device> devices = new ConcurrentBag<Device>();
 
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
@@ -70,11 +71,12 @@ namespace YeelightAPI
                                         ssdpSocket.SendTo(_ssdpDiagram, SocketFlags.None, _multicastEndPoint);
 
                                         DateTime start = DateTime.Now;
-                                        while (DateTime.Now - start < TimeSpan.FromSeconds(1))
+                                        while ( DateTime.Now - start < TimeSpan.FromSeconds(1))
                                         {
-                                            if (ssdpSocket.Available > 0)
+                                            int available = ssdpSocket.Available;
+                                            if (available > 0)
                                             {
-                                                byte[] buffer = new byte[ssdpSocket.Available];
+                                                byte[] buffer = new byte[available];
                                                 var i = ssdpSocket.Receive(buffer, SocketFlags.None);
                                                 if (i > 0)
                                                 {
@@ -87,6 +89,7 @@ namespace YeelightAPI
                                                         devices.Add(device);
                                                     }
                                                 }
+                                                
                                             }
                                             Thread.Sleep(10);
                                         }
@@ -101,10 +104,10 @@ namespace YeelightAPI
 
             if (tasks.Count != 0)
             {
-                await Task.WhenAll(tasks.ToArray());
+                await Task.WhenAll(tasks);
             }
 
-            return devices;
+            return devices.ToList();
         }
 
         #endregion Public Methods
