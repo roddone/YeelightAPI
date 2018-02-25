@@ -73,6 +73,16 @@ namespace YeelightAPI
         /// </summary>
         public int Port { get; }
 
+        /// <summary>
+        /// The ID.
+        /// </summary>
+        public string Id { get; }
+
+        /// <summary>
+        /// The model.
+        /// </summary>
+        public MODEL Model { get; }
+
         #endregion PUBLIC PROPERTIES
 
         #region CONSTRUCTOR
@@ -95,10 +105,12 @@ namespace YeelightAPI
             }
         }
 
-        internal Device(string hostname, int port, Dictionary<string, object> properties)
+        internal Device(string hostname, int port, string id, MODEL model, Dictionary<string, object> properties)
         {
             Hostname = hostname;
             Port = port;
+            Id = id;
+            Model = model;
             Properties = properties;
         }
 
