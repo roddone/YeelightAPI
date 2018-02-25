@@ -23,7 +23,7 @@ namespace YeelightAPI
         /// <summary>
         /// Constructor with one device
         /// </summary>
-        /// <param name="device"></param>
+        /// <param name="name"></param>
         public DeviceGroup(string name = null)
         {
             Name = name;
@@ -33,6 +33,7 @@ namespace YeelightAPI
         /// Constructor with one device
         /// </summary>
         /// <param name="device"></param>
+        /// <param name="name"></param>
         public DeviceGroup(Device device, string name = null)
         {
             Add(device);
@@ -52,6 +53,7 @@ namespace YeelightAPI
         /// Constructor with a list (IEnumerable) of devices
         /// </summary>
         /// <param name="devices"></param>
+        /// <param name="name"></param>
         public DeviceGroup(IEnumerable<Device> devices, string name = null)
         {
             AddRange(devices);

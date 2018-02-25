@@ -143,7 +143,7 @@ namespace YeelightAPI
         /// <summary>
         /// Change Color Temperature asynchronously
         /// </summary>
-        /// <param name="saturation"></param>
+        /// <param name="temperature"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
         public async Task<bool> SetColorTemperature(int temperature, int? smooth = null)
@@ -253,8 +253,6 @@ namespace YeelightAPI
         /// Starts a color flow asynchronously
         /// </summary>
         /// <param name="flow"></param>
-        /// <param name="action"></param>
-        /// <param name="count"></param>
         /// <returns></returns>
         public async Task<bool> StartColorFlow(ColorFlow flow)
         {
