@@ -105,13 +105,14 @@ namespace YeelightAPI
             }
         }
 
-        internal Device(string hostname, int port, string id, MODEL model, Dictionary<string, object> properties)
+        internal Device(string hostname, int port, string id, MODEL model, Dictionary<string, object> properties, List<METHODS> supportedOperations)
         {
             Hostname = hostname;
             Port = port;
             Id = id;
             Model = model;
             Properties = properties;
+            SupportedOperations = supportedOperations;
         }
 
         #endregion CONSTRUCTOR
@@ -122,6 +123,11 @@ namespace YeelightAPI
         /// List of device properties
         /// </summary>
         public readonly Dictionary<string, object> Properties = new Dictionary<string, object>();
+
+        /// <summary>
+        /// List of supported operations
+        /// </summary>
+        public readonly List<METHODS> SupportedOperations = new List<METHODS>();
 
         /// <summary>
         /// Name of the device
@@ -207,6 +213,11 @@ namespace YeelightAPI
         /// <param name="parameters"></param>
         public void ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null)
         {
+            if (!IsMethodSupported(method))
+            {
+                throw new InvalidOperationException($"The operation {method.GetRealName()} is not allowed by the device");
+            }
+
             Command command = new Command()
             {
                 Id = id,
@@ -245,6 +256,23 @@ namespace YeelightAPI
         #endregion PUBLIC METHODS
 
         #region PRIVATE METHODS
+
+        /// <summary>
+        /// Check if the method is supported by the device
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        private bool IsMethodSupported(METHODS method)
+        {
+            if (SupportedOperations?.Count != 0)
+            {
+                return SupportedOperations.Contains(method);
+            }
+
+            return true;
+            //no supported operations, so we can't check if the peration is permitted
+        }
+        
 
         /// <summary>
         /// Generate valid parameters for smooth values
