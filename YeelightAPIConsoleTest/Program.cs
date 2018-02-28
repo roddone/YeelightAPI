@@ -35,6 +35,7 @@ namespace YeelightAPIConsoleTest
 
                     if (devices != null && devices.Count >= 1)
                     {
+
                         Console.WriteLine($"{devices.Count} device(s) found !");
                         using (DeviceGroup group = new DeviceGroup(devices))
                         {
@@ -142,168 +143,252 @@ namespace YeelightAPIConsoleTest
             bool success = true, globalSuccess = true;
             int delay = 1500;
 
-            Console.WriteLine("powering on ...");
-            success = await device.SetPower(true);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
+            await Try(async () =>
+            {
+                Console.WriteLine("powering on ...");
+                success = await device.SetPower(true);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
 
-            Console.WriteLine("add cron ...");
-            success = await device.CronAdd(15, YeelightAPI.Models.Cron.CronType.PowerOff);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
+            await Try(async () =>
+            {
+                Console.WriteLine("add cron ...");
+                success = await device.CronAdd(15, YeelightAPI.Models.Cron.CronType.PowerOff);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
 
             if (device is IDeviceReader deviceReader)
             {
-                Console.WriteLine("get cron ...");
-                CronResult cronResult = await deviceReader.CronGet(YeelightAPI.Models.Cron.CronType.PowerOff);
-                globalSuccess &= (cronResult != null);
-                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Try(async () =>
+                {
+                    Console.WriteLine("get cron ...");
+                    CronResult cronResult = await deviceReader.CronGet(YeelightAPI.Models.Cron.CronType.PowerOff);
+                    globalSuccess &= (cronResult != null);
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
+                });
+
+                string name = null;
+                await Try(async () =>
+                {
+                    Console.WriteLine("getting current name ...");
+                    name = (await deviceReader.GetProp(PROPERTIES.name))?.ToString();
+                    Console.WriteLine($"current name : {name}");
+                });
                 await Task.Delay(delay);
 
-                Console.WriteLine("getting current name ...");
-                string name = (await deviceReader.GetProp(PROPERTIES.name))?.ToString();
-                Console.WriteLine($"current name : {name}");
+                await Try(async () =>
+                {
+                    Console.WriteLine("setting name 'test' ...");
+                    success &= await deviceReader.SetName("test");
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(2000);
+                });
+                await Task.Delay(delay);
 
-                Console.WriteLine("setting name 'test' ...");
-                success &= await deviceReader.SetName("test");
-                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-                await Task.Delay(2000);
+                await Try(async () =>
+                {
+                    Console.WriteLine("restoring name '{0}' ...", name);
+                    success &= await deviceReader.SetName(name);
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(2000);
+                });
 
-                Console.WriteLine("restoring name '{0}' ...", name);
-                success &= await deviceReader.SetName(name);
-                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-                await Task.Delay(2000);
+                await Try(async () =>
+                {
+                    Console.WriteLine("getting all props ...");
+                    Dictionary<PROPERTIES, object> result = await deviceReader.GetAllProps();
+                    Console.WriteLine($"\tprops : {JsonConvert.SerializeObject(result)}");
+                    await Task.Delay(2000);
+                });
 
-                Console.WriteLine("getting all props ...");
-                Dictionary<PROPERTIES, object> result = await deviceReader.GetAllProps();
-                Console.WriteLine($"\tprops : {JsonConvert.SerializeObject(result)}");
-                await Task.Delay(2000);
             }
-            Console.WriteLine("delete cron ...");
-            success = await device.CronDelete(YeelightAPI.Models.Cron.CronType.PowerOff);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
 
-            Console.WriteLine("Setting Brightness to One...");
-            success = await device.SetBrightness(01);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
 
-            Console.WriteLine("Setting brightness increase...");
-            success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.bright);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
+            await Try(async () =>
+                {
+                    Console.WriteLine("delete cron ...");
+                    success = await device.CronDelete(YeelightAPI.Models.Cron.CronType.PowerOff);
+                    globalSuccess &= success;
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
+                });
 
-            Console.WriteLine("Setting Brightness to 100 %...");
-            success = await device.SetBrightness(100, smooth);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting brightness decrease...");
-            success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.decrease, YeelightAPI.Models.Adjust.AdjustProperty.bright);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting Brightness to 50 %...");
-            success = await device.SetBrightness(50, smooth);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting RGB color to red ...");
-            success = await device.SetRGBColor(255, 0, 0, smooth);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting RGB color to green...");
-            success = await device.SetRGBColor(0, 255, 0, smooth);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting color increase circle...");
-            success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.circle, YeelightAPI.Models.Adjust.AdjustProperty.color);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting RGB color to blue...");
-            success = await device.SetRGBColor(0, 0, 255, smooth);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting HSV color to red...");
-            success = await device.SetHSVColor(0, 100, smooth);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting HSV color to green...");
-            success = await device.SetHSVColor(120, 100, smooth);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting HSV color to blue...");
-            success = await device.SetHSVColor(240, 100, smooth);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting Color Temperature to 1700k ...");
-            success = await device.SetColorTemperature(1700, smooth);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting color temperature increase ...");
-            success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.ct);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Setting Color Temperature to 6500k ...");
-            success = await device.SetColorTemperature(6500, smooth);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
-
-            Console.WriteLine("Starting color flow ...");
-            int repeat = 0;
-            ColorFlow flow = new ColorFlow(repeat, ColorFlowEndAction.Restore)
+            await Try(async () =>
             {
+                Console.WriteLine("Setting Brightness to One...");
+                success = await device.SetBrightness(01);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting brightness increase...");
+                success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.bright);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting Brightness to 100 %...");
+                success = await device.SetBrightness(100, smooth);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting brightness decrease...");
+                success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.decrease, YeelightAPI.Models.Adjust.AdjustProperty.bright);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting Brightness to 50 %...");
+                success = await device.SetBrightness(50, smooth);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting RGB color to red ...");
+                success = await device.SetRGBColor(255, 0, 0, smooth);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting RGB color to green...");
+                success = await device.SetRGBColor(0, 255, 0, smooth);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting color increase circle...");
+                success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.circle, YeelightAPI.Models.Adjust.AdjustProperty.color);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting RGB color to blue...");
+                success = await device.SetRGBColor(0, 0, 255, smooth);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting HSV color to red...");
+                success = await device.SetHSVColor(0, 100, smooth);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting HSV color to green...");
+                success = await device.SetHSVColor(120, 100, smooth);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting HSV color to blue...");
+                success = await device.SetHSVColor(240, 100, smooth);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting Color Temperature to 1700k ...");
+                success = await device.SetColorTemperature(1700, smooth);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting color temperature increase ...");
+                success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.ct);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Setting Color Temperature to 6500k ...");
+                success = await device.SetColorTemperature(6500, smooth);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Starting color flow ...");
+                int repeat = 0;
+                ColorFlow flow = new ColorFlow(repeat, ColorFlowEndAction.Restore)
+                {
                 new ColorFlowRGBExpression(255, 0, 0, 1, 500),
                 new ColorFlowRGBExpression(0, 255, 0, 100, 500),
                 new ColorFlowRGBExpression(0, 0, 255, 50, 500),
                 new ColorFlowSleepExpression(2000),
                 new ColorFlowTemperatureExpression(2700, 100, 500),
                 new ColorFlowTemperatureExpression(5000, 1, 500)
-            };
-            success = await device.StartColorFlow(flow);
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(10 * 1000);
+                };
+                success = await device.StartColorFlow(flow);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(10 * 1000);
+            });
 
-            Console.WriteLine("Stoping color flow ...");
-            success = await device.StopColorFlow();
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
+            await Try(async () =>
+            {
+                Console.WriteLine("Stoping color flow ...");
+                success = await device.StopColorFlow();
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
 
-            Console.WriteLine("Toggling bulb state...");
-            success = await device.Toggle();
-            globalSuccess &= success;
-            WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
-            await Task.Delay(delay);
+            await Try(async () =>
+            {
+                Console.WriteLine("Toggling bulb state...");
+                success = await device.Toggle();
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
 
             if (success)
             {
@@ -322,6 +407,18 @@ namespace YeelightAPIConsoleTest
             Console.ForegroundColor = color;
             Console.WriteLine(text);
             Console.ResetColor();
+        }
+
+        private static async Task Try(Func<Task> action)
+        {
+            try
+            {
+                await action();
+            }
+            catch (InvalidOperationException ex)
+            {
+                WriteLineWithColor(ex.Message, ConsoleColor.Magenta);
+            }
         }
 
         #endregion Private Methods

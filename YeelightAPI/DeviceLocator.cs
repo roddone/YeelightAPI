@@ -126,6 +126,7 @@ namespace YeelightAPI
                 string host = null;
                 int port = Constants.DefaultPort;
                 Dictionary<string, object> properties = new Dictionary<string, object>();
+                List<METHODS> supportedMethods = new List<METHODS>();
                 string id = null;
                 MODEL model = default(MODEL);
 
@@ -150,26 +151,39 @@ namespace YeelightAPI
                         if (property.Length == 2)
                         {
                             string propertyName = property[0].Trim();
+                            string propertyValue = property[1].Trim();
+
                             if (_allPropertyRealNames.Contains(propertyName))
                             {
-                                string propertyValue = property[1].Trim();
                                 properties.Add(propertyName, propertyValue);
                             }
                             else if (propertyName == "id")
                             {
-                                id = property[1].Trim();
+                                id = propertyValue;
                             }
                             else if (propertyName == "model")
                             {
-                                if (!RealNameAttributeExtension.TryParseByRealName(property[1].Trim(), out model))
+                                if (!RealNameAttributeExtension.TryParseByRealName(propertyValue, out model))
                                 {
                                     model = default(MODEL);
+                                }
+                            }
+                            else if( propertyName == "support")
+                            {
+                                string[] supportedOperations = propertyValue.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                                foreach(string operation in supportedOperations)
+                                {
+                                    if(RealNameAttributeExtension.TryParseByRealName(operation, out METHODS method))
+                                    {
+                                        supportedMethods.Add(method);
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                return new Device(host, port, id, model, properties);
+                return new Device(host, port, id, model, properties, supportedMethods);
             }
 
             return null;
