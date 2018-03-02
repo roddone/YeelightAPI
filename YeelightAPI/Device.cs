@@ -105,12 +105,13 @@ namespace YeelightAPI
             }
         }
 
-        internal Device(string hostname, int port, string id, MODEL model, Dictionary<string, object> properties, List<METHODS> supportedOperations)
+        internal Device(string hostname, int port, string id, MODEL model, string firmwareVersion, Dictionary<string, object> properties, List<METHODS> supportedOperations)
         {
             Hostname = hostname;
             Port = port;
             Id = id;
             Model = model;
+            FirmwareVersion = firmwareVersion;
             Properties = properties;
             SupportedOperations = supportedOperations;
         }
@@ -118,6 +119,11 @@ namespace YeelightAPI
         #endregion CONSTRUCTOR
 
         #region PROPERTIES ACCESS
+
+        /// <summary>	
+        /// Firmware version	
+        /// </summary>	
+        public readonly string FirmwareVersion = null;
 
         /// <summary>
         /// List of device properties
@@ -272,7 +278,7 @@ namespace YeelightAPI
             return true;
             //no supported operations, so we can't check if the peration is permitted
         }
-        
+
 
         /// <summary>
         /// Generate valid parameters for smooth values

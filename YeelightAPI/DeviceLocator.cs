@@ -127,7 +127,7 @@ namespace YeelightAPI
                 int port = Constants.DefaultPort;
                 Dictionary<string, object> properties = new Dictionary<string, object>();
                 List<METHODS> supportedMethods = new List<METHODS>();
-                string id = null;
+                string id = null, firmwareVersion = null;
                 MODEL model = default(MODEL);
 
                 foreach (string part in split)
@@ -187,7 +187,7 @@ namespace YeelightAPI
                         }
                     }
                 }
-                return new Device(host, port, id, model, properties, supportedMethods);
+                return new Device(host, port, id, model, firmwareVersion, properties, supportedMethods);
             }
 
             return null;
