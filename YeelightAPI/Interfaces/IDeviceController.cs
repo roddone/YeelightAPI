@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 using YeelightAPI.Models.Cron;
@@ -18,8 +17,6 @@ namespace YeelightAPI
         Task<bool> CronDelete(CronType type = CronType.PowerOff);
 
         void Disconnect();
-
-        FluentFlow Flow();
 
         Task<bool> SetAdjust(AdjustAction action, AdjustProperty property);
 

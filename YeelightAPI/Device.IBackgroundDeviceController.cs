@@ -16,15 +16,6 @@ namespace YeelightAPI
         #region Public Methods
 
         /// <summary>
-        /// Initiate a color flow on all the devices
-        /// </summary>
-        /// <returns></returns>
-        public FluentFlow BackgroundFLow()
-        {
-            return new FluentFlow(this);
-        }
-
-        /// <summary>
         /// Adjusts the background light state
         /// </summary>
         /// <param name="action"></param>

@@ -36,16 +36,6 @@ namespace YeelightAPI
         #region EVENTS
 
         /// <summary>
-        /// Notification Received event
-        /// </summary>
-        public event ErrorEventHandler OnError;
-
-        /// <summary>
-        /// Notification Received event
-        /// </summary>
-        public event NotificationReceivedEventHandler OnNotificationReceived;
-
-        /// <summary>
         /// Notification Received event handler
         /// </summary>
         /// <param name="sender"></param>
@@ -58,6 +48,16 @@ namespace YeelightAPI
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public delegate void NotificationReceivedEventHandler(object sender, NotificationReceivedEventArgs e);
+
+        /// <summary>
+        /// Notification Received event
+        /// </summary>
+        public event ErrorEventHandler OnError;
+
+        /// <summary>
+        /// Notification Received event
+        /// </summary>
+        public event NotificationReceivedEventHandler OnNotificationReceived;
 
         #endregion EVENTS
 
@@ -258,6 +258,23 @@ namespace YeelightAPI
         #region PRIVATE METHODS
 
         /// <summary>
+        /// Check if the method is supported by the device
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        private bool IsMethodSupported(METHODS method)
+        {
+            if (SupportedOperations?.Count != 0)
+            {
+                return SupportedOperations.Contains(method);
+            }
+
+            return true;
+            //no supported operations, so we can't check if the peration is permitted
+        }
+        
+
+        /// <summary>
         /// Generate valid parameters for smooth values
         /// </summary>
         /// <param name="parameters"></param>
@@ -279,22 +296,6 @@ namespace YeelightAPI
                 parameters.Add("sudden");
                 parameters.Add(null); // two parameters needed
             }
-        }
-
-        /// <summary>
-        /// Check if the method is supported by the device
-        /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        private bool IsMethodSupported(METHODS method)
-        {
-            if (SupportedOperations?.Count != 0)
-            {
-                return SupportedOperations.Contains(method);
-            }
-
-            return true;
-            //no supported operations, so we can't check if the peration is permitted
         }
 
         /// <summary>

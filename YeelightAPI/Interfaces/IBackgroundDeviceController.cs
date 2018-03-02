@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 using YeelightAPI.Models.Scene;
@@ -9,8 +8,6 @@ namespace YeelightAPI
     public interface IBackgroundDeviceController
     {
         #region Public Methods
-
-        FluentFlow BackgroundFLow();
 
         Task<bool> BackgroundSetAdjust(AdjustAction action, AdjustProperty property);
 
