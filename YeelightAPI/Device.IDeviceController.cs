@@ -324,6 +324,15 @@ namespace YeelightAPI
             return result.IsOk();
         }
 
+        /// <summary>
+        /// Initiate a flow on the device
+        /// </summary>
+        /// <returns></returns>
+        public FluentFlow Flow()
+        {
+            return new FluentFlow(this) { };
+        }
+
         #endregion Public Methods
     }
 }

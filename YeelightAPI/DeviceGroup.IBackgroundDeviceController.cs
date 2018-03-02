@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 using YeelightAPI.Models.Scene;
@@ -11,6 +12,15 @@ namespace YeelightAPI
     public partial class DeviceGroup : IBackgroundDeviceController
     {
         #region Public Methods
+
+        /// <summary>
+        /// Initiate a background flow on all devices
+        /// </summary>
+        /// <returns></returns>
+        public FluentFlow BackgroundFLow()
+        {
+            return new FluentFlow(this);
+        }
 
         /// <summary>
         /// Adjusts background light
