@@ -13,7 +13,7 @@ namespace YeelightAPI
 
         Task<bool> BackgroundSetBrightness(int value, int? smooth = null);
 
-        Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth);
+        Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth = null);
 
         Task<bool> BackgroundSetDefault();
 
@@ -21,7 +21,7 @@ namespace YeelightAPI
 
         Task<bool> BackgroundSetPower(bool state = true);
 
-        Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth);
+        Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth = null);
 
         Task<bool> BackgroundSetScene(Scene scene);
 

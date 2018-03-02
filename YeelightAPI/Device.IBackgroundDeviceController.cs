@@ -61,7 +61,7 @@ namespace YeelightAPI
         /// <param name="temperature"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth)
+        public async Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth = null)
         {
             List<object> parameters = new List<object>() { temperature };
 
@@ -131,7 +131,7 @@ namespace YeelightAPI
         /// <param name="b"></param>
         /// <param name="smooth"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth)
+        public async Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth = null)
         {
             //Convert RGB into integer 0x00RRGGBB
             int value = ColorHelper.ComputeRGBColor(r, g, b);
