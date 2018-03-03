@@ -38,7 +38,8 @@ namespace YeelightAPI
         public static async Task<List<Device>> Discover()
         {
             List<Task> tasks = new List<Task>();
-            ConcurrentBag<Device> devices = new ConcurrentBag<Device>();
+            List<Device> devices = new List<Device>();
+            object deviceLock = new object();
 
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
@@ -86,7 +87,13 @@ namespace YeelightAPI
                                                     //add only if no device already matching
                                                     if (!devices.Any(d => d.Hostname == device.Hostname))
                                                     {
-                                                        devices.Add(device);
+                                                        lock (deviceLock)
+                                                        {
+                                                            if (!devices.Any(d => d.Hostname == device.Hostname))
+                                                            {
+                                                                devices.Add(device);
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -106,7 +113,7 @@ namespace YeelightAPI
                 await Task.WhenAll(tasks);
             }
 
-            return devices.ToList();
+            return devices;
         }
 
         #endregion Public Methods
