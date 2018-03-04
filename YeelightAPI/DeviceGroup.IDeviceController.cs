@@ -146,14 +146,17 @@ namespace YeelightAPI
         /// Set the power for all the devices
         /// </summary>
         /// <param name="state"></param>
+        /// <param name="smooth"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
-        public async Task<bool> SetPower(bool state = true)
+        public async Task<bool> SetPower(bool state = true, int? smooth = null, PowerOnMode mode = PowerOnMode.Normal)
         {
             return await Process((Device device) =>
             {
-                return device.SetPower(state);
+                return device.SetPower(state, smooth, mode);
             });
         }
+
 
         /// <summary>
         /// Set the RGB Color for all the devices
@@ -244,6 +247,33 @@ namespace YeelightAPI
             return await Process((Device device) =>
             {
                 return device.Toggle();
+            });
+        }
+
+        /// <summary>
+        /// Turn-Off the device
+        /// </summary>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> TurnOff(int? smooth = null)
+        {
+            return await Process((Device device) =>
+            {
+                return device.TurnOff(smooth);
+            });
+        }
+
+        /// <summary>
+        /// Turn-On the device
+        /// </summary>
+        /// <param name="smooth"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public async Task<bool> TurnOn(int? smooth = null, PowerOnMode mode = PowerOnMode.Normal)
+        {
+            return await Process((Device device) =>
+            {
+                return device.TurnOn(smooth, mode);
             });
         }
 

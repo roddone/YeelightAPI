@@ -121,13 +121,19 @@ namespace YeelightAPI
         /// Set the power of the device
         /// </summary>
         /// <param name="state"></param>
+        /// <param name="smooth"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetPower(bool state = true)
+        public async Task<bool> BackgroundSetPower(bool state = true, int? smooth = null, PowerOnMode mode = PowerOnMode.Normal)
         {
+            List<object> parameters = new List<object>() { state ? Constants.On : Constants.Off };
+            HandleSmoothValue(ref parameters, smooth);
+            parameters.Add((int)mode);
+
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightPower,
                 id: (int)METHODS.SetBackgroundLightPower,
-                parameters: new List<object>() { state ? "on" : "off" }
+                parameters: parameters
             );
 
             return result.IsOk();
@@ -211,6 +217,44 @@ namespace YeelightAPI
         public async Task<bool> BackgroundToggle()
         {
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.ToggleBackgroundLight, id: (int)METHODS.ToggleBackgroundLight);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Turn-Off the device background light
+        /// </summary>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundTurnOff(int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { Constants.Off };
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.SetBackgroundLightPower,
+                id: (int)METHODS.SetBackgroundLightPower,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Turn-On the device background light
+        /// </summary>
+        /// <param name="smooth"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundTurnOn(int? smooth = null, PowerOnMode mode = PowerOnMode.Normal)
+        {
+            List<object> parameters = new List<object>() { Constants.On };
+            HandleSmoothValue(ref parameters, smooth);
+            parameters.Add((int)mode);
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.SetBackgroundLightPower,
+                id: (int)METHODS.SetBackgroundLightPower,
+                parameters: parameters);
 
             return result.IsOk();
         }

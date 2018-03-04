@@ -205,13 +205,19 @@ namespace YeelightAPI
         /// Set the device power state asynchronously
         /// </summary>
         /// <param name="state"></param>
+        /// <param name="smooth"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
-        public async Task<bool> SetPower(bool state = true)
+        public async Task<bool> SetPower(bool state = true, int? smooth = null, PowerOnMode mode = PowerOnMode.Normal)
         {
+            List<object> parameters = new List<object>() { state ? Constants.On : Constants.Off };
+            HandleSmoothValue(ref parameters, smooth);
+            parameters.Add((int)mode);
+
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetPower,
                 id: (int)METHODS.SetPower,
-                parameters: new List<object>() { state ? "on" : "off" }
+                parameters: parameters
             );
 
             return result.IsOk();
@@ -329,6 +335,44 @@ namespace YeelightAPI
         public async Task<bool> Toggle()
         {
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.Toggle, id: (int)METHODS.Toggle);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Turn-Off the device
+        /// </summary>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> TurnOff(int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { Constants.Off };
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.SetPower,
+                id: (int)METHODS.SetPower,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Turn-On the device
+        /// </summary>
+        /// <param name="smooth"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public async Task<bool> TurnOn(int? smooth = null, PowerOnMode mode = PowerOnMode.Normal)
+        {
+            List<object> parameters = new List<object>() { Constants.On };
+            HandleSmoothValue(ref parameters, smooth);
+            parameters.Add((int)mode);
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.SetPower,
+                id: (int)METHODS.SetPower,
+                parameters: parameters);
 
             return result.IsOk();
         }

@@ -95,12 +95,14 @@ namespace YeelightAPI
         /// Set background light power
         /// </summary>
         /// <param name="state"></param>
+        /// <param name="smooth"></param>
+        /// <param name="mode"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetPower(bool state = true)
+        public async Task<bool> BackgroundSetPower(bool state = true, int? smooth = null, PowerOnMode mode = PowerOnMode.Normal)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundSetPower(state);
+                return device.BackgroundSetPower(state, smooth, mode);
             });
         }
 
@@ -167,6 +169,33 @@ namespace YeelightAPI
             return await Process((Device device) =>
             {
                 return device.BackgroundToggle();
+            });
+        }
+
+        /// <summary>
+        /// Turn-Off the devices background light
+        /// </summary>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundTurnOff(int? smooth = null)
+        {
+            return await Process((Device device) =>
+            {
+                return device.BackgroundTurnOff(smooth);
+            });
+        }
+
+        /// <summary>
+        /// Turn-On the devices background light
+        /// </summary>
+        /// <param name="smooth"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundTurnOn(int? smooth = null, PowerOnMode mode = PowerOnMode.Normal)
+        {
+            return await Process((Device device) =>
+            {
+                return device.BackgroundTurnOn(smooth, mode);
             });
         }
 

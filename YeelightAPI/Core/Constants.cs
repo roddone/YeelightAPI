@@ -36,6 +36,16 @@ namespace YeelightAPI.Core
         public const int MinimumSmoothDuration = 30;
 
         /// <summary>
+        /// "On" parameter to change power state
+        /// </summary>
+        public const string On = "on";
+
+        /// <summary>
+        /// "Off" parameter to change power state
+        /// </summary>
+        public const string Off = "off";
+
+        /// <summary>
         /// Serializer settings
         /// </summary>
         public static readonly JsonSerializerSettings DeviceSerializerSettings = new JsonSerializerSettings()

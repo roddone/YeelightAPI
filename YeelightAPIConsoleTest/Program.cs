@@ -145,7 +145,25 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("powering on ...");
-                success = await device.SetPower(true);
+                success = await device.SetPower(true, delay);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("turn off ...");
+                success = await device.TurnOff(delay);
+                globalSuccess &= success;
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("turn on ...");
+                success = await device.TurnOn(delay, PowerOnMode.RGB);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
@@ -217,6 +235,33 @@ namespace YeelightAPIConsoleTest
 
             if (device is IBackgroundDeviceController backgroundDevice)
             {
+                await Try(async () =>
+                {
+                    Console.WriteLine("powering on ...");
+                    success = await backgroundDevice.BackgroundSetPower(true, delay);
+                    globalSuccess &= success;
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
+                });
+
+                await Try(async () =>
+                {
+                    Console.WriteLine("turn off ...");
+                    success = await backgroundDevice.BackgroundTurnOff(delay);
+                    globalSuccess &= success;
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
+                });
+
+                await Try(async () =>
+                {
+                    Console.WriteLine("turn on ...");
+                    success = await backgroundDevice.BackgroundTurnOn(delay, PowerOnMode.RGB);
+                    globalSuccess &= success;
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
+                });
+
                 await Try(async () =>
                 {
                     Console.WriteLine("Setting Brightness to One...");
