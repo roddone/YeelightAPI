@@ -120,9 +120,9 @@ namespace YeelightAPI
 
         #region PROPERTIES ACCESS
 
-        /// <summary>	
-        /// Firmware version	
-        /// </summary>	
+        /// <summary>
+        /// Firmware version
+        /// </summary>
         public readonly string FirmwareVersion = null;
 
         /// <summary>
@@ -264,23 +264,6 @@ namespace YeelightAPI
         #region PRIVATE METHODS
 
         /// <summary>
-        /// Check if the method is supported by the device
-        /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        private bool IsMethodSupported(METHODS method)
-        {
-            if (SupportedOperations?.Count != 0)
-            {
-                return SupportedOperations.Contains(method);
-            }
-
-            return true;
-            //no supported operations, so we can't check if the peration is permitted
-        }
-
-
-        /// <summary>
         /// Generate valid parameters for smooth values
         /// </summary>
         /// <param name="parameters"></param>
@@ -302,6 +285,22 @@ namespace YeelightAPI
                 parameters.Add("sudden");
                 parameters.Add(null); // two parameters needed
             }
+        }
+
+        /// <summary>
+        /// Check if the method is supported by the device
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        private bool IsMethodSupported(METHODS method)
+        {
+            if (SupportedOperations?.Count != 0)
+            {
+                return SupportedOperations.Contains(method);
+            }
+
+            return true;
+            //no supported operations, so we can't check if the peration is permitted
         }
 
         /// <summary>

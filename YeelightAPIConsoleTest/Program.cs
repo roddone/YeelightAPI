@@ -35,7 +35,6 @@ namespace YeelightAPIConsoleTest
 
                     if (devices != null && devices.Count >= 1)
                     {
-
                         Console.WriteLine($"{devices.Count} device(s) found !");
                         using (DeviceGroup group = new DeviceGroup(devices))
                         {
@@ -205,7 +204,6 @@ namespace YeelightAPIConsoleTest
                     Console.WriteLine($"\tprops : {JsonConvert.SerializeObject(result)}");
                     await Task.Delay(2000);
                 });
-
             }
 
             await Try(async () =>
@@ -219,7 +217,6 @@ namespace YeelightAPIConsoleTest
 
             if (device is IBackgroundDeviceController backgroundDevice)
             {
-
                 await Try(async () =>
                 {
                     Console.WriteLine("Setting Brightness to One...");
@@ -577,13 +574,6 @@ namespace YeelightAPIConsoleTest
             return globalSuccess;
         }
 
-        private static void WriteLineWithColor(string text, ConsoleColor color)
-        {
-            Console.ForegroundColor = color;
-            Console.WriteLine(text);
-            Console.ResetColor();
-        }
-
         private static async Task Try(Func<Task> action)
         {
             try
@@ -594,6 +584,13 @@ namespace YeelightAPIConsoleTest
             {
                 WriteLineWithColor(ex.Message, ConsoleColor.Magenta);
             }
+        }
+
+        private static void WriteLineWithColor(string text, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
         }
 
         #endregion Private Methods

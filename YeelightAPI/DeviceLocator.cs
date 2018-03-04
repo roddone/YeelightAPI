@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -175,19 +174,19 @@ namespace YeelightAPI
                                     model = default(MODEL);
                                 }
                             }
-                            else if( propertyName == "support")
+                            else if (propertyName == "support")
                             {
                                 string[] supportedOperations = propertyValue.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                                foreach(string operation in supportedOperations)
+                                foreach (string operation in supportedOperations)
                                 {
-                                    if(RealNameAttributeExtension.TryParseByRealName(operation, out METHODS method))
+                                    if (RealNameAttributeExtension.TryParseByRealName(operation, out METHODS method))
                                     {
                                         supportedMethods.Add(method);
                                     }
                                 }
                             }
-                            else if( propertyName == "fw_ver")
+                            else if (propertyName == "fw_ver")
                             {
                                 firmwareVersion = propertyValue;
                             }
