@@ -5,6 +5,9 @@
 # YeelightAPI
 C# API (.Net) to control Xiaomi Yeelight Color Bulbs
 
+## Contribution
+If you find this package useful, please make a gift on Paypal : [https://www.paypal.me/roddone](https://www.paypal.me/roddone)
+
 ## Prerequisites
 The console project uses C# 7.1 "Async Main Method" Feature, make sure your visual studio version is up to date !
 
@@ -12,9 +15,6 @@ The console project uses C# 7.1 "Async Main Method" Feature, make sure your visu
 To install the latest release from [NuGet package manager](https://www.nuget.org/packages/YeelightAPI/):
 
     Install-Package YeelightAPI
-
-## Contribution
-If you find this package useful, please make a gift on Paypal : [https://www.paypal.me/roddone](https://www.paypal.me/roddone)
 
 ## Usage
 ### Single Device
