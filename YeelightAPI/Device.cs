@@ -83,6 +83,11 @@ namespace YeelightAPI
         /// </summary>
         public int Port { get; }
 
+        /// <summary>
+        /// Gets a value indicating if the connection to Device is established
+        /// </summary>
+        public bool IsConnected { get { return (_tcpClient != null) ? _tcpClient.Connected : false; } }
+
         #endregion PUBLIC PROPERTIES
 
         #region CONSTRUCTOR
