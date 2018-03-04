@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 using YeelightAPI.Models.Cron;
@@ -61,6 +62,15 @@ namespace YeelightAPI
             {
                 device.Disconnect();
             }
+        }
+
+        /// <summary>
+        /// Initiate a new Color Flow
+        /// </summary>
+        /// <returns></returns>
+        public FluentFlow Flow()
+        {
+            return new FluentFlow(this, StartColorFlow, StopColorFlow);
         }
 
         /// <summary>

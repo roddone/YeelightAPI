@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
 using YeelightAPI.Models.Cron;
@@ -38,6 +39,12 @@ namespace YeelightAPI
         /// Disconnect the device
         /// </summary>
         void Disconnect();
+
+        /// <summary>
+        /// Initiate a new Color Flow
+        /// </summary>
+        /// <returns></returns>
+        FluentFlow Flow();
 
         /// <summary>
         /// Adjust settings

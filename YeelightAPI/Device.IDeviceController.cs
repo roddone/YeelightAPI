@@ -103,6 +103,15 @@ namespace YeelightAPI
         }
 
         /// <summary>
+        /// Initiate a new Color Flow
+        /// </summary>
+        /// <returns></returns>
+        public FluentFlow Flow()
+        {
+            return new FluentFlow(this, StartColorFlow, StopColorFlow);
+        }
+
+        /// <summary>
         /// Adjusts the state of the device
         /// </summary>
         /// <param name="action"></param>

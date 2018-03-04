@@ -13,7 +13,17 @@ namespace YeelightAPI
     /// </summary>
     public partial class Device : IBackgroundDeviceController
     {
+
         #region Public Methods
+
+        /// <summary>
+        /// Initiate a new Background Color Flow
+        /// </summary>
+        /// <returns></returns>
+        public FluentFlow BackgroundFlow()
+        {
+            return new FluentFlow(this, BackgroundStartColorFlow, BackgroundStopColorFlow);
+        }
 
         /// <summary>
         /// Adjusts the background light state

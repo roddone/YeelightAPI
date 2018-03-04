@@ -357,14 +357,14 @@ namespace YeelightAPIConsoleTest
                     Console.WriteLine("Starting color flow ...");
                     int repeat = 0;
                     ColorFlow flow = new ColorFlow(repeat, ColorFlowEndAction.Restore)
-                {
-                new ColorFlowRGBExpression(255, 0, 0, 1, 500),
-                new ColorFlowRGBExpression(0, 255, 0, 100, 500),
-                new ColorFlowRGBExpression(0, 0, 255, 50, 500),
-                new ColorFlowSleepExpression(2000),
-                new ColorFlowTemperatureExpression(2700, 100, 500),
-                new ColorFlowTemperatureExpression(5000, 1, 500)
-                };
+                    {
+                        new ColorFlowRGBExpression(255, 0, 0, 1, 500),
+                        new ColorFlowRGBExpression(0, 255, 0, 100, 500),
+                        new ColorFlowRGBExpression(0, 0, 255, 50, 500),
+                        new ColorFlowSleepExpression(2000),
+                        new ColorFlowTemperatureExpression(2700, 100, 500),
+                        new ColorFlowTemperatureExpression(5000, 1, 500)
+                    };
                     success = await backgroundDevice.BackgroundStartColorFlow(flow);
                     globalSuccess &= success;
                     WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
@@ -378,6 +378,26 @@ namespace YeelightAPIConsoleTest
                     globalSuccess &= success;
                     WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                     await Task.Delay(delay);
+                });
+
+                await Try(async () =>
+                {
+                    Console.WriteLine("Starting fluent color flow ...");
+                    FluentFlow fflow = await backgroundDevice.BackgroundFlow()
+                        .RgbColor(255, 0, 0, 50, 1000)
+                        .Sleep(2000)
+                        .RgbColor(0, 255, 0, 50, 1000)
+                        .Sleep(2000)
+                        .RgbColor(0, 0, 255, 50, 1000)
+                        .Sleep(2000)
+                        .Temperature(2700, 100, 1000)
+                        .Sleep(2000)
+                        .Temperature(6500, 100, 1000)
+                        .Play(ColorFlowEndAction.Keep);
+
+                    await fflow.StopAfter(5000);
+
+                    WriteLineWithColor($"Color flow ended", ConsoleColor.DarkCyan);
                 });
 
                 await Try(async () =>
@@ -531,12 +551,12 @@ namespace YeelightAPIConsoleTest
                 int repeat = 0;
                 ColorFlow flow = new ColorFlow(repeat, ColorFlowEndAction.Restore)
                 {
-                new ColorFlowRGBExpression(255, 0, 0, 1, 500),
-                new ColorFlowRGBExpression(0, 255, 0, 100, 500),
-                new ColorFlowRGBExpression(0, 0, 255, 50, 500),
-                new ColorFlowSleepExpression(2000),
-                new ColorFlowTemperatureExpression(2700, 100, 500),
-                new ColorFlowTemperatureExpression(5000, 1, 500)
+                    new ColorFlowRGBExpression(255, 0, 0, 1, 500),
+                    new ColorFlowRGBExpression(0, 255, 0, 100, 500),
+                    new ColorFlowRGBExpression(0, 0, 255, 50, 500),
+                    new ColorFlowSleepExpression(2000),
+                    new ColorFlowTemperatureExpression(2700, 100, 500),
+                    new ColorFlowTemperatureExpression(5000, 1, 500)
                 };
                 success = await device.StartColorFlow(flow);
                 globalSuccess &= success;
@@ -551,6 +571,26 @@ namespace YeelightAPIConsoleTest
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("Starting fluent color flow ...");
+                FluentFlow fflow = await device.Flow()
+                    .RgbColor(255, 0, 0, 50, 1000)
+                    .Sleep(2000)
+                    .RgbColor(0, 255, 0, 50, 1000)
+                    .Sleep(2000)
+                    .RgbColor(0, 0, 255, 50, 1000)
+                    .Sleep(2000)
+                    .Temperature(2700, 100, 1000)
+                    .Sleep(2000)
+                    .Temperature(6500, 100, 1000)
+                    .Play(ColorFlowEndAction.Keep);
+
+                await fflow.StopAfter(5000);
+
+                WriteLineWithColor($"Color flow ended", ConsoleColor.DarkCyan);
             });
 
             await Try(async () =>
