@@ -49,8 +49,10 @@ namespace YeelightAPI.Models
         /// </summary>
         /// <param name="duration"></param>
         /// <returns></returns>
-        public FluentFlow For(int duration)
+        public FluentFlow During(int duration)
         {
+            CheckExpressions();
+
             _expressions.Last().Duration = Math.Max(duration, Constants.MinimumFlowExpressionDuration);
 
             return this;
@@ -64,6 +66,8 @@ namespace YeelightAPI.Models
         /// <returns></returns>
         public async Task<FluentFlow> Play(ColorFlowEndAction endAction = ColorFlowEndAction.Restore, int repetition = 0)
         {
+            CheckExpressions();
+
             ColorFlow.ColorFlow flow = new ColorFlow.ColorFlow(0, endAction, _expressions);
 
             await _startColorFlowMethod(flow);
@@ -80,9 +84,22 @@ namespace YeelightAPI.Models
         /// <returns></returns>
         public async Task<FluentFlow> PlayAfter(int millisecondsDelay, ColorFlowEndAction endAction, int repetition = 0)
         {
+            CheckExpressions();
+
             await Task.Delay(millisecondsDelay);
 
             return await Play(endAction, repetition);
+        }
+
+        /// <summary>
+        /// Reset the flow expressions
+        /// </summary>
+        /// <returns></returns>
+        public FluentFlow Reset()
+        {
+            _expressions.Clear();
+
+            return this;
         }
 
         /// <summary>
@@ -150,5 +167,20 @@ namespace YeelightAPI.Models
         }
 
         #endregion Public Methods
+
+        #region Private Methods
+
+        /// <summary>
+        /// Throw an exception if the expressions list is empty
+        /// </summary>
+        private void CheckExpressions()
+        {
+            if (_expressions.Count == 0)
+            {
+                throw new InvalidOperationException("The flow must contains at least one expression");
+            }
+        }
+
+        #endregion Private Methods
     }
 }
