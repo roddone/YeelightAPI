@@ -74,6 +74,17 @@ namespace YeelightAPI
         public string Id { get; }
 
         /// <summary>
+        /// Gets a value indicating if the connection to Device is established
+        /// </summary>
+        public bool IsConnected
+        {
+            get
+            {
+                return _tcpClient?.Connected ?? false;
+            }
+        }
+
+        /// <summary>
         /// The model.
         /// </summary>
         public MODEL Model { get; }
