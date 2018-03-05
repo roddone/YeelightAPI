@@ -49,6 +49,7 @@ This class simply ihnerits from native .net `List<Device>` and implements the `I
 ```
 
 ### Color Flow
+#### Old School
 You can create a Color Flow to "program" your device with different state changes. Changes can be : RGB color, color temperature and brightness.
 Just create a `new ColorFlow()`, add some `new ColorFlowExpression()` to it, and starts the color flow with your ColorFlow object.
 ```csharp
@@ -67,6 +68,32 @@ Just create a `new ColorFlow()`, add some `new ColorFlowExpression()` to it, and
 ```
 
 The `ColorFlow` constructor has 2 parameters : the first one defines the number of repetitions (or 0 for infinite), the second one defines what to do when the flow is stopped. you can choose to restore to the previous state, keep the last state or turn off the device.
+
+#### Fluent
+Another way to create color flow is to use the `device.Flow()` method. This method returns a `FluentFLow` object you can use to create a flow in a "Fluent-syntax" way.
+example : 
+```csharp
+	FluentFlow flow = await backgroundDevice.BackgroundFlow()
+                        .RgbColor(255, 0, 0, 50, 1000)
+                        .Sleep(2000)
+			.RgbColor(0, 255, 0, 50) //without timing
+                        .During(1000) // set the timing of the previous instruction
+                        .Sleep(2000)
+                        .RgbColor(0, 0, 255, 50, 1000)
+                        .Sleep(2000)
+                        .Temperature(2700, 100, 1000)
+                        .Sleep(2000)
+                        .Temperature(6500, 100, 1000)
+                        .Play(ColorFlowEndAction.Keep);
+
+	await flow.StopAfter(5000);
+
+	//use the same object to create a new flow
+	await flow.Reset()
+		.RgbColor(0, 255, 0, 50, 1000)
+		.Temperature(3000, 100, 1000)
+		.Play(ColorFlowEndAction.Keep);
+```
 
 ### Find devices
 If you want to find what devices are connected, you can use `YeelightAPI.DeviceLocator` to find them : 
