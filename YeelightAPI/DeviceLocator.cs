@@ -42,7 +42,8 @@ namespace YeelightAPI
 
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
-                var addr = ni.GetIPProperties().GatewayAddresses.FirstOrDefault();
+                GatewayIPAddressInformation addr = ni.GetIPProperties().GatewayAddresses.FirstOrDefault();
+
                 if (addr != null && !addr.Address.ToString().Equals("0.0.0.0"))
                 {
                     if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
@@ -74,10 +75,12 @@ namespace YeelightAPI
                                         while (DateTime.Now - start < TimeSpan.FromSeconds(1))
                                         {
                                             int available = ssdpSocket.Available;
+
                                             if (available > 0)
                                             {
                                                 byte[] buffer = new byte[available];
-                                                var i = ssdpSocket.Receive(buffer, SocketFlags.None);
+                                                int i = ssdpSocket.Receive(buffer, SocketFlags.None);
+
                                                 if (i > 0)
                                                 {
                                                     string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());

@@ -19,7 +19,7 @@ namespace YeelightAPI.Core
         /// <returns></returns>
         public static List<object> GetRealNames(this PROPERTIES properties)
         {
-            var vals = Enum.GetValues(typeof(PROPERTIES));
+            Array vals = Enum.GetValues(typeof(PROPERTIES));
             return vals
                 .Cast<PROPERTIES>()
                 .Where(m => properties.HasFlag(m) && m != PROPERTIES.ALL && m != PROPERTIES.NONE)
