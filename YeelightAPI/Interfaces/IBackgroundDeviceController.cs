@@ -65,7 +65,7 @@ namespace YeelightAPI
         /// <param name="smooth"></param>
         /// <param name="mode"></param>
         /// <returns></returns>
-        Task<bool> BackgroundSetPower(bool state = true, int?smooth = null, PowerOnMode mode = PowerOnMode.Normal);
+        Task<bool> BackgroundSetPower(bool state = true, int? smooth = null, PowerOnMode mode = PowerOnMode.Normal);
 
         /// <summary>
         /// Set RGB color
@@ -104,12 +104,6 @@ namespace YeelightAPI
         Task<bool> BackgroundToggle();
 
         /// <summary>
-        /// Toggle both Background and classical power state
-        /// </summary>
-        /// <returns></returns>
-        Task<bool> DevToggle();
-
-        /// <summary>
         /// Turn-Off the device
         /// </summary>
         /// <param name="smooth"></param>
@@ -123,6 +117,12 @@ namespace YeelightAPI
         /// <param name="mode"></param>
         /// <returns></returns>
         Task<bool> BackgroundTurnOn(int? smooth = null, PowerOnMode mode = PowerOnMode.Normal);
+
+        /// <summary>
+        /// Toggle both Background and classical power state
+        /// </summary>
+        /// <returns></returns>
+        Task<bool> DevToggle();
 
         #endregion Public Methods
     }

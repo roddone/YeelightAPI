@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YeelightAPI.Models
+﻿namespace YeelightAPI.Models
 {
     /// <summary>
     /// Power-ON mode
@@ -15,12 +11,12 @@ namespace YeelightAPI.Models
         Normal = 0,
 
         /// <summary>
-        /// Color Temperature 
+        /// Color Temperature
         /// </summary>
         Ct = 1,
 
         /// <summary>
-        /// RGB color 
+        /// RGB color
         /// </summary>
         RGB = 2,
 

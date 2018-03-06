@@ -157,7 +157,6 @@ namespace YeelightAPI
             });
         }
 
-
         /// <summary>
         /// Set the RGB Color for all the devices
         /// </summary>

@@ -22,7 +22,6 @@ namespace YeelightAPI.Models
 
         private Func<Task<bool>> _stopColorFlowMethod = null;
 
-
         #endregion Private Fields
 
         #region Internal Constructors
