@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using YeelightAPI.Core;
@@ -27,7 +28,12 @@ namespace YeelightAPI
             Disconnect();
 
             _tcpClient = new TcpClient();
-            await _tcpClient.ConnectAsync(Hostname, Port);
+            try
+            {
+                Task t = _tcpClient.ConnectAsync(Hostname, Port);
+                t.Wait(5000); //timeout after 5 seconds
+            }
+            catch (Exception) { }
 
             if (!_tcpClient.Connected)
             {
