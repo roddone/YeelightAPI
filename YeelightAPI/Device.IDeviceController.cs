@@ -31,7 +31,7 @@ namespace YeelightAPI
             try
             {
                 Task t = _tcpClient.ConnectAsync(Hostname, Port);
-                t.Wait(5000); //timeout after 5 seconds
+                t.Wait(Constants.TcpClientTimeout); //timeout after 5 seconds
             }
             catch (Exception) { }
 

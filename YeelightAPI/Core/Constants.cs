@@ -46,6 +46,11 @@ namespace YeelightAPI.Core
         public const string On = "on";
 
         /// <summary>
+        /// Default timeout when attempting to connect to a device
+        /// </summary>
+        public const int TcpClientTimeout = 5000;
+
+        /// <summary>
         /// Serializer settings
         /// </summary>
         public static readonly JsonSerializerSettings DeviceSerializerSettings = new JsonSerializerSettings()
