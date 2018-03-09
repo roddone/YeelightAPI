@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/roddone/YeelightAPI.svg?branch=master)](https://travis-ci.org/roddone/YeelightAPI)
 [![NuGet Package](https://img.shields.io/nuget/v/YeelightAPI.svg)](https://www.nuget.org/packages/YeelightAPI/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/YeelightAPI.svg)](https://www.nuget.org/packages/YeelightAPI/)
+[![Donate](https://img.shields.io/badge/%24-donate-ff00ff.svg)](https://www.paypal.me/roddone)
 
 # YeelightAPI
 C# API (.Net) to control Xiaomi Yeelight Color Bulbs
