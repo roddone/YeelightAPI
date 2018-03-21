@@ -41,5 +41,11 @@ namespace YeelightAPI.Models
         /// </summary>
         [RealName("bslamp")]
         BedsideLamp,
+
+        /// <summary>
+        /// Desk Lamp.
+        /// </summary>
+        [RealName("desklamp")]
+        DeskLamp
     }
 }
