@@ -270,6 +270,15 @@ namespace YeelightAPI
             return null;
         }
 
+        /// <summary>
+        /// Readable value for the device
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"{this.Model.ToString()} ({this.Hostname}:{this.Port})";
+        }
+
         #endregion PUBLIC METHODS
 
         #region PRIVATE METHODS
