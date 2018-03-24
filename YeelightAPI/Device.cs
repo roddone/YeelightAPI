@@ -360,7 +360,7 @@ namespace YeelightAPI
             await Task.Factory.StartNew(async () =>
             {
                 //while device is connected
-                while (_tcpClient != null)
+                while (_tcpClient != null && _tcpClient.Connected)
                 {
                     lock (_syncLock)
                     {
