@@ -217,7 +217,10 @@ namespace YeelightAPI
         /// </summary>
         public void Dispose()
         {
-            Disconnect();
+            lock (_syncLock)
+            {
+                Disconnect();
+            }
         }
 
         #endregion IDisposable
@@ -360,76 +363,88 @@ namespace YeelightAPI
             await Task.Factory.StartNew(async () =>
             {
                 //while device is connected
-                while (_tcpClient != null && _tcpClient.Connected)
+                while (_tcpClient != null)
                 {
                     lock (_syncLock)
                     {
-                        //there is data avaiblable in the pipe
-                        if (_tcpClient.Client.Available > 0)
+                        if (_tcpClient != null)
                         {
-                            byte[] bytes = new byte[_tcpClient.Client.Available];
-
-                            //read datas
-                            _tcpClient.Client.Receive(bytes);
-
-                            try
+                            //automatic re-connection
+                            if (!_tcpClient.Connected)
                             {
-                                string datas = Encoding.UTF8.GetString(bytes);
-                                if (!string.IsNullOrEmpty(datas))
+                                _tcpClient.ConnectAsync(Hostname, Port).Wait();
+                            }
+
+                            if (_tcpClient.Connected)
+                            {
+                                //there is data avaiblable in the pipe
+                                if (_tcpClient.Client.Available > 0)
                                 {
-                                    //get every messages in the pipe
-                                    foreach (string entry in datas.Split(new string[] { Constants.LineSeparator },
-                                        StringSplitOptions.RemoveEmptyEntries))
+                                    byte[] bytes = new byte[_tcpClient.Client.Available];
+
+                                    //read datas
+                                    _tcpClient.Client.Receive(bytes);
+
+                                    try
                                     {
-                                        CommandResult commandResult =
-                                            JsonConvert.DeserializeObject<CommandResult>(entry, Constants.DeviceSerializerSettings);
-                                        if (commandResult != null && commandResult.Id != 0)
+                                        string datas = Encoding.UTF8.GetString(bytes);
+                                        if (!string.IsNullOrEmpty(datas))
                                         {
-                                            ICommandResultHandler commandResultHandler;
-                                            lock (_currentCommandResults)
+                                            //get every messages in the pipe
+                                            foreach (string entry in datas.Split(new string[] { Constants.LineSeparator },
+                                                StringSplitOptions.RemoveEmptyEntries))
                                             {
-                                                commandResultHandler = _currentCommandResults[commandResult.Id];
-                                            }
-
-                                            if (commandResult.Error == null)
-                                            {
-                                                commandResult = (CommandResult)JsonConvert.DeserializeObject(entry, commandResultHandler.ResultType, Constants.DeviceSerializerSettings);
-                                                commandResultHandler.SetResult(commandResult);
-                                            }
-                                            else
-                                            {
-                                                commandResultHandler.SetError(commandResult.Error);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            NotificationResult notificationResult =
-                                                JsonConvert.DeserializeObject<NotificationResult>(entry,
-                                                    Constants.DeviceSerializerSettings);
-
-                                            if (notificationResult != null && notificationResult.Method != null)
-                                            {
-                                                if (notificationResult.Params != null)
+                                                CommandResult commandResult =
+                                                    JsonConvert.DeserializeObject<CommandResult>(entry, Constants.DeviceSerializerSettings);
+                                                if (commandResult != null && commandResult.Id != 0)
                                                 {
-                                                    //save properties
-                                                    foreach (KeyValuePair<PROPERTIES, object> property in
-                                                        notificationResult.Params)
+                                                    ICommandResultHandler commandResultHandler;
+                                                    lock (_currentCommandResults)
                                                     {
-                                                        this[property.Key] = property.Value;
+                                                        commandResultHandler = _currentCommandResults[commandResult.Id];
+                                                    }
+
+                                                    if (commandResult.Error == null)
+                                                    {
+                                                        commandResult = (CommandResult)JsonConvert.DeserializeObject(entry, commandResultHandler.ResultType, Constants.DeviceSerializerSettings);
+                                                        commandResultHandler.SetResult(commandResult);
+                                                    }
+                                                    else
+                                                    {
+                                                        commandResultHandler.SetError(commandResult.Error);
                                                     }
                                                 }
+                                                else
+                                                {
+                                                    NotificationResult notificationResult =
+                                                        JsonConvert.DeserializeObject<NotificationResult>(entry,
+                                                            Constants.DeviceSerializerSettings);
 
-                                                //notification result
-                                                OnNotificationReceived?.Invoke(this,
-                                                    new NotificationReceivedEventArgs(notificationResult));
+                                                    if (notificationResult != null && notificationResult.Method != null)
+                                                    {
+                                                        if (notificationResult.Params != null)
+                                                        {
+                                                            //save properties
+                                                            foreach (KeyValuePair<PROPERTIES, object> property in
+                                                                notificationResult.Params)
+                                                            {
+                                                                this[property.Key] = property.Value;
+                                                            }
+                                                        }
+
+                                                        //notification result
+                                                        OnNotificationReceived?.Invoke(this,
+                                                            new NotificationReceivedEventArgs(notificationResult));
+                                                    }
+                                                }
                                             }
                                         }
                                     }
+                                    catch (Exception ex)
+                                    {
+                                        OnError?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
+                                    }
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                OnError?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
                             }
                         }
                     }
