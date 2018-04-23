@@ -80,7 +80,7 @@ namespace YeelightAPI
         {
             get
             {
-                return _tcpClient?.Connected ?? false;
+                return _tcpClient != null && _tcpClient.IsConnected();
             }
         }
 
@@ -370,12 +370,12 @@ namespace YeelightAPI
                         if (_tcpClient != null)
                         {
                             //automatic re-connection
-                            if (!_tcpClient.Connected)
+                            if (!_tcpClient.IsConnected())
                             {
                                 _tcpClient.ConnectAsync(Hostname, Port).Wait();
                             }
 
-                            if (_tcpClient.Connected)
+                            if (_tcpClient.IsConnected())
                             {
                                 //there is data avaiblable in the pipe
                                 if (_tcpClient.Client.Available > 0)

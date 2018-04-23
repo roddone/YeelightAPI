@@ -29,7 +29,7 @@ namespace YeelightAPI
             _tcpClient = new TcpClient();
             await _tcpClient.ConnectAsync(Hostname, Port);
 
-            if (!_tcpClient.Connected)
+            if (!_tcpClient.IsConnected())
             {
                 return false;
             }
