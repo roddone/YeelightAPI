@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Threading.Tasks;
 using YeelightAPI;
 using YeelightAPI.Models;
@@ -9,6 +12,13 @@ using YeelightAPI.Models.Cron;
 
 namespace YeelightAPIConsoleTest
 {
+
+    //public class Custom
+    //{
+    //    [JsonConverter(typeof(PropertiesDictionaryConverter))]
+    //    public Dictionary<PROPERTIES, object> Params { get; set; }
+    //}
+
     public class Program
     {
         #region Public Methods
@@ -17,6 +27,22 @@ namespace YeelightAPIConsoleTest
         {
             try
             {
+                //var test = new
+                //{
+                //    Params = new Dictionary<string, object>()
+                //    {
+                //        {PROPERTIES.bg_bright.ToString(), "25" },
+                //        {PROPERTIES.power.ToString(), 12 },
+                //        {"pdo_status", null },
+                //    }
+                //};
+
+                //string outTest = JsonConvert.SerializeObject(test);
+
+                //Custom test2 = JsonConvert.DeserializeObject<Custom>(outTest);
+                //string outTest2 = JsonConvert.SerializeObject(test2);
+                //Custom test3 = JsonConvert.DeserializeObject<Custom>(outTest2);
+
                 Console.WriteLine("Choose a test mode, type 'd' for discovery mode, 's' for a static IP adress : ");
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
                 Console.WriteLine();

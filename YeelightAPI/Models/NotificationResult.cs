@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using YeelightAPI.Core;
 
 namespace YeelightAPI.Models
 {
@@ -17,6 +19,7 @@ namespace YeelightAPI.Models
         /// <summary>
         /// Parameters
         /// </summary>
+        [JsonConverter(typeof(PropertiesDictionaryConverter))]
         public Dictionary<PROPERTIES, object> Params { get; set; }
 
         #endregion Public Properties
