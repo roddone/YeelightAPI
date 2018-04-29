@@ -691,7 +691,7 @@ namespace YeelightAPIConsoleTest
             {
                 await action();
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
                 WriteLineWithColor(ex.Message, ConsoleColor.Magenta);
             }
