@@ -13,7 +13,8 @@
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
-    <PackageReleaseNotes>better disconnection detection</PackageReleaseNotes>
+    <PackageReleaseNotes>* Better disconnection detection
+* prevent errors when an unknown property is sent through notifications</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
     <Copyright>Copyright © Romain ODDONE 2018</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
