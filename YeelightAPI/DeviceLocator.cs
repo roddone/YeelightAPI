@@ -44,7 +44,7 @@ namespace YeelightAPI
             {
                 await Task.WhenAll(tasks);
 
-                devices.AddRange(tasks.SelectMany(t => t.Result));
+                devices.AddRange(tasks.SelectMany(t => t.Result).GroupBy(d => d.Hostname).Select(g => g.First()));
             }
 
             return devices;
@@ -68,7 +68,7 @@ namespace YeelightAPI
             {
                 await Task.WhenAll(tasks);
 
-                devices.AddRange(tasks.SelectMany(t => t.Result));
+                devices.AddRange(tasks.SelectMany(t => t.Result).GroupBy(d => d.Hostname).Select(g => g.First()));
             }
 
             return devices;
