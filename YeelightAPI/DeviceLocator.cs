@@ -31,30 +31,79 @@ namespace YeelightAPI
         #region Public Methods
 
         /// <summary>
+        /// Discover devices in a specific Network Interface
+        /// </summary>
+        /// <param name="preferedInterface"></param>
+        /// <returns></returns>
+        public static async Task<List<Device>> Discover(NetworkInterface preferedInterface)
+        {
+            List<Task<List<Device>>> tasks = CreateDiscoverTasks(preferedInterface);
+            List<Device> devices = new List<Device>();
+
+            if (tasks.Count != 0)
+            {
+                await Task.WhenAll(tasks);
+
+                devices.AddRange(tasks.SelectMany(t => t.Result).GroupBy(d => d.Hostname).Select(g => g.First()));
+            }
+
+            return devices;
+        }
+
+        /// <summary>
         /// Discover devices in LAN
         /// </summary>
         /// <returns></returns>
         public static async Task<List<Device>> Discover()
         {
-            List<Task> tasks = new List<Task>();
+            List<Task<List<Device>>> tasks = new List<Task<List<Device>>>();
+            List<Device> devices = new List<Device>();
+
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces().Where(n => n.OperationalStatus == OperationalStatus.Up))
+            {
+                tasks.AddRange(CreateDiscoverTasks(ni));
+            }
+
+            if (tasks.Count != 0)
+            {
+                await Task.WhenAll(tasks);
+
+                devices.AddRange(tasks.SelectMany(t => t.Result).GroupBy(d => d.Hostname).Select(g => g.First()));
+            }
+
+            return devices;
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        /// <summary>
+        /// Create Discovery tasks for a specific Network Interface
+        /// </summary>
+        /// <param name="netInterface"></param>
+        /// <returns></returns>
+        private static List<Task<List<Device>>> CreateDiscoverTasks(NetworkInterface netInterface)
+        {
             List<Device> devices = new List<Device>();
             object deviceLock = new object();
+            List<Task<List<Device>>> tasks = new List<Task<List<Device>>>();
 
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            try
             {
-                GatewayIPAddressInformation addr = ni.GetIPProperties().GatewayAddresses.FirstOrDefault();
+                GatewayIPAddressInformation addr = netInterface.GetIPProperties().GatewayAddresses.FirstOrDefault();
 
                 if (addr != null && !addr.Address.ToString().Equals("0.0.0.0"))
                 {
-                    if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                    if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
                     {
-                        foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
+                        foreach (UnicastIPAddressInformation ip in netInterface.GetIPProperties().UnicastAddresses)
                         {
                             if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
                             {
                                 for (int cpt = 0; cpt < 3; cpt++)
                                 {
-                                    Task t = Task.Factory.StartNew(() =>
+                                    Task<List<Device>> t = Task.Factory.StartNew<List<Device>>(() =>
                                     {
                                         Socket ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
                                         {
@@ -101,6 +150,8 @@ namespace YeelightAPI
                                             }
                                             Thread.Sleep(10);
                                         }
+
+                                        return devices;
                                     });
                                     tasks.Add(t);
                                 }
@@ -109,18 +160,10 @@ namespace YeelightAPI
                     }
                 }
             }
+            catch { }
 
-            if (tasks.Count != 0)
-            {
-                await Task.WhenAll(tasks);
-            }
-
-            return devices;
+            return tasks;
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         /// <summary>
         /// Gets the informations from a raw SSDP message (host, port)
