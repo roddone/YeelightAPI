@@ -124,6 +124,11 @@ namespace YeelightAPI.Models
         nl_br = 1 << 21,
 
         /// <summary>
+        /// 0: daylight mode / 1: moonlight mode (ceiling light only)
+        /// </summary>
+        active_mode = 1 << 22,
+
+        /// <summary>
         /// All Properties
         /// </summary>
         ALL = ~0
