@@ -473,6 +473,30 @@ namespace YeelightAPIConsoleTest
 
                 await Try(async () =>
                 {
+                    Console.WriteLine("adjust brightness ++");
+                    await backgroundDevice.BackgroundAdjustBright(50, smooth);
+                    Console.WriteLine("adjust brightness --");
+                    await backgroundDevice.BackgroundAdjustBright(-50, smooth);
+                });
+
+                await Try(async () =>
+                {
+                    Console.WriteLine("adjust color ++");
+                    await backgroundDevice.BackgroundAdjustColor(50, smooth);
+                    Console.WriteLine("adjust color --");
+                    await backgroundDevice.BackgroundAdjustColor(-50, smooth);
+                });
+
+                await Try(async () =>
+                {
+                    Console.WriteLine("adjust color temperature ++");
+                    await backgroundDevice.BackgroundAdjustColorTemperature(50, smooth);
+                    Console.WriteLine("adjust color temperature --");
+                    await backgroundDevice.BackgroundAdjustColorTemperature(-50, smooth);
+                });
+
+                await Try(async () =>
+                {
                     Console.WriteLine("Toggling bulb state...");
                     success = await backgroundDevice.BackgroundToggle();
                     globalSuccess &= success;
@@ -663,6 +687,31 @@ namespace YeelightAPIConsoleTest
 
                 WriteLineWithColor($"Color flow ended", ConsoleColor.DarkCyan);
             });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("adjust brightness ++");
+                await device.AdjustBright(50, smooth);
+                Console.WriteLine("adjust brightness --");
+                await device.AdjustBright(-50, smooth);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("adjust color ++");
+                await device.AdjustColor(50, smooth);
+                Console.WriteLine("adjust color --");
+                await device.AdjustColor(-50, smooth);
+            });
+
+            await Try(async () =>
+            {
+                Console.WriteLine("adjust color temperature ++");
+                await device.AdjustColorTemperature(50, smooth);
+                Console.WriteLine("adjust color temperature --");
+                await device.AdjustColorTemperature(-50, smooth);
+            });
+
 
             await Try(async () =>
             {
