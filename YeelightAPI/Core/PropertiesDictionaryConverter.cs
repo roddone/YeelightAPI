@@ -2,7 +2,6 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using YeelightAPI.Models;
 
 namespace YeelightAPI.Core
@@ -12,8 +11,10 @@ namespace YeelightAPI.Core
     /// </summary>
     public class PropertiesDictionaryConverter : JsonConverter
     {
+        #region Public Methods
+
         /// <summary>
-        /// Can convert 
+        /// Can convert
         /// </summary>
         /// <param name="objectType"></param>
         /// <returns></returns>
@@ -66,5 +67,7 @@ namespace YeelightAPI.Core
             JToken token = JToken.FromObject(value);
             token.WriteTo(writer);
         }
+
+        #endregion Public Methods
     }
 }

@@ -11,6 +11,8 @@ namespace YeelightAPI
     /// </summary>
     public partial class DeviceGroup : IBackgroundDeviceController
     {
+        #region Public Methods
+
         /// <summary>
         /// Adjusts the brightness
         /// </summary>
@@ -52,7 +54,6 @@ namespace YeelightAPI
                 return device.BackgroundAdjustColorTemperature(percent, smooth);
             });
         }
-        #region Public Methods
 
         /// <summary>
         /// Initiate a new background Color Flow

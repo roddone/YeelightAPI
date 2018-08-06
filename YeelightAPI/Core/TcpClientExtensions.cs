@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Text;
+﻿using System.Net.Sockets;
 
 namespace YeelightAPI.Core
 {
@@ -10,6 +7,8 @@ namespace YeelightAPI.Core
     /// </summary>
     public static class TcpClientExtensions
     {
+        #region Public Methods
+
         /// <summary>
         /// Returns a value to indicate if the Client is connected or not
         /// </summary>
@@ -22,10 +21,10 @@ namespace YeelightAPI.Core
                 if (tcpClient?.Client?.Connected == true)
                 {
                     /* pear to the documentation on Poll:
-                     * When passing SelectMode.SelectRead as a parameter to the Poll method it will return 
+                     * When passing SelectMode.SelectRead as a parameter to the Poll method it will return
                      * -either- true if Socket.Listen(Int32) has been called and a connection is pending;
-                     * -or- true if data is available for reading; 
-                     * -or- true if the connection has been closed, reset, or terminated; 
+                     * -or- true if data is available for reading;
+                     * -or- true if the connection has been closed, reset, or terminated;
                      * otherwise, returns false
                      */
 
@@ -56,5 +55,7 @@ namespace YeelightAPI.Core
                 return false;
             }
         }
+
+        #endregion Public Methods
     }
 }

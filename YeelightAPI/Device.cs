@@ -36,6 +36,16 @@ namespace YeelightAPI
         #region EVENTS
 
         /// <summary>
+        /// Notification Received event
+        /// </summary>
+        public event ErrorEventHandler OnError;
+
+        /// <summary>
+        /// Notification Received event
+        /// </summary>
+        public event NotificationReceivedEventHandler OnNotificationReceived;
+
+        /// <summary>
         /// Notification Received event handler
         /// </summary>
         /// <param name="sender"></param>
@@ -48,16 +58,6 @@ namespace YeelightAPI
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public delegate void NotificationReceivedEventHandler(object sender, NotificationReceivedEventArgs e);
-
-        /// <summary>
-        /// Notification Received event
-        /// </summary>
-        public event ErrorEventHandler OnError;
-
-        /// <summary>
-        /// Notification Received event
-        /// </summary>
-        public event NotificationReceivedEventHandler OnNotificationReceived;
 
         #endregion EVENTS
 
@@ -298,7 +298,7 @@ namespace YeelightAPI
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            if(percent < 0)
+            if (percent < 0)
             {
                 parameters.Add(Math.Max(percent, -100));
             }
