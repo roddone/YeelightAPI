@@ -13,6 +13,65 @@ namespace YeelightAPI
     /// </summary>
     public partial class Device : IBackgroundDeviceController
     {
+        /// <summary>
+        /// Adjusts the brightness
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundAdjustBright(int percent, int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { };
+            HandlePercentValue(ref parameters, percent);
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.BackgroundAdjustBright,
+                id: (int)METHODS.BackgroundAdjustBright,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Adjusts the color
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundAdjustColor(int percent, int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { };
+            HandlePercentValue(ref parameters, percent);
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.BackgroundAdjustColor,
+                id: (int)METHODS.BackgroundAdjustColor,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Adjusts the color temperature
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundAdjustColorTemperature(int percent, int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { };
+            HandlePercentValue(ref parameters, percent);
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.BackgroundAdjustColorTemperature,
+                id: (int)METHODS.BackgroundAdjustColorTemperature,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
         #region Public Methods
 
         /// <summary>
@@ -32,16 +91,14 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> BackgroundSetAdjust(AdjustAction action, AdjustProperty property)
         {
-            {
-                List<object> parameters = new List<object>() { action.ToString(), property.ToString() };
+            List<object> parameters = new List<object>() { action.ToString(), property.ToString() };
 
-                CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
-                    method: METHODS.SetBackgroundLightAdjust,
-                    id: (int)METHODS.SetBackgroundLightAdjust,
-                    parameters: parameters);
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.SetBackgroundLightAdjust,
+                id: (int)METHODS.SetBackgroundLightAdjust,
+                parameters: parameters);
 
-                return result.IsOk();
-            }
+            return result.IsOk();
         }
 
         /// <summary>

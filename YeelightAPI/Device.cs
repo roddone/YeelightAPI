@@ -287,6 +287,28 @@ namespace YeelightAPI
         #region PRIVATE METHODS
 
         /// <summary>
+        /// Generate valid parameters for percent values
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="percent"></param>
+        private static void HandlePercentValue(ref List<object> parameters, int percent)
+        {
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
+            if(percent < 0)
+            {
+                parameters.Add(Math.Max(percent, -100));
+            }
+            else
+            {
+                parameters.Add(Math.Min(percent, 100));
+            }
+        }
+
+        /// <summary>
         /// Generate valid parameters for smooth values
         /// </summary>
         /// <param name="parameters"></param>

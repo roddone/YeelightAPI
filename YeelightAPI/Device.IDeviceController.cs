@@ -16,6 +16,66 @@ namespace YeelightAPI
     /// </summary>
     public partial class Device : IDeviceController
     {
+        /// <summary>
+        /// Adjusts the brightness
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> AdjustBright(int percent, int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { };
+            HandlePercentValue(ref parameters, percent);
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.AdjustBright,
+                id: (int)METHODS.AdjustBright,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Adjusts the color
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> AdjustColor(int percent, int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { };
+            HandlePercentValue(ref parameters, percent);
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.AdjustColor,
+                id: (int)METHODS.AdjustColor,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
+        /// <summary>
+        /// Adjusts the color temperature
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> AdjustColorTemperature(int percent, int? smooth = null)
+        {
+            List<object> parameters = new List<object>() { };
+            HandlePercentValue(ref parameters, percent);
+            HandleSmoothValue(ref parameters, smooth);
+
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
+                method: METHODS.AdjustColorTemperature,
+                id: (int)METHODS.AdjustColorTemperature,
+                parameters: parameters);
+
+            return result.IsOk();
+        }
+
         #region Public Methods
 
         /// <summary>

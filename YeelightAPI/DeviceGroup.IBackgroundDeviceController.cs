@@ -11,6 +11,47 @@ namespace YeelightAPI
     /// </summary>
     public partial class DeviceGroup : IBackgroundDeviceController
     {
+        /// <summary>
+        /// Adjusts the brightness
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundAdjustBright(int percent, int? smooth = null)
+        {
+            return await Process((Device device) =>
+            {
+                return device.BackgroundAdjustBright(percent, smooth);
+            });
+        }
+
+        /// <summary>
+        /// Adjusts the color
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundAdjustColor(int percent, int? smooth = null)
+        {
+            return await Process((Device device) =>
+            {
+                return device.BackgroundAdjustColor(percent, smooth);
+            });
+        }
+
+        /// <summary>
+        /// Adjusts the color temperature
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> BackgroundAdjustColorTemperature(int percent, int? smooth = null)
+        {
+            return await Process((Device device) =>
+            {
+                return device.BackgroundAdjustColorTemperature(percent, smooth);
+            });
+        }
         #region Public Methods
 
         /// <summary>

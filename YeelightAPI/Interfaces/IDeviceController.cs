@@ -15,6 +15,30 @@ namespace YeelightAPI
         #region Public Methods
 
         /// <summary>
+        /// Adjusts the brightness
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        Task<bool> AdjustBright(int percent, int? smooth = null);
+
+        /// <summary>
+        /// Adjusts the color
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        Task<bool> AdjustColor(int percent, int? smooth = null);
+
+        /// <summary>
+        /// Adjusts the color temperature
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        Task<bool> AdjustColorTemperature(int percent, int? smooth = null);
+
+        /// <summary>
         /// Establish a connection to the device
         /// </summary>
         /// <returns></returns>

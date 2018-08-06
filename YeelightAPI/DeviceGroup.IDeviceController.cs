@@ -15,6 +15,48 @@ namespace YeelightAPI
         #region Public Methods
 
         /// <summary>
+        /// Adjusts the brightness
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> AdjustBright(int percent, int? smooth = null)
+        {
+            return await Process((Device device) =>
+            {
+                return device.AdjustBright(percent, smooth);
+            });
+        }
+
+        /// <summary>
+        /// Adjusts the color
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> AdjustColor(int percent, int? smooth = null)
+        {
+            return await Process((Device device) =>
+            {
+                return device.AdjustColor(percent, smooth);
+            });
+        }
+
+        /// <summary>
+        /// Adjusts the color temperature
+        /// </summary>
+        /// <param name="percent"></param>
+        /// <param name="smooth"></param>
+        /// <returns></returns>
+        public async Task<bool> AdjustColorTemperature(int percent, int? smooth = null)
+        {
+            return await Process((Device device) =>
+            {
+                return device.AdjustColorTemperature(percent, smooth);
+            });
+        }
+
+        /// <summary>
         /// Connect all the devices
         /// </summary>
         /// <returns></returns>

@@ -77,7 +77,7 @@ example :
 	FluentFlow flow = await backgroundDevice.BackgroundFlow()
                         .RgbColor(255, 0, 0, 50, 1000)
                         .Sleep(2000)
-			.RgbColor(0, 255, 0, 50) //without timing
+						.RgbColor(0, 255, 0, 50) //without timing
                         .During(1000) // set the timing of the previous instruction
                         .Sleep(2000)
                         .RgbColor(0, 0, 255, 50, 1000)

@@ -179,6 +179,42 @@ namespace YeelightAPI.Models
         /// Toggle the main light and background light at the same time
         /// </summary>
         [RealName("dev_toggle")]
-        ToggleDev = 29
+        ToggleDev = 29,
+
+        /// <summary>
+        /// Adjusts the brightness
+        /// </summary>
+        [RealName("adjust_bright")]
+        AdjustBright = 30,
+
+        /// <summary>
+        /// Adjusts the color temperature
+        /// </summary>
+        [RealName("adjust_ct")]
+        AdjustColorTemperature = 31,
+
+        /// <summary>
+        /// Adjusts the color
+        /// </summary>
+        [RealName("adjust_color")]
+        AdjustColor = 32,
+
+        /// <summary>
+        /// Adjusts the brightness
+        /// </summary>
+        [RealName("bg_adjust_bright")]
+        BackgroundAdjustBright = 33,
+
+        /// <summary>
+        /// Adjusts the color temperature
+        /// </summary>
+        [RealName("bg_adjust_ct")]
+        BackgroundAdjustColorTemperature = 34,
+
+        /// <summary>
+        /// Adjusts the color
+        /// </summary>
+        [RealName("bg_adjust_color")]
+        BackgroundAdjustColor = 35,
     }
 }
