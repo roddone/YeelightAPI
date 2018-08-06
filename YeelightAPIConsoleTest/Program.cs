@@ -475,24 +475,48 @@ namespace YeelightAPIConsoleTest
                 {
                     Console.WriteLine("adjust brightness ++");
                     await backgroundDevice.BackgroundAdjustBright(50, smooth);
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
+                });
+
+                await Try(async () =>
+                {
                     Console.WriteLine("adjust brightness --");
                     await backgroundDevice.BackgroundAdjustBright(-50, smooth);
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
                 });
 
                 await Try(async () =>
                 {
                     Console.WriteLine("adjust color ++");
                     await backgroundDevice.BackgroundAdjustColor(50, smooth);
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
+                });
+
+                await Try(async () =>
+                {
                     Console.WriteLine("adjust color --");
                     await backgroundDevice.BackgroundAdjustColor(-50, smooth);
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
                 });
 
                 await Try(async () =>
                 {
                     Console.WriteLine("adjust color temperature ++");
                     await backgroundDevice.BackgroundAdjustColorTemperature(50, smooth);
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
+                });
+
+                await Try(async () =>
+                {
                     Console.WriteLine("adjust color temperature --");
                     await backgroundDevice.BackgroundAdjustColorTemperature(-50, smooth);
+                    WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                    await Task.Delay(delay);
                 });
 
                 await Try(async () =>
@@ -692,24 +716,48 @@ namespace YeelightAPIConsoleTest
             {
                 Console.WriteLine("adjust brightness ++");
                 await device.AdjustBright(50, smooth);
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
                 Console.WriteLine("adjust brightness --");
                 await device.AdjustBright(-50, smooth);
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
             });
 
             await Try(async () =>
             {
                 Console.WriteLine("adjust color ++");
                 await device.AdjustColor(50, smooth);
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
                 Console.WriteLine("adjust color --");
                 await device.AdjustColor(-50, smooth);
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
             });
 
             await Try(async () =>
             {
                 Console.WriteLine("adjust color temperature ++");
                 await device.AdjustColorTemperature(50, smooth);
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
+            });
+
+            await Try(async () =>
+            {
                 Console.WriteLine("adjust color temperature --");
                 await device.AdjustColorTemperature(-50, smooth);
+                WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
+                await Task.Delay(delay);
             });
 
 
