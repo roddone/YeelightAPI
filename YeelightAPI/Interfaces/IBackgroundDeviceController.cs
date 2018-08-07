@@ -17,25 +17,25 @@ namespace YeelightAPI
         /// Adjusts the brightness
         /// </summary>
         /// <param name="percent"></param>
-        /// <param name="smooth"></param>
+        /// <param name="duration"></param>
         /// <returns></returns>
-        Task<bool> BackgroundAdjustBright(int percent, int? smooth = null);
+        Task<bool> BackgroundAdjustBright(int percent, int? duration = null);
 
         /// <summary>
         /// Adjusts the color
         /// </summary>
         /// <param name="percent"></param>
-        /// <param name="smooth"></param>
+        /// <param name="duration"></param>
         /// <returns></returns>
-        Task<bool> BackgroundAdjustColor(int percent, int? smooth = null);
+        Task<bool> BackgroundAdjustColor(int percent, int? duration = null);
 
         /// <summary>
         /// Adjusts the color temperature
         /// </summary>
         /// <param name="percent"></param>
-        /// <param name="smooth"></param>
+        /// <param name="duration"></param>
         /// <returns></returns>
-        Task<bool> BackgroundAdjustColorTemperature(int percent, int? smooth = null);
+        Task<bool> BackgroundAdjustColorTemperature(int percent, int? duration = null);
 
         /// <summary>
         /// Initiate a new Color Flow

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using YeelightAPI.Core;
 using YeelightAPI.Models;
@@ -19,13 +20,16 @@ namespace YeelightAPI
         /// Adjusts the brightness
         /// </summary>
         /// <param name="percent"></param>
-        /// <param name="smooth"></param>
+        /// <param name="duration"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundAdjustBright(int percent, int? smooth = null)
+        public async Task<bool> BackgroundAdjustBright(int percent, int? duration = null)
         {
             List<object> parameters = new List<object>() { };
             HandlePercentValue(ref parameters, percent);
-            HandleSmoothValue(ref parameters, smooth);
+            if (duration.HasValue)
+            {
+                parameters.Add(Math.Max(duration.Value, Constants.MinimumSmoothDuration));
+            }
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.BackgroundAdjustBright,
@@ -39,13 +43,16 @@ namespace YeelightAPI
         /// Adjusts the color
         /// </summary>
         /// <param name="percent"></param>
-        /// <param name="smooth"></param>
+        /// <param name="duration"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundAdjustColor(int percent, int? smooth = null)
+        public async Task<bool> BackgroundAdjustColor(int percent, int? duration = null)
         {
             List<object> parameters = new List<object>() { };
             HandlePercentValue(ref parameters, percent);
-            HandleSmoothValue(ref parameters, smooth);
+            if (duration.HasValue)
+            {
+                parameters.Add(Math.Max(duration.Value, Constants.MinimumSmoothDuration));
+            }
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.BackgroundAdjustColor,
@@ -59,13 +66,16 @@ namespace YeelightAPI
         /// Adjusts the color temperature
         /// </summary>
         /// <param name="percent"></param>
-        /// <param name="smooth"></param>
+        /// <param name="duration"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundAdjustColorTemperature(int percent, int? smooth = null)
+        public async Task<bool> BackgroundAdjustColorTemperature(int percent, int? duration = null)
         {
             List<object> parameters = new List<object>() { };
             HandlePercentValue(ref parameters, percent);
-            HandleSmoothValue(ref parameters, smooth);
+            if (duration.HasValue)
+            {
+                parameters.Add(Math.Max(duration.Value, Constants.MinimumSmoothDuration));
+            }
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.BackgroundAdjustColorTemperature,
