@@ -67,14 +67,36 @@ namespace YeelightAPI
         public async Task<Dictionary<PROPERTIES, object>> GetProps(PROPERTIES props)
         {
             List<object> names = props.GetRealNames();
+            List<string> results = new List<string>();
+            if (names.Count <= 20)
+            {
+                CommandResult<List<string>> commandResult = await ExecuteCommandWithResponse<List<string>>(
+                    method: METHODS.GetProp,
+                    id: ((int)METHODS.GetProp),// + 1000 + props.Count,
+                    parameters: names
+                    );
 
-            CommandResult<List<string>> commandResult = await ExecuteCommandWithResponse<List<string>>(
-                method: METHODS.GetProp,
-                id: ((int)METHODS.GetProp),// + 1000 + props.Count,
-                parameters: names
-                );
+                results.AddRange(commandResult?.Result);
+            }
+            else
+            {
 
-            if (commandResult != null)
+                CommandResult<List<string>> commandResult1 = await ExecuteCommandWithResponse<List<string>>(
+                    method: METHODS.GetProp,
+                    id: ((int)METHODS.GetProp),// + 1000 + props.Count,
+                    parameters: names.Take(20).ToList()
+                    );
+                CommandResult<List<string>> commandResult2 = await ExecuteCommandWithResponse<List<string>>(
+                    method: METHODS.GetProp,
+                    id: ((int)METHODS.GetProp),// + 1000 + props.Count,
+                    parameters: names.Skip(20).ToList()
+                    );
+
+                results.AddRange(commandResult1?.Result);
+                results.AddRange(commandResult2?.Result);
+            }
+
+            if (results.Count > 0)
             {
                 Dictionary<PROPERTIES, object> result = new Dictionary<PROPERTIES, object>();
 
@@ -84,7 +106,7 @@ namespace YeelightAPI
 
                     if (Enum.TryParse<PROPERTIES>(name, out PROPERTIES p))
                     {
-                        result.Add(p, commandResult.Result[n]);
+                        result.Add(p, results[n]);
                     }
                 }
 
