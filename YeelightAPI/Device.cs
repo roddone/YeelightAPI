@@ -80,8 +80,36 @@ namespace YeelightAPI
         {
             get
             {
-                return _tcpClient != null && _tcpClient.IsConnected();
+                switch (ConnectionCheckMode)
+                {
+                    case ConnectionCheckMode.TryGetCurrent:
+                        return _tcpClient != null && _tcpClient.IsConnected();
+                    case ConnectionCheckMode.LastKnownState:
+                        return _tcpClient != null && _tcpClient.Connected;
+                    case ConnectionCheckMode.Ping:
+                        using (System.Net.NetworkInformation.Ping p = new System.Net.NetworkInformation.Ping())
+                        {
+                            try
+                            {
+                                return p.Send(this.Hostname, Constants.DefaultPingTimeout).Status == System.Net.NetworkInformation.IPStatus.Success;
+                            }
+                            catch (Exception)
+                            {
+                                return false;
+                            }
+                        }
+                }
+
+                return false;
             }
+        }
+
+        /// <summary>
+        /// Connection check mode
+        /// </summary>
+        public ConnectionCheckMode ConnectionCheckMode
+        {
+            get; set;
         }
 
         /// <summary>

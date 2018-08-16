@@ -11,6 +11,11 @@ namespace YeelightAPI.Core
         #region Public Fields
 
         /// <summary>
+        /// Default ping Timeout
+        /// </summary>
+        public const int DefaultPingTimeout = 100;
+
+        /// <summary>
         /// Default port value
         /// </summary>
         public const int DefaultPort = 55443;
