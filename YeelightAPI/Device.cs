@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using YeelightAPI.Core;
 using YeelightAPI.Models;
@@ -25,6 +26,11 @@ namespace YeelightAPI
         /// lock
         /// </summary>
         private readonly object _syncLock = new object();
+
+        /// <summary>
+        /// The unique id to send when executing a command.
+        /// </summary>
+        private int _uniqueId = 0;
 
         /// <summary>
         /// TCP client used to communicate with the device
@@ -229,9 +235,20 @@ namespace YeelightAPI
         /// Execute a command
         /// </summary>
         /// <param name="method"></param>
+        /// <param name="parameters"></param>
+        public void ExecuteCommand(METHODS method, List<object> parameters = null)
+        {
+            ExecuteCommand(method, GetUniqueIdForCommand(), parameters);
+        }
+
+        /// <summary>
+        /// Execute a command
+        /// </summary>
+        /// <param name="method"></param>
         /// <param name="id"></param>
         /// <param name="parameters"></param>
-        public void ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null)
+        [Obsolete("Will become internal in a future release, use 'ExecuteCommand(METHODS method, List<object> parameters = null)' instead")]
+        public void ExecuteCommand(METHODS method, int id, List<object> parameters = null)
         {
             if (!IsMethodSupported(method))
             {
@@ -259,10 +276,23 @@ namespace YeelightAPI
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="method"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)
+        {
+            return await ExecuteCommandWithResponse<T>(method, GetUniqueIdForCommand(), parameters);
+        }
+
+        /// <summary>
+        /// Execute a command and waits for a response
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="method"></param>
         /// <param name="id"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
+        [Obsolete("Will become internal in a future release, use 'ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)' instead")]
+        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id, List<object> parameters = null)
         {
             try
             {
@@ -345,7 +375,7 @@ namespace YeelightAPI
             }
 
             return true;
-            //no supported operations, so we can't check if the peration is permitted
+            //no supported operations, so we can't check if the operation is permitted
         }
 
         /// <summary>
@@ -356,7 +386,7 @@ namespace YeelightAPI
         /// <param name="parameters"></param>
         /// <exception cref="TaskCanceledException"></exception>
         /// <returns></returns>
-        private Task<CommandResult<T>> UnsafeExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
+        private async Task<CommandResult<T>> UnsafeExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
         {
             CommandResultHandler<T> commandResultHandler;
             lock (_currentCommandResults)
@@ -371,9 +401,23 @@ namespace YeelightAPI
                 _currentCommandResults.Add(id, commandResultHandler);
             }
 
-            ExecuteCommand(method, id, parameters);
-
-            return commandResultHandler.Task;
+            try
+            {
+                ExecuteCommand(method, id, parameters);
+                return await commandResultHandler.Task;
+            }
+            finally
+            {
+                lock (_currentCommandResults)
+                {
+                    // remove the command if its the current handler in the dictionary
+                    if (_currentCommandResults.TryGetValue(id, out ICommandResultHandler currentHandler))
+                    {
+                        if (commandResultHandler == currentHandler)
+                            _currentCommandResults.Remove(id);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -423,7 +467,8 @@ namespace YeelightAPI
                                                     ICommandResultHandler commandResultHandler;
                                                     lock (_currentCommandResults)
                                                     {
-                                                        commandResultHandler = _currentCommandResults[commandResult.Id];
+                                                        if (!_currentCommandResults.TryGetValue(commandResult.Id, out commandResultHandler))
+                                                            continue; // ignore if the result can't be found
                                                     }
 
                                                     if (commandResult.Error == null)
@@ -474,6 +519,11 @@ namespace YeelightAPI
                     await Task.Delay(100);
                 }
             }, TaskCreationOptions.LongRunning);
+        }
+
+        private int GetUniqueIdForCommand()
+        {
+            return Interlocked.Increment(ref _uniqueId);
         }
 
         #endregion PRIVATE METHODS
