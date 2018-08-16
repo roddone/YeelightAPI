@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -85,8 +86,7 @@ namespace YeelightAPI
         /// <returns></returns>
         private static List<Task<List<Device>>> CreateDiscoverTasks(NetworkInterface netInterface)
         {
-            List<Device> devices = new List<Device>();
-            object deviceLock = new object();
+            var devices = new ConcurrentDictionary<string, Device>();
             List<Task<List<Device>>> tasks = new List<Task<List<Device>>>();
 
             try
@@ -136,22 +136,13 @@ namespace YeelightAPI
                                                     Device device = GetDeviceInformationsFromSsdpMessage(response);
 
                                                     //add only if no device already matching
-                                                    if (!devices.Any(d => d.Hostname == device.Hostname))
-                                                    {
-                                                        lock (deviceLock)
-                                                        {
-                                                            if (!devices.Any(d => d.Hostname == device.Hostname))
-                                                            {
-                                                                devices.Add(device);
-                                                            }
-                                                        }
-                                                    }
+                                                    devices.TryAdd(device.Hostname, device);
                                                 }
                                             }
                                             Thread.Sleep(10);
                                         }
 
-                                        return devices;
+                                        return devices.Values.ToList();
                                     });
                                     tasks.Add(t);
                                 }
