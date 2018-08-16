@@ -34,7 +34,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.AdjustBright,
-                id: (int)METHODS.AdjustBright,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -57,7 +57,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.AdjustColor,
-                id: (int)METHODS.AdjustColor,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -80,7 +80,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.AdjustColorTemperature,
-                id: (int)METHODS.AdjustColorTemperature,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -136,7 +136,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.AddCron,
-                id: (int)METHODS.AddCron,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -153,7 +153,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.DeleteCron,
-                id: (int)METHODS.DeleteCron,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -193,7 +193,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetAdjust,
-                id: (int)METHODS.SetAdjust,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -213,7 +213,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBrightness,
-                id: (int)METHODS.SetBrightness,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -233,7 +233,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetColorTemperature,
-                id: (int)METHODS.SetColorTemperature,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -245,7 +245,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> SetDefault()
         {
-            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.SetDefault, id: (int)METHODS.SetDefault);
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.SetDefault, id: GetUniqueIdForCommand());
 
             return result.IsOk();
         }
@@ -265,7 +265,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetHSVColor,
-                id: (int)METHODS.SetHSVColor,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -286,7 +286,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetPower,
-                id: (int)METHODS.SetPower,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters
             );
 
@@ -311,7 +311,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetRGBColor,
-                id: (int)METHODS.SetRGBColor,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -328,7 +328,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetScene,
-                id: (int)METHODS.SetScene,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -345,7 +345,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.StartColorFlow,
-                id: (int)METHODS.StartColorFlow,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -363,7 +363,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetMusicMode,
-                            id: (int)METHODS.SetMusicMode,
+                            id: GetUniqueIdForCommand(),
                             parameters: parameters);
 
             return result.IsOk();
@@ -377,7 +377,7 @@ namespace YeelightAPI
         {
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.StopColorFlow,
-                            id: (int)METHODS.StopColorFlow);
+                            id: GetUniqueIdForCommand());
 
             return result.IsOk();
         }
@@ -392,7 +392,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetMusicMode,
-                            id: (int)METHODS.SetMusicMode,
+                            id: GetUniqueIdForCommand(),
                             parameters: parameters);
 
             return result.IsOk();
@@ -404,7 +404,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> Toggle()
         {
-            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.Toggle, id: (int)METHODS.Toggle);
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.Toggle, id: GetUniqueIdForCommand());
 
             return result.IsOk();
         }
@@ -421,7 +421,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetPower,
-                id: (int)METHODS.SetPower,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -441,7 +441,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetPower,
-                id: (int)METHODS.SetPower,
+                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();

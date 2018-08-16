@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using YeelightAPI.Core;
 using YeelightAPI.Models;
@@ -25,6 +26,11 @@ namespace YeelightAPI
         /// lock
         /// </summary>
         private readonly object _syncLock = new object();
+
+        /// <summary>
+        /// The unique id to send when executing a command.
+        /// </summary>
+        private int _uniqueId = 0;
 
         /// <summary>
         /// TCP client used to communicate with the device
@@ -474,6 +480,11 @@ namespace YeelightAPI
                     await Task.Delay(100);
                 }
             }, TaskCreationOptions.LongRunning);
+        }
+
+        private int GetUniqueIdForCommand()
+        {
+            return Interlocked.Increment(ref _uniqueId);
         }
 
         #endregion PRIVATE METHODS

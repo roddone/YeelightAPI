@@ -26,7 +26,7 @@ namespace YeelightAPI
 
             CommandResult<CronResult[]> result = await ExecuteCommandWithResponse<CronResult[]>(
                             method: METHODS.GetCron,
-                            id: (int)METHODS.GetCron,
+                            id: GetUniqueIdForCommand(),
                             parameters: parameters);
 
             return result?.Result?.FirstOrDefault();
@@ -52,7 +52,7 @@ namespace YeelightAPI
         {
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.GetProp,
-                id: (int)METHODS.GetProp,
+                id: GetUniqueIdForCommand(),
                 parameters: new List<object>() { prop.ToString() }
                 );
 
@@ -72,7 +72,7 @@ namespace YeelightAPI
             {
                 CommandResult<List<string>> commandResult = await ExecuteCommandWithResponse<List<string>>(
                     method: METHODS.GetProp,
-                    id: ((int)METHODS.GetProp),// + 1000 + props.Count,
+                    id: GetUniqueIdForCommand(),
                     parameters: names
                     );
 
@@ -83,12 +83,12 @@ namespace YeelightAPI
 
                 CommandResult<List<string>> commandResult1 = await ExecuteCommandWithResponse<List<string>>(
                     method: METHODS.GetProp,
-                    id: ((int)METHODS.GetProp),// + 1000 + props.Count,
+                    id: GetUniqueIdForCommand(),
                     parameters: names.Take(20).ToList()
                     );
                 CommandResult<List<string>> commandResult2 = await ExecuteCommandWithResponse<List<string>>(
                     method: METHODS.GetProp,
-                    id: ((int)METHODS.GetProp),// + 1000 + props.Count,
+                    id: GetUniqueIdForCommand(),
                     parameters: names.Skip(20).ToList()
                     );
 
@@ -126,7 +126,7 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetName,
-                            id: (int)METHODS.SetName,
+                            id: GetUniqueIdForCommand(),
                             parameters: parameters);
 
             if (result.IsOk())
