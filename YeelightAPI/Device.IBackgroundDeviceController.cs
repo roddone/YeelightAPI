@@ -33,7 +33,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.BackgroundAdjustBright,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -56,7 +55,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.BackgroundAdjustColor,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -79,7 +77,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.BackgroundAdjustColorTemperature,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -106,7 +103,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightAdjust,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -126,7 +122,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightBrightness,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -146,7 +141,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundColorTemperature,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -158,7 +152,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> BackgroundSetDefault()
         {
-            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.SetBackgroundLightDefault, id: GetUniqueIdForCommand());
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.SetBackgroundLightDefault);
 
             return result.IsOk();
         }
@@ -178,7 +172,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightHSVColor,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -199,7 +192,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightPower,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters
             );
 
@@ -224,7 +216,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightRGBColor,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -241,7 +232,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightScene,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -258,7 +248,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.StartBackgroundLightColorFlow,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -271,8 +260,7 @@ namespace YeelightAPI
         public async Task<bool> BackgroundStopColorFlow()
         {
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
-                            method: METHODS.StopBackgroundLightColorFlow,
-                            id: GetUniqueIdForCommand());
+                            method: METHODS.StopBackgroundLightColorFlow);
 
             return result.IsOk();
         }
@@ -283,7 +271,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> BackgroundToggle()
         {
-            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.ToggleBackgroundLight, id: GetUniqueIdForCommand());
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.ToggleBackgroundLight);
 
             return result.IsOk();
         }
@@ -300,7 +288,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightPower,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -320,7 +307,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.SetBackgroundLightPower,
-                id: GetUniqueIdForCommand(),
                 parameters: parameters);
 
             return result.IsOk();
@@ -332,7 +318,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> DevToggle()
         {
-            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.ToggleDev, id: GetUniqueIdForCommand());
+            CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(METHODS.ToggleDev);
 
             return result.IsOk();
         }

@@ -26,7 +26,6 @@ namespace YeelightAPI
 
             CommandResult<CronResult[]> result = await ExecuteCommandWithResponse<CronResult[]>(
                             method: METHODS.GetCron,
-                            id: GetUniqueIdForCommand(),
                             parameters: parameters);
 
             return result?.Result?.FirstOrDefault();
@@ -52,9 +51,7 @@ namespace YeelightAPI
         {
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.GetProp,
-                id: GetUniqueIdForCommand(),
-                parameters: new List<object>() { prop.ToString() }
-                );
+                parameters: new List<object>() { prop.ToString() } );
 
             return result?.Result?.Count == 1 ? result.Result[0] : null;
         }
@@ -72,7 +69,6 @@ namespace YeelightAPI
             {
                 CommandResult<List<string>> commandResult = await ExecuteCommandWithResponse<List<string>>(
                     method: METHODS.GetProp,
-                    id: GetUniqueIdForCommand(),
                     parameters: names
                     );
 
@@ -83,14 +79,10 @@ namespace YeelightAPI
 
                 CommandResult<List<string>> commandResult1 = await ExecuteCommandWithResponse<List<string>>(
                     method: METHODS.GetProp,
-                    id: GetUniqueIdForCommand(),
-                    parameters: names.Take(20).ToList()
-                    );
+                    parameters: names.Take(20).ToList() );
                 CommandResult<List<string>> commandResult2 = await ExecuteCommandWithResponse<List<string>>(
                     method: METHODS.GetProp,
-                    id: GetUniqueIdForCommand(),
-                    parameters: names.Skip(20).ToList()
-                    );
+                    parameters: names.Skip(20).ToList());
 
                 results.AddRange(commandResult1?.Result);
                 results.AddRange(commandResult2?.Result);
@@ -126,7 +118,6 @@ namespace YeelightAPI
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetName,
-                            id: GetUniqueIdForCommand(),
                             parameters: parameters);
 
             if (result.IsOk())

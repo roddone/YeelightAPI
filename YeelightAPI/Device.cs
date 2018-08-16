@@ -235,9 +235,20 @@ namespace YeelightAPI
         /// Execute a command
         /// </summary>
         /// <param name="method"></param>
+        /// <param name="parameters"></param>
+        public void ExecuteCommand(METHODS method, List<object> parameters = null)
+        {
+            ExecuteCommand(method, GetUniqueIdForCommand(), parameters);
+        }
+
+        /// <summary>
+        /// Execute a command
+        /// </summary>
+        /// <param name="method"></param>
         /// <param name="id"></param>
         /// <param name="parameters"></param>
-        public void ExecuteCommand(METHODS method, int id = 0, List<object> parameters = null)
+        [Obsolete("Will become internal in a future release, use 'ExecuteCommand(METHODS method, List<object> parameters = null)' instead")]
+        public void ExecuteCommand(METHODS method, int id, List<object> parameters = null)
         {
             if (!IsMethodSupported(method))
             {
@@ -265,10 +276,23 @@ namespace YeelightAPI
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="method"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)
+        {
+            return await ExecuteCommandWithResponse<T>(method, GetUniqueIdForCommand(), parameters);
+        }
+
+        /// <summary>
+        /// Execute a command and waits for a response
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="method"></param>
         /// <param name="id"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
+        [Obsolete("Will become internal in a future release, use 'ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)' instead")]
+        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id, List<object> parameters = null)
         {
             try
             {
@@ -351,7 +375,7 @@ namespace YeelightAPI
             }
 
             return true;
-            //no supported operations, so we can't check if the peration is permitted
+            //no supported operations, so we can't check if the operation is permitted
         }
 
         /// <summary>
