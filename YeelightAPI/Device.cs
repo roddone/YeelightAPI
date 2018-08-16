@@ -362,7 +362,7 @@ namespace YeelightAPI
         /// <param name="parameters"></param>
         /// <exception cref="TaskCanceledException"></exception>
         /// <returns></returns>
-        private Task<CommandResult<T>> UnsafeExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
+        private async Task<CommandResult<T>> UnsafeExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
         {
             CommandResultHandler<T> commandResultHandler;
             lock (_currentCommandResults)
@@ -377,9 +377,23 @@ namespace YeelightAPI
                 _currentCommandResults.Add(id, commandResultHandler);
             }
 
-            ExecuteCommand(method, id, parameters);
-
-            return commandResultHandler.Task;
+            try
+            {
+                ExecuteCommand(method, id, parameters);
+                return await commandResultHandler.Task;
+            }
+            finally
+            {
+                lock (_currentCommandResults)
+                {
+                    // remove the command if its the current handler in the dictionary
+                    if (_currentCommandResults.TryGetValue(id, out ICommandResultHandler currentHandler))
+                    {
+                        if (commandResultHandler == currentHandler)
+                            _currentCommandResults.Remove(id);
+                    }
+                }
+            }
         }
 
         /// <summary>
