@@ -26,10 +26,7 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { };
             HandlePercentValue(ref parameters, percent);
-            if (duration.HasValue)
-            {
-                parameters.Add(Math.Max(duration.Value, Constants.MinimumSmoothDuration));
-            }
+            parameters.Add(Math.Max(duration ?? 0, Constants.MinimumSmoothDuration));
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.BackgroundAdjustBright,
@@ -49,10 +46,7 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { };
             HandlePercentValue(ref parameters, percent);
-            if (duration.HasValue)
-            {
-                parameters.Add(Math.Max(duration.Value, Constants.MinimumSmoothDuration));
-            }
+            parameters.Add(Math.Max(duration ?? 0, Constants.MinimumSmoothDuration));
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.BackgroundAdjustColor,
@@ -72,10 +66,7 @@ namespace YeelightAPI
         {
             List<object> parameters = new List<object>() { };
             HandlePercentValue(ref parameters, percent);
-            if (duration.HasValue)
-            {
-                parameters.Add(Math.Max(duration.Value, Constants.MinimumSmoothDuration));
-            }
+            parameters.Add(Math.Max(duration ?? 0, Constants.MinimumSmoothDuration));
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.BackgroundAdjustColorTemperature,
