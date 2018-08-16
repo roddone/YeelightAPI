@@ -443,7 +443,8 @@ namespace YeelightAPI
                                                     ICommandResultHandler commandResultHandler;
                                                     lock (_currentCommandResults)
                                                     {
-                                                        commandResultHandler = _currentCommandResults[commandResult.Id];
+                                                        if (!_currentCommandResults.TryGetValue(commandResult.Id, out commandResultHandler))
+                                                            continue; // ignore if the result can't be found
                                                     }
 
                                                     if (commandResult.Error == null)
