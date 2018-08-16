@@ -521,6 +521,10 @@ namespace YeelightAPI
             }, TaskCreationOptions.LongRunning);
         }
 
+        /// <summary>
+        /// Get a thread-safe unique Id to pass to the API
+        /// </summary>
+        /// <returns></returns>
         private int GetUniqueIdForCommand()
         {
             return Interlocked.Increment(ref _uniqueId);
