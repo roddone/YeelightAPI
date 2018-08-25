@@ -4,7 +4,7 @@
     <TargetFrameworks> netstandard2.0; net45; net46; net47;</TargetFrameworks>
     <Authors>Romain ODDONE</Authors>
     <Company>Romain ODDONE</Company>
-    <Version>1.4.1</Version>
+    <Version>1.5.0</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://raw.githubusercontent.com/roddone/YeelightAPI/master/LICENSE</PackageLicenseUrl>
@@ -13,14 +13,13 @@
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
-    <PackageReleaseNotes>* Add support for adjust_bright, adjust_ct, adjust_color, bg_adjust_bright,  bg_adjust_ct and bg_adjust_color
-* Add support for the property "active_mode"
-* Correct a bug when too many properties are requested through "get_prop" method</PackageReleaseNotes>
+    <PackageReleaseNotes>* Correct a bug that might occur when using DeviceLocator.Discover method
+* Better asynchronism handling when calling the same method multiple times at the same time on the same device</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
     <Copyright>Copyright © Romain ODDONE 2018</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyVersion>1.4.1.0</AssemblyVersion>
-    <FileVersion>1.4.1.0</FileVersion>
+    <AssemblyVersion>1.5.0.0</AssemblyVersion>
+    <FileVersion>1.5.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
