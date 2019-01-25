@@ -27,7 +27,7 @@ A clear and concise description of what you expected to happen.
 **Stacktrace**
 If applicable, add stacktraces to help understand your problem.
 
-**Desktop (please complete the following information):**
+**Environment (please complete the following information):**
  - OS: [e.g. Windows, Ubuntu, Raspbian, etc.]
  - .Net version [e.g. .Net Core 2.1, .Net Framework 4.7, etc.]
 
