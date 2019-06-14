@@ -1,3 +1,4 @@
+[![Build Status](https://romainoddone.visualstudio.com/Github%20Builds/_apis/build/status/YeelightAPI?branchName=master)](https://romainoddone.visualstudio.com/Github%20Builds/_build/latest?definitionId=7&branchName=master)
 [![Build Status](https://travis-ci.org/roddone/YeelightAPI.svg?branch=master)](https://travis-ci.org/roddone/YeelightAPI)
 [![NuGet Package](https://img.shields.io/nuget/v/YeelightAPI.svg)](https://www.nuget.org/packages/YeelightAPI/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/YeelightAPI.svg)](https://www.nuget.org/packages/YeelightAPI/)
