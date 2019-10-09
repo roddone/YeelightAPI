@@ -155,7 +155,7 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("powering on ...");
-                success = await device.SetPower(true, delay);
+                success = await device.SetPower(true, smooth);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
@@ -164,7 +164,7 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("turn off ...");
-                success = await device.TurnOff(delay);
+                success = await device.TurnOff(smooth);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
@@ -173,7 +173,7 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("turn on ...");
-                success = await device.TurnOn(delay, PowerOnMode.RGB);
+                success = await device.TurnOn(smooth);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
@@ -248,7 +248,7 @@ namespace YeelightAPIConsoleTest
                 await Try(async () =>
                 {
                     Console.WriteLine("powering on ...");
-                    success = await backgroundDevice.BackgroundSetPower(true, delay);
+                    success = await backgroundDevice.BackgroundSetPower(true, smooth);
                     globalSuccess &= success;
                     WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                     await Task.Delay(delay);
@@ -257,7 +257,7 @@ namespace YeelightAPIConsoleTest
                 await Try(async () =>
                 {
                     Console.WriteLine("turn off ...");
-                    success = await backgroundDevice.BackgroundTurnOff(delay);
+                    success = await backgroundDevice.BackgroundTurnOff(smooth);
                     globalSuccess &= success;
                     WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                     await Task.Delay(delay);
@@ -266,7 +266,7 @@ namespace YeelightAPIConsoleTest
                 await Try(async () =>
                 {
                     Console.WriteLine("turn on ...");
-                    success = await backgroundDevice.BackgroundTurnOn(delay, PowerOnMode.RGB);
+                    success = await backgroundDevice.BackgroundTurnOn(smooth, PowerOnMode.RGB);
                     globalSuccess &= success;
                     WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                     await Task.Delay(delay);
@@ -275,7 +275,7 @@ namespace YeelightAPIConsoleTest
                 await Try(async () =>
                 {
                     Console.WriteLine("Setting Brightness to One...");
-                    success = await backgroundDevice.BackgroundSetBrightness(01);
+                    success = await backgroundDevice.BackgroundSetBrightness(1, smooth);
                     globalSuccess &= success;
                     WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                     await Task.Delay(delay);
@@ -485,7 +485,7 @@ namespace YeelightAPIConsoleTest
                 await Try(async () =>
                 {
                     Console.WriteLine("adjust color --");
-                    success=await backgroundDevice.BackgroundAdjustColor(-50, smooth);
+                    success = await backgroundDevice.BackgroundAdjustColor(-50, smooth);
                     globalSuccess &= success;
                     WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                     await Task.Delay(delay);
@@ -494,7 +494,7 @@ namespace YeelightAPIConsoleTest
                 await Try(async () =>
                 {
                     Console.WriteLine("adjust color temperature ++");
-                    success=await backgroundDevice.BackgroundAdjustColorTemperature(50, smooth);
+                    success = await backgroundDevice.BackgroundAdjustColorTemperature(50, smooth);
                     globalSuccess &= success;
                     WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                     await Task.Delay(delay);
@@ -503,7 +503,7 @@ namespace YeelightAPIConsoleTest
                 await Try(async () =>
                 {
                     Console.WriteLine("adjust color temperature --");
-                    success=await backgroundDevice.BackgroundAdjustColorTemperature(-50, smooth);
+                    success = await backgroundDevice.BackgroundAdjustColorTemperature(-50, smooth);
                     globalSuccess &= success;
                     WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                     await Task.Delay(delay);
@@ -522,7 +522,7 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("Setting Brightness to One...");
-                success = await device.SetBrightness(01);
+                success = await device.SetBrightness(1, smooth);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
