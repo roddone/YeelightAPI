@@ -4,22 +4,24 @@
     <TargetFrameworks> netstandard2.0; net45; net46; net47;</TargetFrameworks>
     <Authors>Romain ODDONE</Authors>
     <Company>Romain ODDONE</Company>
-    <Version>1.5.0</Version>
+    <Version>1.5.1</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/roddone/YeelightAPI/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/roddone/YeelightAPI</PackageProjectUrl>
     <PackageIconUrl>https://github.com/roddone/YeelightAPI/raw/master/YeelightAPI/icon.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
-    <PackageReleaseNotes>* Correct a bug that might occur when using DeviceLocator.Discover method
-* Better asynchronism handling when calling the same method multiple times at the same time on the same device</PackageReleaseNotes>
+    <PackageReleaseNotes>* Fix smooth usage with V2 bulbs</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
-    <Copyright>Copyright © Romain ODDONE 2018</Copyright>
+    <Copyright>Copyright © Romain ODDONE 2019</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
-    <FileVersion>1.5.0.0</FileVersion>
+    <AssemblyVersion>1.5.1.0</AssemblyVersion>
+    <FileVersion>1.5.1.0</FileVersion>
+    <PackageLicenseFile></PackageLicenseFile>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
