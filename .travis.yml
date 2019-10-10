@@ -1,8 +1,0 @@
-language: csharp
-solution: "YeelightAPI.sln"
-dotnet: 2.0.0
-before_script:
-- travis_retry msbuild /t:Restore YeelightAPI.sln
-script:
-- msbuild /p:Configuration=Release YeelightAPI.sln
-- msbuild /p:Configuration=Debug YeelightAPI.sln
