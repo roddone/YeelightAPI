@@ -4,7 +4,7 @@
     <TargetFrameworks> netstandard2.0; net45; net46; net47;</TargetFrameworks>
     <Authors>Romain ODDONE</Authors>
     <Company>Romain ODDONE</Company>
-    <Version>1.5.1</Version>
+    <Version>1.5.2</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl></PackageLicenseUrl>
@@ -13,12 +13,12 @@
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
-    <PackageReleaseNotes>* Fix smooth usage with V2 bulbs</PackageReleaseNotes>
+    <PackageReleaseNotes>* Add compatibility with V2 white bulbs</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
     <Copyright>Copyright © Romain ODDONE 2019</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyVersion>1.5.1.0</AssemblyVersion>
-    <FileVersion>1.5.1.0</FileVersion>
+    <AssemblyVersion>1.5.2.0</AssemblyVersion>
+    <FileVersion>1.5.2.0</FileVersion>
     <PackageLicenseFile></PackageLicenseFile>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <DocumentationFile></DocumentationFile>
@@ -29,7 +29,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="System.Net.NetworkInformation" Version="4.3.0" />
   </ItemGroup>
 
