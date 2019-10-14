@@ -46,6 +46,13 @@ namespace YeelightAPI.Models
         /// Desk Lamp.
         /// </summary>
         [RealName("desklamp")]
-        DeskLamp
+        DeskLamp,
+
+
+        /// <summary>
+        /// White bulb, supports color temperature adjustment.
+        /// </summary>
+        [RealName("ct_bulb")]
+        TunableWhiteBulb,
     }
 }
