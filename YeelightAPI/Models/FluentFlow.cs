@@ -67,7 +67,7 @@ namespace YeelightAPI.Models
         {
             CheckExpressions();
 
-            ColorFlow.ColorFlow flow = new ColorFlow.ColorFlow(0, endAction, _expressions);
+            ColorFlow.ColorFlow flow = new ColorFlow.ColorFlow(repetition, endAction, _expressions);
 
             await _startColorFlowMethod(flow);
 
