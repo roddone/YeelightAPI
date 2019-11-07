@@ -57,7 +57,7 @@ namespace YeelightAPI.Models.Scene
             List<object> parameters = new List<object>()
             {
                 SceneClass.cf.ToString(),
-                flow.RepetitionCount,
+                flow.RepetitionCount * flow.Count, // <-- multiply repetitions by number of flow actions
                 (int)flow.EndAction,
                 flow.GetColorFlowExpression()
             };
