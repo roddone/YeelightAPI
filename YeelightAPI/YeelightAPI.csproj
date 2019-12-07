@@ -7,7 +7,7 @@
     <Version>1.6.0</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/roddone/YeelightAPI/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/roddone/YeelightAPI</PackageProjectUrl>
     <PackageIconUrl>https://github.com/roddone/YeelightAPI/raw/master/YeelightAPI/icon.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
