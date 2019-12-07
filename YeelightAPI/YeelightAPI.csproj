@@ -7,7 +7,7 @@
     <Version>1.6.0</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/roddone/YeelightAPI/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/roddone/YeelightAPI</PackageProjectUrl>
     <PackageIconUrl>https://github.com/roddone/YeelightAPI/raw/master/YeelightAPI/icon.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
@@ -27,7 +27,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="System.Net.NetworkInformation" Version="4.3.0" />
   </ItemGroup>
 

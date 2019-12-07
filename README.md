@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/roddone/YeelightAPI.svg?branch=master)](https://travis-ci.org/roddone/YeelightAPI)
+[![Build Status](https://romainoddone.visualstudio.com/Github%20Builds/_apis/build/status/YeelightAPI?branchName=master)](https://romainoddone.visualstudio.com/Github%20Builds/_build/latest?definitionId=7&branchName=master)
 [![NuGet Package](https://img.shields.io/nuget/v/YeelightAPI.svg)](https://www.nuget.org/packages/YeelightAPI/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/YeelightAPI.svg)](https://www.nuget.org/packages/YeelightAPI/)
 [![Donate](https://img.shields.io/badge/%24-donate-ff00ff.svg)](https://www.paypal.me/roddone)
@@ -10,7 +10,8 @@ C# API (.Net) to control Xiaomi Yeelight Color Bulbs
 If you find this package useful, please make a gift on Paypal : [https://www.paypal.me/roddone](https://www.paypal.me/roddone)
 
 ## Prerequisites
-The console project uses C# 7.1 "Async Main Method" Feature, make sure your visual studio version is up to date !
+* The console project uses C# 7.1 "Async Main Method" Feature, make sure your visual studio version is up to date !
+* [Enable the "developer mode"](https://www.yeelight.com/en_US/developer) on your devices, otherwhise they will neither be discovered nor usable by this API
 
 ## Installation
 To install the latest release from [NuGet package manager](https://www.nuget.org/packages/YeelightAPI/):

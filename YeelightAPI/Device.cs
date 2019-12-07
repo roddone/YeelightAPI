@@ -362,7 +362,7 @@ namespace YeelightAPI
             else
             {
                 parameters.Add("sudden");
-                parameters.Add(null); // two parameters needed
+                parameters.Add(0); // two parameters needed
             }
         }
 
