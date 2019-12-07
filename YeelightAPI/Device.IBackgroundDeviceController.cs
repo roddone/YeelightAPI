@@ -235,7 +235,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> BackgroundStartColorFlow(ColorFlow flow)
         {
-            List<object> parameters = new List<object>() { flow.RepetitionCount, (int)flow.EndAction, flow.GetColorFlowExpression() };
+            List<object> parameters = new List<object>() { flow.RepetitionCount * flow.Count, (int)flow.EndAction, flow.GetColorFlowExpression() };
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.StartBackgroundLightColorFlow,
