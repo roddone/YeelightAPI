@@ -241,14 +241,40 @@ namespace YeelightAPI
             ExecuteCommand(method, GetUniqueIdForCommand(), parameters);
         }
 
+
+        /// <summary>
+        /// Execute a command and waits for a response
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="method"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)
+        {
+            return await ExecuteCommandWithResponse<T>(method, GetUniqueIdForCommand(), parameters);
+        }
+
+
+        /// <summary>
+        /// Readable value for the device
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"{this.Model.ToString()} ({this.Hostname}:{this.Port})";
+        }
+
+        #endregion PUBLIC METHODS
+
+        #region INTERNAL METHODS
+
         /// <summary>
         /// Execute a command
         /// </summary>
         /// <param name="method"></param>
         /// <param name="id"></param>
         /// <param name="parameters"></param>
-        [Obsolete("Will become internal in a future release, use 'ExecuteCommand(METHODS method, List<object> parameters = null)' instead")]
-        public void ExecuteCommand(METHODS method, int id, List<object> parameters = null)
+        internal void ExecuteCommand(METHODS method, int id, List<object> parameters = null)
         {
             if (!IsMethodSupported(method))
             {
@@ -276,23 +302,10 @@ namespace YeelightAPI
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="method"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)
-        {
-            return await ExecuteCommandWithResponse<T>(method, GetUniqueIdForCommand(), parameters);
-        }
-
-        /// <summary>
-        /// Execute a command and waits for a response
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="method"></param>
         /// <param name="id"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        [Obsolete("Will become internal in a future release, use 'ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)' instead")]
-        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id, List<object> parameters = null)
+        internal async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id, List<object> parameters = null)
         {
             try
             {
@@ -303,16 +316,7 @@ namespace YeelightAPI
             return null;
         }
 
-        /// <summary>
-        /// Readable value for the device
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return $"{this.Model.ToString()} ({this.Hostname}:{this.Port})";
-        }
-
-        #endregion PUBLIC METHODS
+        #endregion INTERNAL METHODS
 
         #region PRIVATE METHODS
 
