@@ -41,8 +41,12 @@ namespace YeelightAPIConsoleTest
 
                 if (keyInfo.Key == ConsoleKey.D)
                 {
+                    DeviceLocator.OnDeviceFound += (sender, arg) =>
+                    {
+                        WriteLineWithColor($"Device found : {arg.Device}", ConsoleColor.Blue);
+                    };
                     List<Device> devices = await DeviceLocator.Discover();
-
+                    
                     if (devices != null && devices.Count >= 1)
                     {
                         Console.WriteLine($"{devices.Count} device(s) found !");
