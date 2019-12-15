@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YeelightAPI.Core;
+using YeelightAPI.Events;
 using YeelightAPI.Models;
 
 namespace YeelightAPI
@@ -28,6 +29,18 @@ namespace YeelightAPI
         private static string _yeelightlocationMatch = "Location: yeelight://";
 
         #endregion Private Fields
+
+        /// <summary>
+        /// Notification Received event
+        /// </summary>
+        public static event DeviceFoundEventHandler OnDeviceFound;
+
+        /// <summary>
+        /// Notification Received event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public delegate void DeviceFoundEventHandler(object sender, DeviceFoundEventArgs e);
 
         #region Public Methods
 
@@ -136,7 +149,10 @@ namespace YeelightAPI
                                                     Device device = GetDeviceInformationsFromSsdpMessage(response);
 
                                                     //add only if no device already matching
-                                                    devices.TryAdd(device.Hostname, device);
+                                                    if(devices.TryAdd(device.Hostname, device))
+                                                    {
+                                                        OnDeviceFound?.Invoke(null, new DeviceFoundEventArgs(device));
+                                                    }
                                                 }
                                             }
                                             Thread.Sleep(10);
