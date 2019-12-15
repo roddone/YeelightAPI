@@ -138,6 +138,16 @@ Example :
    };
 ```
 
+### Device Found
+When DeviceLocator.Discover() finds a device, the event "DeviceFound" is thrown.
+Example : 
+```csharp
+   DeviceLocator.DeviceFound += (object sender, DeviceFoundEventArgs e) =>
+   {
+       Console.WriteLine($"A device has been found : {e.Device}");
+   };
+```
+
 ## VNext
 * correct bugs if needed
 
