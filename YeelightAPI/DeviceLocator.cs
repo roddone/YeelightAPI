@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +24,6 @@ namespace YeelightAPI
         private const string _ssdpMessage = "M-SEARCH * HTTP/1.1\r\nHOST: 239.255.255.250:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
         private static readonly List<object> _allPropertyRealNames = PROPERTIES.ALL.GetRealNames();
         private static readonly char[] _colon = new char[] { ':' };
-        private static readonly IPEndPoint _multicastEndPoint = new IPEndPoint(IPAddress.Parse("239.255.255.250"), 1982);
         private static readonly byte[] _ssdpDiagram = Encoding.ASCII.GetBytes(_ssdpMessage);
         private static string _yeelightlocationMatch = "Location: yeelight://";
 
@@ -118,44 +117,46 @@ namespace YeelightAPI
                                 {
                                     Task<List<Device>> t = Task.Factory.StartNew<List<Device>>(() =>
                                     {
-                                        Socket ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
+                                        foreach (var multicastEndpoint in netInterface.GetIPProperties().MulticastAddresses.Where(x => x.Address.AddressFamily == AddressFamily.InterNetwork).ToList()) 
                                         {
-                                            Blocking = false,
-                                            Ttl = 1,
-                                            UseOnlyOverlappedIO = true,
-                                            MulticastLoopback = false,
-                                        };
-                                        ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
-                                        ssdpSocket.SetSocketOption(
-                                            SocketOptionLevel.IP,
-                                            SocketOptionName.AddMembership,
-                                            new MulticastOption(_multicastEndPoint.Address));
-
-                                        ssdpSocket.SendTo(_ssdpDiagram, SocketFlags.None, _multicastEndPoint);
-
-                                        DateTime start = DateTime.Now;
-                                        while (DateTime.Now - start < TimeSpan.FromSeconds(1))
-                                        {
-                                            int available = ssdpSocket.Available;
-
-                                            if (available > 0)
+                                            Socket ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
                                             {
-                                                byte[] buffer = new byte[available];
-                                                int i = ssdpSocket.Receive(buffer, SocketFlags.None);
+                                                Blocking = false,
+                                                Ttl = 1,
+                                                UseOnlyOverlappedIO = true,
+                                                MulticastLoopback = false,
+                                            };
+                                            ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
+                                            ssdpSocket.SetSocketOption(
+                                                SocketOptionLevel.IP,
+                                                SocketOptionName.AddMembership,
+                                                new MulticastOption(multicastEndpoint.Address));
+                                            ssdpSocket.SendTo(_ssdpDiagram, SocketFlags.None, new IPEndPoint(multicastEndpoint.Address, 1982));
 
-                                                if (i > 0)
+                                            DateTime start = DateTime.Now;
+                                            while (DateTime.Now - start < TimeSpan.FromSeconds(1))
+                                            {
+                                                int available = ssdpSocket.Available;
+
+                                                if (available > 0)
                                                 {
-                                                    string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
-                                                    Device device = GetDeviceInformationsFromSsdpMessage(response);
+                                                    byte[] buffer = new byte[available];
+                                                    int i = ssdpSocket.Receive(buffer, SocketFlags.None);
 
-                                                    //add only if no device already matching
-                                                    if(devices.TryAdd(device.Hostname, device))
+                                                    if (i > 0)
                                                     {
-                                                        OnDeviceFound?.Invoke(null, new DeviceFoundEventArgs(device));
+                                                        string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
+                                                        Device device = GetDeviceInformationsFromSsdpMessage(response);
+
+                                                        //add only if no device already matching
+                                                        if (devices.TryAdd(device.Hostname, device))
+                                                        {
+                                                            OnDeviceFound?.Invoke(null, new DeviceFoundEventArgs(device));
+                                                        }
                                                     }
                                                 }
+                                                Thread.Sleep(10);
                                             }
-                                            Thread.Sleep(10);
                                         }
 
                                         return devices.Values.ToList();
