@@ -115,9 +115,9 @@ namespace YeelightAPI
                             {
                                 for (int cpt = 0; cpt < 3; cpt++)
                                 {
-                                    Task<List<Device>> t = Task.Factory.StartNew<List<Device>>(() =>
+                                    foreach (var multicastEndpoint in netInterface.GetIPProperties().MulticastAddresses.Where(x => x.Address.AddressFamily == AddressFamily.InterNetwork).ToList())
                                     {
-                                        foreach (var multicastEndpoint in netInterface.GetIPProperties().MulticastAddresses.Where(x => x.Address.AddressFamily == AddressFamily.InterNetwork).ToList()) 
+                                        Task<List<Device>> t = Task.Factory.StartNew<List<Device>>(() =>
                                         {
                                             Socket ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
                                             {
@@ -157,11 +157,10 @@ namespace YeelightAPI
                                                 }
                                                 Thread.Sleep(10);
                                             }
-                                        }
-
-                                        return devices.Values.ToList();
-                                    });
-                                    tasks.Add(t);
+                                            return devices.Values.ToList();
+                                        });
+                                        tasks.Add(t);
+                                    }
                                 }
                             }
                         }
