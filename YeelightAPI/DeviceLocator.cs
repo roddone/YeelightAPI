@@ -21,10 +21,9 @@ namespace YeelightAPI
     {
         #region Private Fields
 
-        private const string _ssdpMessage = "M-SEARCH * HTTP/1.1\r\nHOST: 239.255.255.250:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
+        private const string _ssdpMessageTemplate = "M-SEARCH * HTTP/1.1\r\nHOST: {0}:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
         private static readonly List<object> _allPropertyRealNames = PROPERTIES.ALL.GetRealNames();
         private static readonly char[] _colon = new char[] { ':' };
-        private static readonly byte[] _ssdpDiagram = Encoding.ASCII.GetBytes(_ssdpMessage);
         private static string _yeelightlocationMatch = "Location: yeelight://";
 
         #endregion Private Fields
@@ -103,8 +102,9 @@ namespace YeelightAPI
 
             try
             {
-                GatewayIPAddressInformation addr = netInterface.GetIPProperties().GatewayAddresses.FirstOrDefault();
                 var ipProperties = netInterface.GetIPProperties();
+                GatewayIPAddressInformation addr = ipProperties.GatewayAddresses.FirstOrDefault();
+                var interfaceIndex = ipProperties.GetIPv4Properties().Index;
                 if (addr != null && !addr.Address.ToString().Equals("0.0.0.0"))
                 {
                     if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
