@@ -104,7 +104,7 @@ namespace YeelightAPI
             try
             {
                 GatewayIPAddressInformation addr = netInterface.GetIPProperties().GatewayAddresses.FirstOrDefault();
-
+                var ipProperties = netInterface.GetIPProperties();
                 if (addr != null && !addr.Address.ToString().Equals("0.0.0.0"))
                 {
                     if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
@@ -126,12 +126,12 @@ namespace YeelightAPI
                                                 UseOnlyOverlappedIO = true,
                                                 MulticastLoopback = false,
                                             };
+
                                             ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
                                             ssdpSocket.SetSocketOption(
-                                                SocketOptionLevel.IP,
-                                                SocketOptionName.AddMembership,
+                                                SocketOptionLevel.IP, 
                                                 SocketOptionName.AddMembership, 
-                                                new MulticastOption(multicastEndpoint.Address));
+                                                new MulticastOption(multicastEndpoint.Address, interfaceIndex));
                                             ssdpSocket.SendTo(Encoding.ASCII.GetBytes(string.Format(_ssdpMessageTemplate, multicastEndpoint.Address.ToString())), SocketFlags.None, new IPEndPoint(multicastEndpoint.Address, 1982));
 
                                             DateTime start = DateTime.Now;
