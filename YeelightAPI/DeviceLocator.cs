@@ -130,8 +130,9 @@ namespace YeelightAPI
                                             ssdpSocket.SetSocketOption(
                                                 SocketOptionLevel.IP,
                                                 SocketOptionName.AddMembership,
+                                                SocketOptionName.AddMembership, 
                                                 new MulticastOption(multicastEndpoint.Address));
-                                            ssdpSocket.SendTo(_ssdpDiagram, SocketFlags.None, new IPEndPoint(multicastEndpoint.Address, 1982));
+                                            ssdpSocket.SendTo(Encoding.ASCII.GetBytes(string.Format(_ssdpMessageTemplate, multicastEndpoint.Address.ToString())), SocketFlags.None, new IPEndPoint(multicastEndpoint.Address, 1982));
 
                                             DateTime start = DateTime.Now;
                                             while (DateTime.Now - start < TimeSpan.FromSeconds(1))
