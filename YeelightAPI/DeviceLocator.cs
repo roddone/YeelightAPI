@@ -99,92 +99,90 @@ namespace YeelightAPI
     {
       var devices = new ConcurrentDictionary<string, Device>();
       var tasks = new List<Task<List<Device>>>();
+      GatewayIPAddressInformation addr = netInterface.GetIPProperties().GatewayAddresses.FirstOrDefault();
 
-     
-        GatewayIPAddressInformation addr = netInterface.GetIPProperties().GatewayAddresses.FirstOrDefault();
-
-        if (addr != null && !addr.Address.ToString().Equals("0.0.0.0"))
+      if (addr != null && !addr.Address.ToString().Equals("0.0.0.0"))
+      {
+        if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
+            netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
         {
-          if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
-              netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+          foreach (UnicastIPAddressInformation ip in netInterface.GetIPProperties().UnicastAddresses)
           {
-            foreach (UnicastIPAddressInformation ip in netInterface.GetIPProperties().UnicastAddresses)
+            if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
             {
-              if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+              for (var cpt = 0; cpt < 3; cpt++)
               {
-                for (var cpt = 0; cpt < 3; cpt++)
-                {
-                  Task<List<Device>> t = Task.Run(
-                    async () =>
+                Task<List<Device>> t = Task.Run(
+                  async () =>
+                  {
+                    try
                     {
-                      try
+                      using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
                       {
-                        using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
-                        {
-                          Blocking = false,
-                          Ttl = 1,
-                          UseOnlyOverlappedIO = true,
-                          MulticastLoopback = false
-                        })
-                        {
-                          ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
-                          ssdpSocket.SetSocketOption(
-                            SocketOptionLevel.IP,
-                            SocketOptionName.AddMembership,
-                            new MulticastOption(DeviceLocator._multicastEndPoint.Address));
+                        Blocking = false,
+                        Ttl = 1,
+                        UseOnlyOverlappedIO = true,
+                        MulticastLoopback = false
+                      })
+                      {
+                        ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
+                        ssdpSocket.SetSocketOption(
+                          SocketOptionLevel.IP,
+                          SocketOptionName.AddMembership,
+                          new MulticastOption(DeviceLocator._multicastEndPoint.Address));
 
-                          ssdpSocket.SendTo(
-                            DeviceLocator._ssdpDiagram,
-                            SocketFlags.None,
-                            DeviceLocator._multicastEndPoint);
+                        ssdpSocket.SendTo(
+                          DeviceLocator._ssdpDiagram,
+                          SocketFlags.None,
+                          DeviceLocator._multicastEndPoint);
 
-                          var stopWatch = new Stopwatch();
-                          stopWatch.Start();
-                          while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
+                        var stopWatch = new Stopwatch();
+                        stopWatch.Start();
+                        while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
+                        {
+                          try
                           {
-                            try
+                            int available = ssdpSocket.Available;
+
+                            if (available > 0)
                             {
-                              int available = ssdpSocket.Available;
+                              var buffer = new byte[available];
+                              int i = ssdpSocket.Receive(buffer, SocketFlags.None);
 
-                              if (available > 0)
+                              if (i > 0)
                               {
-                                var buffer = new byte[available];
-                                int i = ssdpSocket.Receive(buffer, SocketFlags.None);
+                                string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
+                                Device device = DeviceLocator.GetDeviceInformationsFromSsdpMessage(response);
 
-                                if (i > 0)
+                                //add only if no device already matching
+                                if (devices.TryAdd(device.Hostname, device))
                                 {
-                                  string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
-                                  Device device = DeviceLocator.GetDeviceInformationsFromSsdpMessage(response);
-
-                                  //add only if no device already matching
-                                  if (devices.TryAdd(device.Hostname, device))
-                                  {
-                                    DeviceLocator.OnDeviceFound?.Invoke(null, new DeviceFoundEventArgs(device));
-                                  }
+                                  DeviceLocator.OnDeviceFound?.Invoke(null, new DeviceFoundEventArgs(device));
                                 }
                               }
                             }
-                            catch (SocketException)
-                            {
-                            }
-
-                            await Task.Delay(TimeSpan.FromMilliseconds(10));
                           }
+                          catch (SocketException)
+                          {
+                          }
+
+                          await Task.Delay(TimeSpan.FromMilliseconds(10));
                         }
                       }
-                      catch (SocketException)
-                      {
-                      }
+                    }
+                    catch (SocketException)
+                    {
+                    }
 
-                      return devices.Values.ToList();
-                    });
+                    return devices.Values.ToList();
+                  });
 
-                  tasks.Add(t);
-                }
+                tasks.Add(t);
               }
             }
           }
         }
+      }
 
       return tasks;
     }
@@ -207,14 +205,10 @@ namespace YeelightAPI
     /// <returns></returns>
     public static async Task<IEnumerable<Device>> DiscoverAsync(IProgress<Device> deviceFoundReporter)
     {
-      var tasks = new List<Task<IEnumerable<Device>>>();
-
-      foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces()
-        .Where(n => n.OperationalStatus == OperationalStatus.Up))
-      {
-        tasks.Add(DeviceLocator.DiscoverAsync(ni, deviceFoundReporter));
-      }
-
+      List<Task<IEnumerable<Device>>> tasks = NetworkInterface.GetAllNetworkInterfaces()
+        .Where(n => n.OperationalStatus == OperationalStatus.Up)
+        .Select(ni => DeviceLocator.DiscoverAsync(ni, deviceFoundReporter))
+        .ToList();
 
       IEnumerable<Device>[] result = await Task.WhenAll(tasks);
       return result.SelectMany(devices => devices).ToList();
