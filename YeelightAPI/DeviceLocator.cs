@@ -264,7 +264,7 @@ namespace YeelightAPI
       return new List<Device>();
     }
 
-    private static List<Device> CheckSocketForDevices(UnicastIPAddressInformation ip, IProgress<Device> deviceFoundCallback)
+    private static IEnumerable<Device> CheckSocketForDevices(UnicastIPAddressInformation ip, IProgress<Device> deviceFoundCallback)
     {
       // Use hash table for faster lookup, than List.Contains
       var devices = new Dictionary<string, Device>();
