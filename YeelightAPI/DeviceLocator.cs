@@ -207,15 +207,17 @@ namespace YeelightAPI
     /// <returns></returns>
     public static async Task<IEnumerable<Device>> DiscoverAsync(IProgress<Device> deviceFoundReporter)
     {
-      var devices = new List<Device>();
+      var tasks = new List<Task<IEnumerable<Device>>>();
 
       foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces()
         .Where(n => n.OperationalStatus == OperationalStatus.Up))
       {
-        devices.AddRange(await DeviceLocator.DiscoverAsync(ni, deviceFoundReporter));
+        tasks.Add(DeviceLocator.DiscoverAsync(ni, deviceFoundReporter));
       }
 
-      return devices;
+
+      IEnumerable<Device>[] result = await Task.WhenAll(tasks);
+      return result.SelectMany(devices => devices).ToList();
     }
 
     /// <summary>
