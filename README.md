@@ -98,9 +98,9 @@ example :
 ```
 
 ### Find devices
-If you want to find what devices are connected, you can use `YeelightAPI.DeviceLocator` to find them : 
+If you want to find what devices are connected, you can use `YeelightAPI.DeviceLocator` to find them: 
 ```csharp
-	List<Device> devices = await DeviceLocator.Discover();
+	List<Device> discoveredDevices = await DeviceLocator.DiscoverAsync();
 ```
 
 ### Async / Await
@@ -139,13 +139,21 @@ Example :
 ```
 
 ### Device Found
-When DeviceLocator.Discover() finds a device, the event "DeviceFound" is thrown.
+If you don't want to wait until all devices are discovered, you can make use of the [`IProgress<T>`](https://docs.microsoft.com/en-us/dotnet/api/system.iprogress-1?view=netframework-4.7), to receive intermediate results.
+Create instance of [`Progress<T>`](https://docs.microsoft.com/en-us/dotnet/api/system.progress-1?view=netframework-4.7) and pass to the appropriate DiscoverAsync overload. The callback will always execute oin the caller thread.
+When DeviceLocator.DiscoverAsync(Progress<T>) finds a device, the `Progress<T>.Report` method is invoked.
 Example : 
 ```csharp
-   DeviceLocator.DeviceFound += (object sender, DeviceFoundEventArgs e) =>
-   {
-       Console.WriteLine($"A device has been found : {e.Device}");
-   };
+	private void OnDeviceFound(Device device) 
+	{
+	  // Do Something with the discovered device   
+	}
+	
+	private	async Task GetDevicesAsync()
+	{
+	  var progressReporter = new Progress<Device>(OnDeviceFound);
+	  List<Devices> discoveredDevices = await DeviceLocator.DiscoverAsync(progresReporter);
+	}
 ```
 
 ## VNext
