@@ -60,16 +60,9 @@ namespace YeelightAPI
     public static async Task<List<Device>> Discover(NetworkInterface preferedInterface)
     {
       List<Task<List<Device>>> tasks = DeviceLocator.CreateDiscoverTasks(preferedInterface);
-      var devices = new List<Device>();
 
-      if (tasks.Count != 0)
-      {
-        await Task.WhenAll(tasks);
-
-        devices.AddRange(tasks.SelectMany(t => t.Result).GroupBy(d => d.Hostname).Select(g => g.First()));
-      }
-
-      return devices;
+      List<Device>[] result = await Task.WhenAll(tasks);
+      return result.SelectMany(devices => devices).ToList();
     }
 
     /// <summary>
@@ -80,7 +73,6 @@ namespace YeelightAPI
     public static async Task<List<Device>> Discover()
     {
       var tasks = new List<Task<List<Device>>>();
-      var devices = new List<Device>();
 
       foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces()
         .Where(n => n.OperationalStatus == OperationalStatus.Up))
@@ -88,14 +80,9 @@ namespace YeelightAPI
         tasks.AddRange(DeviceLocator.CreateDiscoverTasks(ni));
       }
 
-      if (tasks.Count != 0)
-      {
-        await Task.WhenAll(tasks);
 
-        devices.AddRange(tasks.SelectMany(t => t.Result).GroupBy(d => d.Hostname).Select(g => g.First()));
-      }
-
-      return devices;
+      List<Device>[] result = await Task.WhenAll(tasks);
+      return result.SelectMany(devices => devices).ToList();
     }
 
     #endregion Public Methods
