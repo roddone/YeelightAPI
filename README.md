@@ -144,16 +144,16 @@ Create instance of [`Progress<T>`](https://docs.microsoft.com/en-us/dotnet/api/s
 When DeviceLocator.DiscoverAsync(Progress<T>) finds a device, the `Progress<T>.Report` method is invoked.
 Example : 
 ```csharp
-	private void OnDeviceFound(Device device) 
-	{
-	  // Do Something with the discovered device   
-	}
+private void OnDeviceFound(Device device) 
+{
+  // Do Something with the discovered device   
+}
 	
-	private	async Task GetDevicesAsync()
-	{
-	  var progressReporter = new Progress<Device>(OnDeviceFound);
-	  List<Devices> discoveredDevices = await DeviceLocator.DiscoverAsync(progresReporter);
-	}
+private	async Task GetDevicesAsync()
+{
+  var progressReporter = new Progress<Device>(OnDeviceFound);
+  List<Devices> discoveredDevices = await DeviceLocator.DiscoverAsync(progresReporter);
+}
 ```
 
 ## VNext
