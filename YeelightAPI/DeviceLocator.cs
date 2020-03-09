@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -20,6 +21,15 @@ namespace YeelightAPI
   /// </summary>
   public static class DeviceLocator
   {
+    #region Constructors
+
+    static DeviceLocator()
+    {
+      DeviceLocator.ReadSocketRetryCounter = 3;
+    }
+
+    #endregion
+
     #region Private Fields
 
     private const string _ssdpMessage =
@@ -32,6 +42,13 @@ namespace YeelightAPI
     private static readonly string _yeelightlocationMatch = "Location: yeelight://";
 
     #endregion Private Fields
+
+    /// <summary>
+    /// Retry counter to lookup network sockets for devices.
+    /// </summary> 
+    /// <value>The number of retries. Default is 3.</value>
+    /// <remarks>A single iteration will take a maximum of 1 second. Each iteration will poll in intervals of 10 ms to listen to an IP for devices. This means the value of <see cref="ReadSocketRetryCounter"/> is equivalent to execution time in seconds.</remarks>
+    public static int ReadSocketRetryCounter { get; set; }
 
     #region Depricated API. TODO: Remove
 
@@ -101,72 +118,73 @@ namespace YeelightAPI
       var tasks = new List<Task<List<Device>>>();
       GatewayIPAddressInformation addr = netInterface.GetIPProperties().GatewayAddresses.FirstOrDefault();
 
-      if (addr != null && !addr.Address.ToString().Equals("0.0.0.0"))
+      if (addr == null || addr.Address.ToString().Equals("0.0.0.0"))
       {
-        if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
-            netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+        return tasks;
+      }
+
+      if (netInterface.NetworkInterfaceType != NetworkInterfaceType.Wireless80211 &&
+          netInterface.NetworkInterfaceType != NetworkInterfaceType.Ethernet)
+      {
+        return tasks;
+      }
+
+      foreach (UnicastIPAddressInformation ip in netInterface.GetIPProperties().UnicastAddresses)
+      {
+        if (ip.Address.AddressFamily != AddressFamily.InterNetwork)
         {
-          foreach (UnicastIPAddressInformation ip in netInterface.GetIPProperties().UnicastAddresses)
-          {
-            if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+          continue;
+        }
+
+        for (var cpt = 0; cpt < DeviceLocator.ReadSocketRetryCounter; cpt++)
+        {
+          Task<List<Device>> t = Task.Run(
+            async () =>
             {
-              for (var cpt = 0; cpt < 3; cpt++)
+              var stopWatch = new Stopwatch();
+              try
               {
-                Task<List<Device>> t = Task.Run(
-                  async () =>
+                using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
+                {
+                  Blocking = false,
+                  Ttl = 1,
+                  UseOnlyOverlappedIO = true,
+                  MulticastLoopback = false
+                })
+                {
+                  ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
+                  ssdpSocket.SetSocketOption(
+                    SocketOptionLevel.IP,
+                    SocketOptionName.AddMembership,
+                    new MulticastOption(DeviceLocator._multicastEndPoint.Address));
+
+                  ssdpSocket.SendTo(
+                    DeviceLocator._ssdpDiagram,
+                    SocketFlags.None,
+                    DeviceLocator._multicastEndPoint);
+
+                  stopWatch.Restart();
+                  while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
                   {
                     try
                     {
-                      using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
-                      {
-                        Blocking = false,
-                        Ttl = 1,
-                        UseOnlyOverlappedIO = true,
-                        MulticastLoopback = false
-                      })
-                      {
-                        ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
-                        ssdpSocket.SetSocketOption(
-                          SocketOptionLevel.IP,
-                          SocketOptionName.AddMembership,
-                          new MulticastOption(DeviceLocator._multicastEndPoint.Address));
+                      int available = ssdpSocket.Available;
 
-                        ssdpSocket.SendTo(
-                          DeviceLocator._ssdpDiagram,
-                          SocketFlags.None,
-                          DeviceLocator._multicastEndPoint);
+                      if (available > 0)
+                      {
+                        var buffer = new byte[available];
+                        int i = ssdpSocket.Receive(buffer, SocketFlags.None);
 
-                        var stopWatch = new Stopwatch();
-                        stopWatch.Start();
-                        while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
+                        if (i > 0)
                         {
-                          try
+                          string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
+                          Device device = DeviceLocator.GetDeviceInformationsFromSsdpMessage(response);
+
+                          //add only if no device already matching
+                          if (devices.TryAdd(device.Hostname, device))
                           {
-                            int available = ssdpSocket.Available;
-
-                            if (available > 0)
-                            {
-                              var buffer = new byte[available];
-                              int i = ssdpSocket.Receive(buffer, SocketFlags.None);
-
-                              if (i > 0)
-                              {
-                                string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
-                                Device device = DeviceLocator.GetDeviceInformationsFromSsdpMessage(response);
-
-                                //add only if no device already matching
-                                if (devices.TryAdd(device.Hostname, device))
-                                {
-                                  DeviceLocator.OnDeviceFound?.Invoke(null, new DeviceFoundEventArgs(device));
-                                }
-                              }
-                            }
+                            DeviceLocator.OnDeviceFound?.Invoke(null, new DeviceFoundEventArgs(device));
                           }
-                          catch (SocketException)
-                          {
-                          }
-
-                          await Task.Delay(TimeSpan.FromMilliseconds(10));
                         }
                       }
                     }
@@ -174,13 +192,24 @@ namespace YeelightAPI
                     {
                     }
 
-                    return devices.Values.ToList();
-                  });
-
-                tasks.Add(t);
+                    await Task.Delay(TimeSpan.FromMilliseconds(10));
+                  }
+                  stopWatch.Stop();
+                }
               }
-            }
-          }
+              catch (SocketException)
+              {
+              }
+              finally
+              {
+                stopWatch.Stop();
+              }
+                    
+
+              return devices.Values.ToList();
+            });
+
+          tasks.Add(t);
         }
       }
 
@@ -269,62 +298,72 @@ namespace YeelightAPI
       // Use hash table for faster lookup, than List.Contains
       var devices = new Dictionary<string, Device>();
 
+      var stopWatch = new Stopwatch();
       try // Catch socket creation exception
       {
-        using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
+        for (int retryCounter = 0; retryCounter < DeviceLocator.ReadSocketRetryCounter; retryCounter++)
         {
-          Blocking = false,
-          Ttl = 1,
-          UseOnlyOverlappedIO = true,
-          MulticastLoopback = false
-        })
-        {
-          ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
-          ssdpSocket.SetSocketOption(
-            SocketOptionLevel.IP,
-            SocketOptionName.AddMembership,
-            new MulticastOption(DeviceLocator._multicastEndPoint.Address));
-
-          ssdpSocket.SendTo(DeviceLocator._ssdpDiagram, SocketFlags.None, DeviceLocator._multicastEndPoint);
-
-          var stopWatch = new Stopwatch();
-          stopWatch.Start();
-          while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
+          using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
           {
-            try // Catch socket read exception
+            Blocking = false,
+            Ttl = 1,
+            UseOnlyOverlappedIO = true,
+            MulticastLoopback = false
+          })
+          {
+            ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
+            ssdpSocket.SetSocketOption(
+              SocketOptionLevel.IP,
+              SocketOptionName.AddMembership,
+              new MulticastOption(DeviceLocator._multicastEndPoint.Address));
+
+            ssdpSocket.SendTo(DeviceLocator._ssdpDiagram, SocketFlags.None, DeviceLocator._multicastEndPoint);
+
+            stopWatch.Start();
+            while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
             {
-              int available = ssdpSocket.Available;
-
-              if (available > 0)
+              try // Catch socket read exception
               {
-                var buffer = new byte[available];
-                int numberOfBytesRead = ssdpSocket.Receive(buffer, SocketFlags.None);
+                int available = ssdpSocket.Available;
 
-                if (numberOfBytesRead > 0)
+                if (available > 0)
                 {
-                  string response = Encoding.UTF8.GetString(buffer.Take(numberOfBytesRead).ToArray());
-                  Device device = DeviceLocator.GetDeviceInformationsFromSsdpMessage(response);
+                  var buffer = new byte[available];
+                  int numberOfBytesRead = ssdpSocket.Receive(buffer, SocketFlags.None);
 
-                  if (!devices.ContainsKey(device.Hostname))
+                  if (numberOfBytesRead > 0)
                   {
+                    string response = Encoding.UTF8.GetString(buffer.Take(numberOfBytesRead).ToArray());
+                    Device device = DeviceLocator.GetDeviceInformationsFromSsdpMessage(response);
+
+                    if (devices.ContainsKey(device.Hostname))
+                    {
+                      continue;
+                    }
+
                     devices.Add(device.Hostname, device);
                     deviceFoundCallback?.Report(device);
                   }
                 }
               }
-            }
-            catch (SocketException)
-            {
-              // Ignore and continue
-            }
+              catch (SocketException)
+              {
+                // Ignore and continue
+              }
 
-            Thread.Sleep(TimeSpan.FromMilliseconds(10));
+              Thread.Sleep(TimeSpan.FromMilliseconds(10));
+            }
+            stopWatch.Stop();
           }
         }
       }
       catch (SocketException)
       {
         return new List<Device>();
+      }
+      finally
+      {
+        stopWatch.Stop();
       }
 
       return devices.Values.ToList();
