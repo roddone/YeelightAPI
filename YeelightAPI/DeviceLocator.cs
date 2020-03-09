@@ -25,7 +25,7 @@ namespace YeelightAPI
 
     static DeviceLocator()
     {
-      DeviceLocator.ReadSocketRetryCounter = 3;
+      DeviceLocator.RetryCount = 3;
     }
 
     #endregion
@@ -44,11 +44,11 @@ namespace YeelightAPI
     #endregion Private Fields
 
     /// <summary>
-    /// Retry counter to lookup network sockets for devices.
+    /// Retry count for network sockets lookup to find devices.
     /// </summary> 
-    /// <value>The number of retries. Default is 3.</value>
-    /// <remarks>A single iteration will take a maximum of 1 second. Each iteration will poll in intervals of 10 ms to listen to an IP for devices. This means the value of <see cref="ReadSocketRetryCounter"/> is equivalent to execution time in seconds.</remarks>
-    public static int ReadSocketRetryCounter { get; set; }
+    /// <value>The number of lookup retries. Default is 3.</value>
+    /// <remarks>A single iteration will take a maximum of 1 second. Each iteration will poll in intervals of 10 ms to listen to an IP for devices. This means the value of <see cref="RetryCount"/> is equivalent to execution time in seconds.</remarks>
+    public static int RetryCount { get; set; }
 
     #region Depricated API. TODO: Remove
 
@@ -136,7 +136,7 @@ namespace YeelightAPI
           continue;
         }
 
-        for (var cpt = 0; cpt < DeviceLocator.ReadSocketRetryCounter; cpt++)
+        for (var cpt = 0; cpt < DeviceLocator.RetryCount; cpt++)
         {
           Task<List<Device>> t = Task.Run(
             async () =>
@@ -301,7 +301,7 @@ namespace YeelightAPI
       var stopWatch = new Stopwatch();
       try // Catch socket creation exception
       {
-        for (int retryCounter = 0; retryCounter < DeviceLocator.ReadSocketRetryCounter; retryCounter++)
+        for (int retryCounter = 0; retryCounter < DeviceLocator.RetryCount; retryCounter++)
         {
           using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
           {
