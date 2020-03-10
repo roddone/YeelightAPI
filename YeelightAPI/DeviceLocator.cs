@@ -208,14 +208,9 @@ namespace YeelightAPI
                   stopWatch.Stop();
                 }
               }
-              catch (SocketException e)
+              catch (SocketException)
               {
-                if (cpt >= DeviceLocator.MaxRetryCount - 1)
-                {
-                  // Wrap exception to preserve original stacktrace for re-throw,
-                  // because SocketException doesn't provide a constructor overload to accept inner exception.
-                  throw new InvalidOperationException("Network socket error.", e);
-                }
+                return devices.Values.ToList();
               }
               finally
               {
@@ -319,31 +314,19 @@ namespace YeelightAPI
       // Use hash table for faster lookup, than List.Contains
       var devices = new Dictionary<string, Device>();
 
-      int retryCount = 0;
-      for (; retryCount < DeviceLocator.MaxRetryCount; retryCount++)
+      for (int retryCount = 0; retryCount < DeviceLocator.MaxRetryCount; retryCount++)
       {
         try 
         {
-          using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
-          {
-            Blocking = false,
-            Ttl = 1,
-            UseOnlyOverlappedIO = true,
-            MulticastLoopback = false
-          })
+          using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
           {
             DeviceLocator.InitializeSocket(ip, ssdpSocket);
             DeviceLocator.GetDevicesFromSocket(deviceFoundCallback, ssdpSocket, devices);
           }
         }
-        catch (SocketException e)
+        catch (SocketException)
         {
-          if (retryCount >= DeviceLocator.MaxRetryCount - 1)
-          {
-            // Wrap exception to preserve original stacktrace for re-throw,
-            // because SocketException doesn't provide a constructor overload to accept inner exception.
-            throw new InvalidOperationException("Network socket error.", e);
-          }
+          return devices.Values.ToList();
         }
       }
 
@@ -352,6 +335,10 @@ namespace YeelightAPI
 
     private static void InitializeSocket(UnicastIPAddressInformation ip, Socket ssdpSocket)
     {
+      ssdpSocket.Blocking = false;
+      ssdpSocket.Ttl = 1;
+      ssdpSocket.UseOnlyOverlappedIO = true;
+      ssdpSocket.MulticastLoopback = false;
       ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
       ssdpSocket.SetSocketOption(
         SocketOptionLevel.IP,
