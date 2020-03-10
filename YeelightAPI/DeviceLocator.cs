@@ -79,7 +79,11 @@ namespace YeelightAPI
       List<Task<List<Device>>> tasks = DeviceLocator.CreateDiscoverTasks(preferedInterface);
 
       List<Device>[] result = await Task.WhenAll(tasks);
-      return result.SelectMany(devices => devices).ToList();
+      return result
+        .SelectMany(devices => devices)
+        .GroupBy(d => d.Hostname)
+        .Select(g => g.First())
+        .ToList();
     }
 
     /// <summary>
@@ -99,7 +103,11 @@ namespace YeelightAPI
 
 
       List<Device>[] result = await Task.WhenAll(tasks);
-      return result.SelectMany(devices => devices).ToList();
+      return result
+        .SelectMany(devices => devices)
+        .GroupBy(d => d.Hostname)
+        .Select(g => g.First())
+        .ToList();
     }
 
     #endregion Public Methods
@@ -163,7 +171,7 @@ namespace YeelightAPI
                     SocketFlags.None,
                     DeviceLocator._multicastEndPoint);
 
-                  stopWatch.Restart();
+                  stopWatch.Start();
                   while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
                   {
                     try
@@ -239,7 +247,11 @@ namespace YeelightAPI
         .Select(networkInterface => DeviceLocator.DiscoverAsync(networkInterface, deviceFoundReporter));
 
       IEnumerable<Device>[] result = await Task.WhenAll(tasks);
-      return result.SelectMany(devices => devices).ToList();
+      return result
+        .SelectMany(devices => devices)
+        .GroupBy(d => d.Hostname)
+        .Select(g => g.First())
+        .ToList();
     }
 
     /// <summary>
