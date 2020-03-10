@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace YeelightAPI
 
     static DeviceLocator()
     {
-      DeviceLocator.RetryCount = 3;
+      DeviceLocator.MaxRetryCount = 3;
     }
 
     #endregion
@@ -47,8 +48,8 @@ namespace YeelightAPI
     /// Retry count for network sockets lookup to find devices.
     /// </summary> 
     /// <value>The number of lookup retries. Default is 3.</value>
-    /// <remarks>A single iteration will take a maximum of 1 second. Each iteration will poll in intervals of 10 ms to listen to an IP for devices. This means the value of <see cref="RetryCount"/> is equivalent to execution time in seconds.</remarks>
-    public static int RetryCount { get; set; }
+    /// <remarks>A single iteration will take a maximum of 1 second. Each iteration will poll in intervals of 10 ms to listen to an IP for devices. This means the value of <see cref="MaxRetryCount"/> is equivalent to execution time in seconds.</remarks>
+    public static int MaxRetryCount { get; set; }
 
     #region Depricated API. TODO: Remove
 
@@ -144,7 +145,7 @@ namespace YeelightAPI
           continue;
         }
 
-        for (var cpt = 0; cpt < DeviceLocator.RetryCount; cpt++)
+        for (var cpt = 0; cpt < DeviceLocator.MaxRetryCount; cpt++)
         {
           Task<List<Device>> t = Task.Run(
             async () =>
@@ -310,10 +311,10 @@ namespace YeelightAPI
       // Use hash table for faster lookup, than List.Contains
       var devices = new Dictionary<string, Device>();
 
-      var stopWatch = new Stopwatch();
-      try // Catch socket creation exception
+      int retryCount = 0;
+      for (; retryCount < DeviceLocator.MaxRetryCount; retryCount++)
       {
-        for (int retryCounter = 0; retryCounter < DeviceLocator.RetryCount; retryCounter++)
+        try 
         {
           using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
           {
@@ -323,62 +324,76 @@ namespace YeelightAPI
             MulticastLoopback = false
           })
           {
-            ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
-            ssdpSocket.SetSocketOption(
-              SocketOptionLevel.IP,
-              SocketOptionName.AddMembership,
-              new MulticastOption(DeviceLocator._multicastEndPoint.Address));
-
-            ssdpSocket.SendTo(DeviceLocator._ssdpDiagram, SocketFlags.None, DeviceLocator._multicastEndPoint);
-
-            stopWatch.Start();
-            while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
-            {
-              try // Catch socket read exception
-              {
-                int available = ssdpSocket.Available;
-
-                if (available > 0)
-                {
-                  var buffer = new byte[available];
-                  int numberOfBytesRead = ssdpSocket.Receive(buffer, SocketFlags.None);
-
-                  if (numberOfBytesRead > 0)
-                  {
-                    string response = Encoding.UTF8.GetString(buffer.Take(numberOfBytesRead).ToArray());
-                    Device device = DeviceLocator.GetDeviceInformationsFromSsdpMessage(response);
-
-                    if (devices.ContainsKey(device.Hostname))
-                    {
-                      continue;
-                    }
-
-                    devices.Add(device.Hostname, device);
-                    deviceFoundCallback?.Report(device);
-                  }
-                }
-              }
-              catch (SocketException)
-              {
-                // Ignore and continue
-              }
-
-              Thread.Sleep(TimeSpan.FromMilliseconds(10));
-            }
-            stopWatch.Stop();
+            DeviceLocator.InitializeSocket(ip, ssdpSocket);
+            DeviceLocator.GetDevicesFromSocket(deviceFoundCallback, ssdpSocket, devices);
+          }
+        }
+        catch (SocketException e)
+        {
+          if (retryCount >= DeviceLocator.MaxRetryCount - 1)
+          {
+            // Wrap exception to preserve original stacktrace for re-throw,
+            // because SocketException doesn't provide a constructor overload to accept inner exception.
+            throw new InvalidOperationException("Network socket error.", e);
           }
         }
       }
-      catch (SocketException)
+
+      return devices.Values.ToList();
+    }
+
+    private static void InitializeSocket(UnicastIPAddressInformation ip, Socket ssdpSocket)
+    {
+      ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
+      ssdpSocket.SetSocketOption(
+        SocketOptionLevel.IP,
+        SocketOptionName.AddMembership,
+        new MulticastOption(DeviceLocator._multicastEndPoint.Address));
+    }
+
+    private static void GetDevicesFromSocket(IProgress<Device> deviceFoundCallback, Socket ssdpSocket, Dictionary<string, Device> devices)
+    {
+      ssdpSocket.SendTo( DeviceLocator._ssdpDiagram, SocketFlags.None, DeviceLocator._multicastEndPoint);
+
+      var stopWatch = Stopwatch.StartNew();
+      try
       {
-        return new List<Device>();
+        while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
+        {
+          try // Catch socket read exception
+          {
+            int available = ssdpSocket.Available;
+
+            if (available > 0)
+            {
+              var buffer = new byte[available];
+              int numberOfBytesRead = ssdpSocket.Receive(buffer, SocketFlags.None);
+
+              if (numberOfBytesRead > 0)
+              {
+                string response = Encoding.UTF8.GetString(buffer.Take(numberOfBytesRead).ToArray());
+                Device device = DeviceLocator.GetDeviceInformationsFromSsdpMessage(response);
+
+                if (!devices.ContainsKey(device.Hostname))
+                {
+                  devices.Add(device.Hostname, device);
+                  deviceFoundCallback?.Report(device);
+                }
+              }
+            }
+          }
+          catch (SocketException)
+          {
+            // Ignore SocketException and continue polling
+          }
+
+          Thread.Sleep(TimeSpan.FromMilliseconds(10));
+        }
       }
       finally
       {
         stopWatch.Stop();
       }
-
-      return devices.Values.ToList();
     }
 
     /// <summary>
