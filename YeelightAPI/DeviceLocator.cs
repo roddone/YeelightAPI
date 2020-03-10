@@ -199,21 +199,29 @@ namespace YeelightAPI
                     }
                     catch (SocketException)
                     {
+                      // Continue polling
                     }
 
                     await Task.Delay(TimeSpan.FromMilliseconds(10));
                   }
+
                   stopWatch.Stop();
                 }
               }
-              catch (SocketException)
+              catch (SocketException e)
               {
+                if (cpt >= DeviceLocator.MaxRetryCount - 1)
+                {
+                  // Wrap exception to preserve original stacktrace for re-throw,
+                  // because SocketException doesn't provide a constructor overload to accept inner exception.
+                  throw new InvalidOperationException("Network socket error.", e);
+                }
               }
               finally
               {
                 stopWatch.Stop();
               }
-                    
+
 
               return devices.Values.ToList();
             });
