@@ -1,4 +1,5 @@
 {
   "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json",
-  "discovery_devices_count": 2
+  "maxParallelThreads": 1,
+  "methodDisplay": "classAndMethod"
 }
