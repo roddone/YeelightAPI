@@ -11,7 +11,7 @@ If you find this package useful, please make a gift on Paypal : [https://www.pay
 
 ## Prerequisites
 * The console project uses C# 7.1 "Async Main Method" Feature, make sure your visual studio version is up to date !
-* [Enable the "developer mode"](https://www.yeelight.com/en_US/developer) on your devices, otherwhise they will neither be discovered nor usable by this API
+* [Enable the "developer mode"](https://www.yeelight.com/faqs/lan_control) on your devices, otherwhise they will neither be discovered nor usable by this API
 
 ## Installation
 To install the latest release from [NuGet package manager](https://www.nuget.org/packages/YeelightAPI/):
