@@ -11,12 +11,12 @@ using System.Diagnostics;
 
 namespace YeelightAPI.UnitTests
 {
-    public class UnitTest1
+    public class YeelightUnitTest
     {
         private readonly IConfigurationRoot _config;
         private readonly Xunit.Abstractions.ITestOutputHelper _output;
 
-        public UnitTest1(Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public YeelightUnitTest(Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._config = new ConfigurationBuilder()
              .AddJsonFile("config.json")
