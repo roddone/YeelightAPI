@@ -188,7 +188,7 @@ namespace YeelightAPI
                         if (i > 0)
                         {
                           string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
-                          Device device = DeviceLocator.GetDeviceInformationsFromSsdpMessage(response);
+                          Device device = DeviceLocator.GetDeviceInformationFromSsdpMessage(response);
 
                           //add only if no device already matching
                           if (devices.TryAdd(device.Hostname, device))
@@ -230,8 +230,9 @@ namespace YeelightAPI
 
     #endregion Depricated API. TODO: Remove
 
+    #endregion Depricated API. TODO: Remove
 
-    #region Public Methods
+    #region Async API Methods
 
     /// <summary>
     ///   Discover devices in LAN
@@ -277,7 +278,8 @@ namespace YeelightAPI
       IProgress<Device> deviceFoundReporter) =>
       await DeviceLocator.SearchNetworkForDevicesAsync(networkInterface, deviceFoundReporter);
 
-    #endregion Public Methods
+    #endregion Async API Methods
+
 
     /// <summary>
     ///   Create Discovery tasks for a specific Network Interface
@@ -368,7 +370,7 @@ namespace YeelightAPI
               if (numberOfBytesRead > 0)
               {
                 string response = Encoding.UTF8.GetString(buffer.Take(numberOfBytesRead).ToArray());
-                Device device = DeviceLocator.GetDeviceInformationsFromSsdpMessage(response);
+                Device device = DeviceLocator.GetDeviceInformationFromSsdpMessage(response);
 
                 if (!devices.ContainsKey(device.Hostname))
                 {
@@ -397,7 +399,7 @@ namespace YeelightAPI
     /// </summary>
     /// <param name="ssdpMessage"></param>
     /// <returns></returns>
-    private static Device GetDeviceInformationsFromSsdpMessage(string ssdpMessage)
+    private static Device GetDeviceInformationFromSsdpMessage(string ssdpMessage)
     {
       if (ssdpMessage != null)
       {
@@ -473,7 +475,5 @@ namespace YeelightAPI
 
       return null;
     }
-
-    #endregion Private Methods
   }
 }
