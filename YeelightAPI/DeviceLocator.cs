@@ -72,12 +72,12 @@ namespace YeelightAPI
     /// <summary>
     ///   Discover devices in a specific Network Interface
     /// </summary>
-    /// <param name="preferedInterface"></param>
+    /// <param name="preferredInterface"></param>
     /// <returns></returns>
     [Obsolete("Deprecated. Use DiscoverAsync and overloads instead.")]
-    public static async Task<List<Device>> Discover(NetworkInterface preferedInterface)
+    public static async Task<List<Device>> Discover(NetworkInterface preferredInterface)
     {
-      List<Task<List<Device>>> tasks = DeviceLocator.CreateDiscoverTasks(preferedInterface);
+      List<Task<List<Device>>> tasks = DeviceLocator.CreateDiscoverTasks(preferredInterface, DeviceLocator.MaxRetryCount);
 
       List<Device>[] result = await Task.WhenAll(tasks);
       return result
@@ -95,11 +95,11 @@ namespace YeelightAPI
     public static async Task<List<Device>> Discover()
     {
       var tasks = new List<Task<List<Device>>>();
-
+      int retryCount = DeviceLocator.MaxRetryCount;
       foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces()
         .Where(n => n.OperationalStatus == OperationalStatus.Up))
       {
-        tasks.AddRange(DeviceLocator.CreateDiscoverTasks(ni));
+        tasks.AddRange(DeviceLocator.CreateDiscoverTasks(ni, retryCount));
       }
 
 
@@ -119,9 +119,10 @@ namespace YeelightAPI
     ///   Create Discovery tasks for a specific Network Interface
     /// </summary>
     /// <param name="netInterface"></param>
+    /// <param name="retryCount">Number of retries when lookup fails.</param>
     /// <returns></returns>
     [Obsolete("Deprecated. Use SearchNetworkForDevicesAsync instead")]
-    private static List<Task<List<Device>>> CreateDiscoverTasks(NetworkInterface netInterface)
+    private static List<Task<List<Device>>> CreateDiscoverTasks(NetworkInterface netInterface, int retryCount)
     {
       var devices = new ConcurrentDictionary<string, Device>();
       var tasks = new List<Task<List<Device>>>();
@@ -145,7 +146,7 @@ namespace YeelightAPI
           continue;
         }
 
-        for (var cpt = 0; cpt < DeviceLocator.MaxRetryCount; cpt++)
+        for (var count = 0; count < retryCount; count++)
         {
           Task<List<Device>> t = Task.Run(
             async () =>
@@ -216,7 +217,6 @@ namespace YeelightAPI
               {
                 stopWatch.Stop();
               }
-
 
               return devices.Values.ToList();
             });
@@ -297,24 +297,25 @@ namespace YeelightAPI
       if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
           netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
       {
+        int retryCount = DeviceLocator.MaxRetryCount;
         return await Task.Run(
           () => netInterface.GetIPProperties().UnicastAddresses
             .Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
             .AsParallel()
             .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-            .SelectMany(ip => DeviceLocator.CheckSocketForDevices(ip, deviceFoundCallback))
+            .SelectMany(ip => DeviceLocator.CheckSocketForDevices(ip, deviceFoundCallback, retryCount))
             .ToList());
       }
 
       return new List<Device>();
     }
 
-    private static IEnumerable<Device> CheckSocketForDevices(UnicastIPAddressInformation ip, IProgress<Device> deviceFoundCallback)
+    private static IEnumerable<Device> CheckSocketForDevices(UnicastIPAddressInformation ip, IProgress<Device> deviceFoundCallback, int retryCount)
     {
       // Use hash table for faster lookup, than List.Contains
       var devices = new Dictionary<string, Device>();
 
-      for (int retryCount = 0; retryCount < DeviceLocator.MaxRetryCount; retryCount++)
+      for (int count = 0; count < retryCount; count++)
       {
         try 
         {
