@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YeelightAPIConsoleTest", "YeelightAPIConsoleTest\YeelightAPIConsoleTest.csproj", "{8B0A98BA-93B2-4046-B692-6D9CEECE348F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YeelightAPI", "YeelightAPI\YeelightAPI.csproj", "{2B56B41C-1E1D-40B5-8475-157850F1A67C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YeelightAPI.UnitTests", "YeelightAPI.UnitTests\YeelightAPI.UnitTests.csproj", "{236A72E5-3177-48E0-B460-44619205932F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YeelightApi.ConsoleTest", "YeelightApi.ConsoleTest\YeelightApi.ConsoleTest.csproj", "{2F9D966E-77BA-4E26-8295-727EDE293D2B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8B0A98BA-93B2-4046-B692-6D9CEECE348F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B0A98BA-93B2-4046-B692-6D9CEECE348F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B0A98BA-93B2-4046-B692-6D9CEECE348F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B0A98BA-93B2-4046-B692-6D9CEECE348F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2B56B41C-1E1D-40B5-8475-157850F1A67C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2B56B41C-1E1D-40B5-8475-157850F1A67C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B56B41C-1E1D-40B5-8475-157850F1A67C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -27,6 +23,10 @@ Global
 		{236A72E5-3177-48E0-B460-44619205932F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{236A72E5-3177-48E0-B460-44619205932F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{236A72E5-3177-48E0-B460-44619205932F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F9D966E-77BA-4E26-8295-727EDE293D2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F9D966E-77BA-4E26-8295-727EDE293D2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F9D966E-77BA-4E26-8295-727EDE293D2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F9D966E-77BA-4E26-8295-727EDE293D2B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
