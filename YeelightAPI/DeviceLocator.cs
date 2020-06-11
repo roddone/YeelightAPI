@@ -126,12 +126,6 @@ namespace YeelightAPI
         {
             var devices = new ConcurrentDictionary<string, Device>();
             var tasks = new List<Task<List<Device>>>();
-            GatewayIPAddressInformation addr = netInterface.GetIPProperties().GatewayAddresses.FirstOrDefault();
-
-            if (addr == null || addr.Address.ToString().Equals("0.0.0.0"))
-            {
-                return tasks;
-            }
 
             if (netInterface.NetworkInterfaceType != NetworkInterfaceType.Wireless80211 &&
                 netInterface.NetworkInterfaceType != NetworkInterfaceType.Ethernet)
@@ -289,13 +283,6 @@ namespace YeelightAPI
         /// <returns></returns>
         private static async Task<IEnumerable<Device>> SearchNetworkForDevicesAsync(NetworkInterface netInterface, IProgress<Device> deviceFoundCallback)
         {
-            GatewayIPAddressInformation addressInformation = netInterface.GetIPProperties().GatewayAddresses.FirstOrDefault();
-
-            if (addressInformation == null || addressInformation.Address.ToString().Equals("0.0.0.0"))
-            {
-                return new List<Device>();
-            }
-
             if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
                 netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
             {
