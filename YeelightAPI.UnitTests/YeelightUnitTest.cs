@@ -31,7 +31,7 @@ namespace YeelightAPI.UnitTests
         public async Task Discovery_should_find_devices()
         {
             int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
-            var devices = await DeviceLocator.Discover();
+            var devices = (await DeviceLocator.DiscoverAsync()).ToList();
 
             Assert.Equal(expectedDevicesCount, devices?.Count);
         }
@@ -41,6 +41,16 @@ namespace YeelightAPI.UnitTests
         {
             Stopwatch sw = Stopwatch.StartNew();
             _ = await DeviceLocator.Discover();
+            sw.Stop();
+
+            Assert.InRange(sw.ElapsedMilliseconds, 0, 1500);
+        }
+
+        [Fact]
+        public async Task Discovery_async_should_not_last_long()
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            _ = await DeviceLocator.DiscoverAsync();
             sw.Stop();
 
             Assert.InRange(sw.ElapsedMilliseconds, 0, 1500);
@@ -103,13 +113,13 @@ namespace YeelightAPI.UnitTests
 
         private async Task<Device> GetRandomConnectedDevice(METHODS? supportedMethod = null)
         {
-            List<Device> devices = (await DeviceLocator.Discover()).FindAll(d => !supportedMethod.HasValue || d.SupportedOperations.Contains(supportedMethod.Value));
+            List<Device> devices = (await DeviceLocator.DiscoverAsync()).Where(d => !supportedMethod.HasValue || d.SupportedOperations.Contains(supportedMethod.Value)).ToList() ;
 
             Assert.NotEmpty(devices);
 
             int randomIndex = new Random().Next(0, devices.Count);
             Device d = devices.ElementAt(randomIndex);
-            _output.WriteLine($"Used device : {d.ToString()}");
+            _output.WriteLine($"Used device : {d}");
             await d.Connect();
             return d;
         }
