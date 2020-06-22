@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.Threading.Tasks;
 using YeelightAPI;
 using YeelightAPI.Models;
@@ -12,13 +9,6 @@ using YeelightAPI.Models.Cron;
 
 namespace YeelightAPIConsoleTest
 {
-
-    //public class Custom
-    //{
-    //    [JsonConverter(typeof(PropertiesDictionaryConverter))]
-    //    public Dictionary<PROPERTIES, object> Params { get; set; }
-    //}
-
     public class Program
     {
         #region Public Methods
