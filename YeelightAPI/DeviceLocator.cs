@@ -33,13 +33,15 @@ namespace YeelightAPI
 
         #region Private Fields
 
-        private const string _ssdpMessage =
+        private const string _defaultSsdpMessage =
           "M-SEARCH * HTTP/1.1\r\nHOST: 239.255.255.250:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
-
+        private const string _ssdpMessage =
+            "M-SEARCH * HTTP/1.1\r\nHOST: {0}:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
         private static readonly List<object> _allPropertyRealNames = PROPERTIES.ALL.GetRealNames();
         private static readonly char[] _colon = { ':' };
-        private static readonly IPEndPoint _multicastEndPoint = new IPEndPoint(IPAddress.Parse("239.255.255.250"), 1982);
-        private static readonly byte[] _ssdpDiagram = Encoding.ASCII.GetBytes(DeviceLocator._ssdpMessage);
+        private static readonly string _defaultMulticastIPAddress = "239.255.255.250";
+        private static readonly IPEndPoint _multicastEndPoint = new IPEndPoint(IPAddress.Parse(DeviceLocator._defaultMulticastIPAddress), 1982);
+        private static readonly byte[] _ssdpDiagram = Encoding.ASCII.GetBytes(DeviceLocator._defaultSsdpMessage);
         private static readonly string _yeelightlocationMatch = "Location: yeelight://";
 
         #endregion Private Fields
@@ -50,6 +52,17 @@ namespace YeelightAPI
         /// <value>The number of lookup retries. Default is 3.</value>
         /// <remarks>A single iteration will take a maximum of 1 second. Each iteration will poll in intervals of 10 ms to listen to an IP for devices. This means the value of <see cref="MaxRetryCount"/> is equivalent to execution time in seconds.</remarks>
         public static int MaxRetryCount { get; set; }
+
+        /// <summary>
+        /// Use all available multicast addresses for the discovery instead of the default multicast address only
+        /// </summary>
+        /// <remarks>Setting this parameter to true may result in a longer discovery time</remarks>
+        public static bool UseAllAvailableMulticastAddresses { get; set; } = false;
+
+        /// <summary>
+        /// Default multicast IP address used for the discovery. Can be changed to allow discovery on specific network configurations
+        /// </summary>
+        public static string DefaultMulticastIPAddress { get; set; } = DeviceLocator._defaultMulticastIPAddress;
 
         #region Depricated API. TODO: Remove
 
@@ -184,8 +197,8 @@ namespace YeelightAPI
                                                   string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
                                                   Device device = DeviceLocator.GetDeviceInformationFromSsdpMessage(response);
 
-                                        //add only if no device already matching
-                                        if (devices.TryAdd(device.Hostname, device))
+                                                  //add only if no device already matching
+                                                  if (devices.TryAdd(device.Hostname, device))
                                                   {
                                                       DeviceLocator.OnDeviceFound?.Invoke(null, new DeviceFoundEventArgs(device));
                                                   }
@@ -194,8 +207,8 @@ namespace YeelightAPI
                                       }
                                       catch (SocketException)
                                       {
-                                // Continue polling
-                            }
+                                          // Continue polling
+                                      }
 
                                       await Task.Delay(TimeSpan.FromMilliseconds(10));
                                   }
@@ -274,6 +287,26 @@ namespace YeelightAPI
 
         #endregion Async API Methods
 
+        /// <summary>
+        /// Get the multicast addresses used by the discovery, according to the configurations
+        /// </summary>
+        /// <param name="multicastIPAddresses"></param>
+        /// <returns></returns>
+        private static IEnumerable<MulticastIPAddressInformation> GetMulticastIPAddressesForDiscovery(MulticastIPAddressInformationCollection multicastIPAddresses)
+        {
+            if (DeviceLocator.UseAllAvailableMulticastAddresses)
+            {
+                //return all available multicast addresses
+                return multicastIPAddresses.Where(m => m.Address.AddressFamily == AddressFamily.InterNetwork);
+            }
+            else
+            {
+                //return default multicast address only
+                return new MulticastIPAddressInformation[] { 
+                    multicastIPAddresses.First(m => m.Address.AddressFamily == AddressFamily.InterNetwork && m.Address.Equals(IPAddress.Parse(DeviceLocator.DefaultMulticastIPAddress))) 
+                };
+            }
+        }
 
         /// <summary>
         ///   Create Discovery tasks for a specific Network Interface
@@ -287,43 +320,49 @@ namespace YeelightAPI
                 netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
             {
                 int retryCount = DeviceLocator.MaxRetryCount;
+                IEnumerable<MulticastIPAddressInformation> multicastAddresses = DeviceLocator.GetMulticastIPAddressesForDiscovery(netInterface.GetIPProperties().MulticastAddresses);
+
                 return await Task.Run(
                   () => netInterface.GetIPProperties().UnicastAddresses
                     .Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
                     .AsParallel()
                     .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                    .SelectMany(ip => DeviceLocator.CheckSocketForDevices(ip, deviceFoundCallback, retryCount))
+                    .SelectMany(ip => DeviceLocator.CheckSocketForDevices(multicastAddresses, ip, deviceFoundCallback, retryCount))
                     .ToList());
             }
 
             return new List<Device>();
         }
 
-        private static IEnumerable<Device> CheckSocketForDevices(UnicastIPAddressInformation ip, IProgress<Device> deviceFoundCallback, int retryCount)
+        private static IEnumerable<Device> CheckSocketForDevices(IEnumerable<MulticastIPAddressInformation> multicastIPAddresses, UnicastIPAddressInformation ip, IProgress<Device> deviceFoundCallback, int retryCount)
         {
             // Use hash table for faster lookup, than List.Contains
             var devices = new Dictionary<string, Device>();
 
             for (int count = 0; count < retryCount; count++)
             {
-                try
+                foreach (MulticastIPAddressInformation mca in multicastIPAddresses)
                 {
-                    using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
+                    try
                     {
-                        DeviceLocator.InitializeSocket(ip, ssdpSocket);
-                        DeviceLocator.GetDevicesFromSocket(deviceFoundCallback, ssdpSocket, devices);
+                        using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
+                        {
+                            var multicastIPEndpoint = new IPEndPoint(mca.Address, 1982);
+                            DeviceLocator.InitializeSocket(multicastIPEndpoint, ip, ssdpSocket);
+                            DeviceLocator.GetDevicesFromSocket(multicastIPEndpoint, deviceFoundCallback, ssdpSocket, devices);
+                        }
                     }
-                }
-                catch (SocketException)
-                {
-                    return devices.Values.ToList();
+                    catch (SocketException ex)
+                    {
+                        //return devices.Values.ToList();
+                    }
                 }
             }
 
             return devices.Values.ToList();
         }
 
-        private static void InitializeSocket(UnicastIPAddressInformation ip, Socket ssdpSocket)
+        private static void InitializeSocket(IPEndPoint multicastIPEndpoint, UnicastIPAddressInformation ip, Socket ssdpSocket)
         {
             ssdpSocket.Blocking = false;
             ssdpSocket.Ttl = 1;
@@ -333,12 +372,16 @@ namespace YeelightAPI
             ssdpSocket.SetSocketOption(
               SocketOptionLevel.IP,
               SocketOptionName.AddMembership,
-              new MulticastOption(DeviceLocator._multicastEndPoint.Address));
+              new MulticastOption(multicastIPEndpoint.Address));
         }
 
-        private static void GetDevicesFromSocket(IProgress<Device> deviceFoundCallback, Socket ssdpSocket, Dictionary<string, Device> devices)
+        private static void GetDevicesFromSocket(IPEndPoint multicastIPEndpoint, IProgress<Device> deviceFoundCallback, Socket ssdpSocket, Dictionary<string, Device> devices)
         {
-            ssdpSocket.SendTo(DeviceLocator._ssdpDiagram, SocketFlags.None, DeviceLocator._multicastEndPoint);
+            ssdpSocket.SendTo(
+                Encoding.ASCII.GetBytes(string.Format(DeviceLocator._ssdpMessage, multicastIPEndpoint.Address)),
+                SocketFlags.None,
+                multicastIPEndpoint
+            );
 
             var stopWatch = Stopwatch.StartNew();
             try
