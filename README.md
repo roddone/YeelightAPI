@@ -104,6 +104,12 @@ If you want to find what devices are connected, you can use `YeelightAPI.DeviceL
 List<Device> discoveredDevices = await DeviceLocator.DiscoverAsync();
 ```
 
+#### Parameters
+Some parameters are available to help avoiding some issues during discovery
+* `MaxRetryCount` allows you to define a retry count, use with caution because it can slow down the discovery, default to 1
+* `UseAllAvailableMulticastAddresses` allows you to use all the available multicast addresses instead of just the default one : 239.255.255.250, use with caution because it can slow down the discovery, default to false
+* `DefaultMulticastIPAddress` allows you to change the default multicast address used for the discovery, default to 239.255.255.250
+
 ### Async / Await
 Almost every methods are asynchronous and are awaitable tasks. you can either call them with await, or wait the result : 
 Example : 
