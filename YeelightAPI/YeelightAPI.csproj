@@ -4,24 +4,39 @@
     <TargetFrameworks> netstandard2.0; net45; net46; net47;</TargetFrameworks>
     <Authors>Romain ODDONE</Authors>
     <Company>Romain ODDONE</Company>
-    <Version>1.7.0</Version>
+    <Version>1.8.0</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/roddone/YeelightAPI/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/roddone/YeelightAPI</PackageProjectUrl>
-    <PackageIconUrl>https://github.com/roddone/YeelightAPI/raw/master/YeelightAPI/icon.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
-    <PackageReleaseNotes>* Add "DeviceFound" event when DeviceLocator finds a device</PackageReleaseNotes>
+    <PackageReleaseNotes>* DeviceLocator refactoring
+* Deprecate DeviceLocator.Discover method (see DiscoverAsync instead)
+* Deprecate OnDeviceFound event (see DiscoverAsync instead)
+* Add DeviceLocator.DiscoverAsync methods
+* Add MaxRetryCount option
+* Add UseAllAvailableMulticastAddresses option
+* Add DefaultMulticastIPAddress option
+</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
-    <Copyright>Copyright © Romain ODDONE 2019</Copyright>
+    <Copyright>Copyright © Romain ODDONE 2020</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyVersion>1.7.0.0</AssemblyVersion>
-    <FileVersion>1.7.0.0</FileVersion>
+    <AssemblyVersion>1.8.0.0</AssemblyVersion>
+    <FileVersion>1.8.0.0</FileVersion>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
     <None Include="README.txt" Pack="true" PackagePath="." />
   </ItemGroup>
   
