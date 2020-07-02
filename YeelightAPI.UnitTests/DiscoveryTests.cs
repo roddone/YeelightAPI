@@ -5,26 +5,35 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Xunit;
 using System.Linq;
-using YeelightAPI.Models;
 using System.Diagnostics;
 
 namespace YeelightAPI.UnitTests
 {
-    public class YeelightUnitTest
+    public class DiscoveryTests
     {
         private readonly IConfigurationRoot _config;
-        private readonly Xunit.Abstractions.ITestOutputHelper _output;
 
-        public YeelightUnitTest(Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public DiscoveryTests()
         {
             this._config = new ConfigurationBuilder()
              .AddJsonFile("config.json")
              .Build();
-
-            this._output = testOutputHelper;
         }
 
         #region TESTS
+
+        [Fact]
+        public async Task Discovery_enumerate_async_should_find_devices()
+        {
+            int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
+            int count = 0;
+            await foreach(var device in DeviceLocator.DiscoverAndEnumerateAsync())
+            {
+                ++count;
+            }
+
+            Assert.Equal(expectedDevicesCount, count);
+        }
 
         [Fact]
         public async Task Discovery_should_find_devices()
@@ -81,73 +90,9 @@ namespace YeelightAPI.UnitTests
             Assert.InRange(sw.ElapsedMilliseconds, 0, 1500);
         }
 
-        [Fact]
-        public async Task Device_should_turnon_and_turnoff()
-        {
-            Device testedDevice = await GetRandomConnectedDevice();
-            await testedDevice.TurnOn();
-            Assert.Equal("on", await testedDevice.GetProp(PROPERTIES.power));
-            await testedDevice.TurnOff();
-            Assert.Equal("off", await testedDevice.GetProp(PROPERTIES.power));
-        }
-
-        [Fact]
-        public async Task Device_should_change_rgb_color_to_red() => await DoWithRandomDevice(async (device) =>
-        {
-            await device.SetRGBColor(255, 0, 0);
-            Assert.Equal((255 << 16).ToString(), await device.GetProp(PROPERTIES.rgb));
-        }, METHODS.SetRGBColor);
-
-        [Fact]
-        public async Task Device_should_change_hsv_color_to_red() => await DoWithRandomDevice(async (device) =>
-        {
-            await device.SetHSVColor(0, 100);
-            Assert.Equal((255 << 16).ToString(), await device.GetProp(PROPERTIES.rgb));
-
-        }, METHODS.SetHSVColor);
-
-        [Fact]
-        public async Task Device_should_change_brightness() => await DoWithRandomDevice(async (device) =>
-        {
-            await device.SetBrightness(52);
-            Assert.Equal(52, await device.GetProp(PROPERTIES.bright));
-
-        }, METHODS.SetBrightness);
-
-        [Fact]
-        public async Task Device_should_change_colortemperature() => await DoWithRandomDevice(async (device) =>
-        {
-            await device.SetColorTemperature(4654);
-            Assert.Equal(4654, await device.GetProp(PROPERTIES.ct));
-
-        }, METHODS.SetBrightness);
-
         #endregion TESTS
 
         #region PRIVATE METHODS
-
-        private async Task DoWithRandomDevice(Action<Device> a, METHODS? supportedMethod = null)
-        {
-            Device testedDevice = await GetRandomConnectedDevice(supportedMethod);
-            await testedDevice.TurnOn();
-
-            a?.Invoke(testedDevice);
-
-            await testedDevice.TurnOff();
-        }
-
-        private async Task<Device> GetRandomConnectedDevice(METHODS? supportedMethod = null)
-        {
-            List<Device> devices = (await DeviceLocator.DiscoverAsync()).Where(d => !supportedMethod.HasValue || d.SupportedOperations.Contains(supportedMethod.Value)).ToList() ;
-
-            Assert.NotEmpty(devices);
-
-            int randomIndex = new Random().Next(0, devices.Count);
-            Device d = devices.ElementAt(randomIndex);
-            _output.WriteLine($"Used device : {d}");
-            await d.Connect();
-            return d;
-        }
 
         private T GetConfig<T>(string key)
         {
