@@ -271,7 +271,7 @@ namespace YeelightAPI
         ///   Discover devices in LAN
         /// </summary>
         /// <returns></returns>
-        public static async IAsyncEnumerable<Device> DiscoverAndEnumerateAsync()
+        public static async IAsyncEnumerable<Device> DiscoverAndEnumerateAsync(CancellationToken? cancel = null)
         {
             List<Task<IEnumerable<Device>>> tasks = NetworkInterface.GetAllNetworkInterfaces()
               .Where(networkInterface => networkInterface.OperationalStatus == OperationalStatus.Up)
@@ -293,6 +293,11 @@ namespace YeelightAPI
                         allUniqueDevices.Add(device.Hostname, device);
                         yield return device;
                     }
+                }
+
+                if (cancel.HasValue && cancel.Value.IsCancellationRequested)
+                {
+                    break;
                 }
 
             }
