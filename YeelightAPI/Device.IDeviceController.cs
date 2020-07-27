@@ -343,7 +343,15 @@ namespace YeelightAPI
                             method: METHODS.SetMusicMode,
                             parameters: parameters);
 
-            return result.IsOk();
+            if (result.IsOk())
+            {
+                //enables the music mode
+                await this.InitMusicModeAsync(hostName, port);
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -370,7 +378,15 @@ namespace YeelightAPI
                             method: METHODS.SetMusicMode,
                             parameters: parameters);
 
-            return result.IsOk();
+            if (result.IsOk())
+            {
+                //disables the music mode
+                this.IsMusicModeEnabled = false;
+                await DisableMusicModeAsync();
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

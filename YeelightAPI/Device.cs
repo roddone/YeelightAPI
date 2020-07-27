@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -89,6 +90,11 @@ namespace YeelightAPI
                 return _tcpClient != null && _tcpClient.IsConnected();
             }
         }
+
+        /// <summary>
+        /// Indicate wether the music mode is enabled
+        /// </summary>
+        public bool IsMusicModeEnabled { get; private set; }
 
         /// <summary>
         /// The model.
@@ -316,9 +322,43 @@ namespace YeelightAPI
             return null;
         }
 
+        internal async Task InitMusicModeAsync(string hostname, int port)
+        {
+            this.IsMusicModeEnabled = true;
+            //init new TCP socket
+            if (string.IsNullOrWhiteSpace(hostname))
+            {
+                hostname = GetLocalIpAddress();
+            }
+
+            var listener = new TcpListener(IPAddress.Parse(hostname), port);
+            listener.Start();
+            var musicTcpClient = await listener.AcceptTcpClientAsync();
+            _tcpClient = musicTcpClient;
+
+        }
+
+        internal async Task DisableMusicModeAsync()
+        {
+            _tcpClient = null;
+            _ = await Connect();
+            this.IsMusicModeEnabled = false;
+
+        }
+
         #endregion INTERNAL METHODS
 
         #region PRIVATE METHODS
+
+        private static string GetLocalIpAddress()
+        {
+            using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+            {
+                socket.Connect("8.8.8.8", 65530);
+                IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
+                return endPoint.Address.ToString();
+            }
+        }
 
         /// <summary>
         /// Generate valid parameters for percent values
