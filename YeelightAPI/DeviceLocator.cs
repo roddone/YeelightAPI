@@ -301,10 +301,13 @@ namespace YeelightAPI
             }
             else
             {
-                //return default multicast address only
-                return new MulticastIPAddressInformation[] { 
-                    multicastIPAddresses.First(m => m.Address.AddressFamily == AddressFamily.InterNetwork && m.Address.Equals(IPAddress.Parse(DeviceLocator.DefaultMulticastIPAddress))) 
-                };
+              //return default multicast address only
+              MulticastIPAddressInformation multicastIpAddressesForDiscovery = 
+                multicastIPAddresses.FirstOrDefault(m => m.Address.AddressFamily == AddressFamily.InterNetwork && m.Address.Equals(IPAddress.Parse(DeviceLocator.DefaultMulticastIPAddress)));
+
+              return multicastIpAddressesForDiscovery == null
+                ? new MulticastIPAddressInformation[]{} 
+                : new [] { multicastIpAddressesForDiscovery };
             }
         }
 
