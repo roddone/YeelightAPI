@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Xunit;
 using System.Linq;
 using YeelightAPI.Models;
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace YeelightAPI.UnitTests
@@ -37,7 +36,33 @@ namespace YeelightAPI.UnitTests
         }
 
         [Fact]
-        public async Task Discovery_should_not_last_long()
+        public async Task Discovery_should_throw_when_using_wrong_multicast_address()
+        {
+            int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
+            string initialMulticastAddress = DeviceLocator.DefaultMulticastIPAddress;
+            DeviceLocator.DefaultMulticastIPAddress = "foo";
+
+            _ = await Assert.ThrowsAsync<FormatException>(async () =>
+              {
+                  _ = (await DeviceLocator.DiscoverAsync()).ToList();
+              });
+
+            //reset to default to ensure next tests don't crash
+            DeviceLocator.DefaultMulticastIPAddress = initialMulticastAddress;
+        }
+
+        [Fact]
+        public async Task Discovery_should_find_devices_on_all_multicast_addresses()
+        {
+            int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
+            DeviceLocator.UseAllAvailableMulticastAddresses = true;
+            var devices = (await DeviceLocator.DiscoverAsync()).ToList();
+
+            Assert.Equal(expectedDevicesCount, devices?.Count);
+        }
+
+        [Fact]
+        public async Task Discovery_obsolete_should_not_last_long()
         {
             Stopwatch sw = Stopwatch.StartNew();
             _ = await DeviceLocator.Discover();
@@ -47,7 +72,7 @@ namespace YeelightAPI.UnitTests
         }
 
         [Fact]
-        public async Task Discovery_async_should_not_last_long()
+        public async Task Discovery_should_not_last_long()
         {
             Stopwatch sw = Stopwatch.StartNew();
             _ = await DeviceLocator.DiscoverAsync();

@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using YeelightAPI;
 using YeelightAPI.Models;
@@ -12,13 +10,6 @@ using YeelightAPI.Models.Cron;
 
 namespace YeelightAPIConsoleTest
 {
-
-    //public class Custom
-    //{
-    //    [JsonConverter(typeof(PropertiesDictionaryConverter))]
-    //    public Dictionary<PROPERTIES, object> Params { get; set; }
-    //}
-
     public class Program
     {
         #region Public Methods
@@ -41,12 +32,12 @@ namespace YeelightAPIConsoleTest
 
                 if (keyInfo.Key == ConsoleKey.D)
                 {
-                    DeviceLocator.OnDeviceFound += (sender, arg) =>
+                    Progress<Device> reporter = new Progress<Device>(d =>
                     {
-                        WriteLineWithColor($"Device found : {arg.Device}", ConsoleColor.Blue);
-                    };
-                    List<Device> devices = await DeviceLocator.Discover();
-                    
+                        WriteLineWithColor($"Device found : {d}", ConsoleColor.Blue);
+                    });
+                    List<Device> devices = (await DeviceLocator.DiscoverAsync(reporter)).ToList();
+
                     if (devices != null && devices.Count >= 1)
                     {
                         Console.WriteLine($"{devices.Count} device(s) found !");
@@ -709,7 +700,7 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("adjust brightness ++");
-                success=await device.AdjustBright(50, smooth);
+                success = await device.AdjustBright(50, smooth);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
@@ -718,7 +709,7 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("adjust brightness --");
-                success=await device.AdjustBright(-50, smooth);
+                success = await device.AdjustBright(-50, smooth);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
@@ -727,7 +718,7 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("adjust color ++");
-                success=await device.AdjustColor(50, smooth);
+                success = await device.AdjustColor(50, smooth);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
@@ -736,7 +727,7 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("adjust color --");
-                success=await device.AdjustColor(-50, smooth);
+                success = await device.AdjustColor(-50, smooth);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
@@ -745,7 +736,7 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("adjust color temperature ++");
-                success=await device.AdjustColorTemperature(50, smooth);
+                success = await device.AdjustColorTemperature(50, smooth);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
@@ -754,7 +745,7 @@ namespace YeelightAPIConsoleTest
             await Try(async () =>
             {
                 Console.WriteLine("adjust color temperature --");
-                success=await device.AdjustColorTemperature(-50, smooth);
+                success = await device.AdjustColorTemperature(-50, smooth);
                 globalSuccess &= success;
                 WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
                 await Task.Delay(delay);
