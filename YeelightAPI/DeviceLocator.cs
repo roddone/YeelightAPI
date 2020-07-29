@@ -235,23 +235,23 @@ namespace YeelightAPI
             return tasks;
         }
 
-        #endregion Depricated API. TODO: Remove
+    #endregion Depricated API. TODO: Remove
 
-        #endregion Depricated API. TODO: Remove
+    #endregion Depricated API. TODO: Remove
 
-        #region Async API Methods
+    #region Async API Methods
 
-        /// <summary>
-        ///   Discover devices in LAN
-        /// </summary>
-        /// <returns></returns>
-        public static async Task<IEnumerable<Device>> DiscoverAsync() =>
+    /// <summary>
+    ///   Discover devices in LAN
+    /// </summary>
+    /// <returns>A <see cref="Task"/> that contains a collection of all discovered <see cref="Device"/> instances.</returns>
+    public static async Task<IEnumerable<Device>> DiscoverAsync() =>
           await DeviceLocator.DiscoverAsync(deviceFoundReporter: null);
 
         /// <summary>
         ///   Discover devices in LAN
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> that contains a collection of all discovered <see cref="Device"/> instances.</returns>
         public static async Task<IEnumerable<Device>> DiscoverAsync(IProgress<Device> deviceFoundReporter)
         {
             IEnumerable<Task<IEnumerable<Device>>> tasks = NetworkInterface.GetAllNetworkInterfaces()
@@ -262,16 +262,15 @@ namespace YeelightAPI
             return result
               .SelectMany(devices => devices)
               .GroupBy(d => d.Hostname)
-              .Select(g => g.First())
-              .ToList();
+              .Select(g => g.First());
         }
 
-        /// <summary>
-        ///   Discover devices in a specific Network Interface
-        /// </summary>
-        /// <param name="networkInterface"></param>
-        /// <returns></returns>
-        public static async Task<IEnumerable<Device>> DiscoverAsync(NetworkInterface networkInterface) =>
+    /// <summary>
+    ///   Discover devices in a specific Network Interface
+    /// </summary>
+    /// <param name="networkInterface"></param>
+    /// <returns>A <see cref="Task"/> that contains a collection of all discovered <see cref="Device"/> instances.</returns>
+    public static async Task<IEnumerable<Device>> DiscoverAsync(NetworkInterface networkInterface) =>
           await DeviceLocator.DiscoverAsync(networkInterface, null);
 
         /// <summary>
