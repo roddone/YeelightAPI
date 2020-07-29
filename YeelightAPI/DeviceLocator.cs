@@ -301,7 +301,7 @@ namespace YeelightAPI
       return result
         .SelectMany(devices => devices)
         .GroupBy(d => d.Hostname)
-        .Select(g => g.First());
+        .Select(g => g.FirstOrDefault());
     }
 
     /// <summary>
@@ -322,6 +322,21 @@ namespace YeelightAPI
       NetworkInterface networkInterface,
       CancellationToken cancellationToken) =>
       await DeviceLocator.DiscoverAsync(networkInterface, null, cancellationToken);
+
+    /// <summary>
+    ///   Discover devices in a specific Network Interface
+    /// </summary>
+    /// <param name="networkInterface"></param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to cancel the asynchronous operation.</param>
+    /// <param name="deviceFoundReporter">
+    ///   An implementation of <see cref="IProgress{T}" /> to handle discovered devices as soon
+    ///   they are available.
+    /// </param>
+    /// <returns>A <see cref="Task" /> that contains a collection of all discovered <see cref="Device" /> instances.</returns>
+    public static async Task<IEnumerable<Device>> DiscoverAsync(
+      NetworkInterface networkInterface,
+      IProgress<Device> deviceFoundReporter) =>
+      await DeviceLocator.DiscoverAsync(networkInterface, deviceFoundReporter, CancellationToken.None);
 
     /// <summary>
     ///   Discover devices in a specific Network Interface
