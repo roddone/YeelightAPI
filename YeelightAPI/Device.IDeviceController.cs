@@ -334,7 +334,7 @@ namespace YeelightAPI
         /// <summary>
         /// Starts the music mode
         /// </summary>
-        /// <param name="hostName"></param>
+        /// <param name="hostname"></param>
         /// <param name="port"></param>
         /// <returns></returns>
         public async Task<bool> StartMusicMode(string hostname = null, int port = 12345)
