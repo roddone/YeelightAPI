@@ -12,11 +12,14 @@ namespace YeelightAPI.Models
         /// <summary>
         /// Determine if the result is a classical OK result ({"id":1, "result":["ok"]})
         /// </summary>
+        /// <remarks>
+        /// returns true by default if music mode is enabled
+        /// </remarks>
         /// <param name="this"></param>
         /// <returns></returns>
         public static bool IsOk(this CommandResult<List<string>> @this)
         {
-            return @this?.Error == null && @this?.Result?[0] == "ok";
+            return @this?.IsMusicResponse == true || (@this?.Error == null && @this?.Result?[0] == "ok");
         }
 
         #endregion Public Methods
@@ -40,6 +43,12 @@ namespace YeelightAPI.Models
         public int Id { get; set; }
 
         #endregion Public Properties
+
+        #region Internal Properties
+
+        internal bool IsMusicResponse { get; set; }
+
+        #endregion Internal Properties
 
         #region Public Classes
 

@@ -38,6 +38,11 @@ namespace YeelightAPI
         /// </summary>
         private TcpClient _tcpClient;
 
+        /// <summary>
+        /// Cancellation token source for the Watch task
+        /// </summary>
+        private CancellationTokenSource _watchCancellationTokenSource;
+
         #endregion PRIVATE ATTRIBUTES
 
         #region EVENTS
@@ -257,6 +262,15 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)
         {
+            if (IsMusicModeEnabled)
+            {
+                //music mode enabled, there will be no response, we should assume everything works
+                int uniqueId = GetUniqueIdForCommand();
+                ExecuteCommand(method, uniqueId, parameters);
+                return new CommandResult<T>() { Id = uniqueId, Error = null, IsMusicResponse = true };
+            }
+
+            //default behavior : send command and wait for response
             return await ExecuteCommandWithResponse<T>(method, GetUniqueIdForCommand(), parameters);
         }
 
@@ -267,7 +281,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{this.Model.ToString()} ({this.Hostname}:{this.Port})";
+            return $"{Model.ToString()} ({Hostname}:{Port})";
         }
 
         #endregion PUBLIC METHODS
@@ -322,27 +336,10 @@ namespace YeelightAPI
             return null;
         }
 
-        internal async Task InitMusicModeAsync(string hostname, int port)
-        {
-            this.IsMusicModeEnabled = true;
-            //init new TCP socket
-            if (string.IsNullOrWhiteSpace(hostname))
-            {
-                hostname = GetLocalIpAddress();
-            }
-
-            var listener = new TcpListener(IPAddress.Parse(hostname), port);
-            listener.Start();
-            var musicTcpClient = await listener.AcceptTcpClientAsync();
-            _tcpClient = musicTcpClient;
-
-        }
-
         internal async Task DisableMusicModeAsync()
         {
-            _tcpClient = null;
             _ = await Connect();
-            this.IsMusicModeEnabled = false;
+            IsMusicModeEnabled = false;
 
         }
 
@@ -470,10 +467,12 @@ namespace YeelightAPI
         /// <returns></returns>
         private async Task Watch()
         {
+            _watchCancellationTokenSource = new CancellationTokenSource();
+
             await Task.Factory.StartNew(async () =>
             {
                 //while device is connected
-                while (_tcpClient != null)
+                while (_tcpClient != null && _watchCancellationTokenSource.IsCancellationRequested == false)
                 {
                     lock (_syncLock)
                     {
@@ -562,7 +561,7 @@ namespace YeelightAPI
 
                     await Task.Delay(100);
                 }
-            }, TaskCreationOptions.LongRunning);
+            }, _watchCancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         /// <summary>

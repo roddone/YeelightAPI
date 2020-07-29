@@ -155,6 +155,8 @@ namespace YeelightAPI
             {
                 _tcpClient.Close();
                 _tcpClient = null;
+                _watchCancellationTokenSource.Cancel();
+                _watchCancellationTokenSource.Dispose();
             }
         }
 
@@ -335,9 +337,19 @@ namespace YeelightAPI
         /// <param name="hostName"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        public async Task<bool> StartMusicMode(string hostName, int port)
+        public async Task<bool> StartMusicMode(string hostname = null, int port = 12345)
         {
-            List<object> parameters = new List<object>() { (int)MusicAction.On, hostName, port };
+            this.IsMusicModeEnabled = true;
+            //init new TCP socket
+            if (string.IsNullOrWhiteSpace(hostname))
+            {
+                hostname = GetLocalIpAddress();
+            }
+
+            var listener = new TcpListener(System.Net.IPAddress.Parse(hostname), port);
+            listener.Start();
+
+            List<object> parameters = new List<object>() { (int)MusicAction.On, hostname, port };
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetMusicMode,
@@ -345,13 +357,12 @@ namespace YeelightAPI
 
             if (result.IsOk())
             {
-                //enables the music mode
-                await this.InitMusicModeAsync(hostName, port);
-
-                return true;
+                this.Disconnect();
+                var musicTcpClient = await listener.AcceptTcpClientAsync();
+                _tcpClient = musicTcpClient;
             }
 
-            return false;
+            return result.IsOk();
         }
 
         /// <summary>
