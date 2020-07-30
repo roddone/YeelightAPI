@@ -565,7 +565,8 @@ namespace YeelightAPI
           }
           catch (SocketException exception)
           {
-            // Ignore SocketException and continue polling
+
+            // Collect exception, just in case no devices are found after retry and continue polling
             socketExceptions.Add(exception);
           }
 
@@ -660,6 +661,8 @@ namespace YeelightAPI
       IProgress<Device> deviceFoundCallback,
       CancellationToken cancellationToken)
     {
+      var socketExceptions = new List<SocketException>();
+      IEnumerable<Device> devices = new List<Device>();
       for (var count = 0; count < DeviceLocator.MaxRetryCount; count++)
       {
         cancellationToken.ThrowIfCancellationRequested();
@@ -676,21 +679,27 @@ namespace YeelightAPI
               DeviceLocator.InitializeSocket(multicastIPEndpoint, ip, ssdpSocket);
               cancellationToken.ThrowIfCancellationRequested();
 
-              return DeviceLocator.GetDevicesFromSocket(
+              devices = DeviceLocator.GetDevicesFromSocket(
                 multicastIPEndpoint,
                 deviceFoundCallback,
                 ssdpSocket,
+                socketExceptions,
                 cancellationToken);
             }
           }
-          catch (SocketException)
+          catch (SocketException exception)
           {
-            // Ignore SocketException and retry
+            // Collect exception, just in case no devices are found after retry
+            socketExceptions.Add(exception);
           }
         }
       }
 
-      return new List<Device>();
+      if (!devices.Any() && socketExceptions.Any())
+      {
+        throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions'  for more details.", socketExceptions);
+      }
+      return devices;
     }
 
     private static void InitializeSocket(
@@ -709,10 +718,11 @@ namespace YeelightAPI
         new MulticastOption(multicastIPEndpoint.Address));
     }
 
-    private static IEnumerable<Device> GetDevicesFromSocket(
+    private static ICollection<Device> GetDevicesFromSocket(
       IPEndPoint multicastIPEndpoint,
       IProgress<Device> deviceFoundCallback,
       Socket ssdpSocket,
+      List<SocketException> socketExceptions,
       CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
@@ -724,7 +734,6 @@ namespace YeelightAPI
       );
 
       var stopWatch = Stopwatch.StartNew();
-      Device result = null;
 
       // Use hash table for faster lookup, than List.Contains
       var devices = new Dictionary<string, Device>();
@@ -755,19 +764,14 @@ namespace YeelightAPI
                 {
                   devices.Add(device.Hostname, device);
                   deviceFoundCallback?.Report(device);
-                  result = device;
                 }
               }
             }
           }
-          catch (SocketException)
+          catch (SocketException exception)
           {
             // Ignore SocketException and continue polling
-          }
-
-          if (result != null)
-          {
-            yield return result;
+            socketExceptions.Add(exception);
           }
 
           cancellationToken.ThrowIfCancellationRequested();
@@ -778,6 +782,8 @@ namespace YeelightAPI
       {
         stopWatch.Stop();
       }
+
+      return devices.Values.ToList();
     }
 
     /// <summary>
