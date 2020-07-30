@@ -25,16 +25,12 @@ namespace YeelightAPI
     /// Initializes a new instance of the <see cref="DeviceDiscoveryException"/> class with a specified error message.
     /// </summary>
     /// <param name="message"></param>
-    public DeviceDiscoveryException(string message) : base(message)
-    {
-    }
+    public DeviceDiscoveryException(string message) : base(message) => this.SocketExceptions = new List<SocketException>();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DeviceDiscoveryException"/> class with a specified error message and an inner exception.
     /// </summary>
-    public DeviceDiscoveryException(string message, Exception innerException) : base(message, innerException)
-    {
-    }
+    public DeviceDiscoveryException(string message, Exception innerException) : base(message, innerException) => this.SocketExceptions = new List<SocketException>();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DeviceDiscoveryException"/> class with a specified error message and a collection of occurred <see cref="SocketException"/>.
@@ -45,15 +41,12 @@ namespace YeelightAPI
     /// <summary>
     /// Initializes a new instance of the <see cref="DeviceDiscoveryException"/> class with serialized data.
     /// </summary>
-    protected DeviceDiscoveryException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-    }
+    protected DeviceDiscoveryException(SerializationInfo info, StreamingContext context) : base(info, context) => this.SocketExceptions = new List<SocketException>();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DeviceDiscoveryException"/> class.
     /// </summary>
-    public DeviceDiscoveryException()
-    {
-    }
+    public DeviceDiscoveryException() =>
+      this.SocketExceptions = new List<SocketException>();
   }
 }
