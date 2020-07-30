@@ -482,7 +482,7 @@ namespace YeelightAPI
             // Collect exception, just in case no devices are found after retry
             socketExceptions.Add(exception);
 
-            // Ignore exception and continue with nex multicast address
+            // Ignore exception and continue with next multicast address
             continue;
           }
 
@@ -509,7 +509,7 @@ namespace YeelightAPI
 
       if (discoveredDevicesCount == 0 && socketExceptions.Any())
       {
-        throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions'  for more details.", socketExceptions);
+        throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.", socketExceptions);
       }
     }
 
@@ -565,7 +565,6 @@ namespace YeelightAPI
           }
           catch (SocketException exception)
           {
-
             // Collect exception, just in case no devices are found after retry and continue polling
             socketExceptions.Add(exception);
           }
@@ -638,14 +637,14 @@ namespace YeelightAPI
 
         return await Task.Run(
           () => netInterface.GetIPProperties().UnicastAddresses
-            .Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
+            .Where(addressInfo => addressInfo.Address.AddressFamily == AddressFamily.InterNetwork)
             .AsParallel()
             .WithCancellation(cancellationToken)
             .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
             .SelectMany(
-              ip => DeviceLocator.CheckSocketForDevices(
+              addressInformation => DeviceLocator.CheckSocketForDevices(
                 multicastAddresses,
-                ip,
+                addressInformation,
                 deviceFoundCallback,
                 cancellationToken))
             .ToList(),
@@ -697,7 +696,7 @@ namespace YeelightAPI
 
       if (!devices.Any() && socketExceptions.Any())
       {
-        throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions'  for more details.", socketExceptions);
+        throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.", socketExceptions);
       }
       return devices;
     }
@@ -770,7 +769,7 @@ namespace YeelightAPI
           }
           catch (SocketException exception)
           {
-            // Ignore SocketException and continue polling
+            // Store SocketException and continue polling
             socketExceptions.Add(exception);
           }
 
@@ -787,7 +786,7 @@ namespace YeelightAPI
     }
 
     /// <summary>
-    ///   Gets the informations from a raw SSDP message (host, port)
+    ///   Gets the information from a raw SSDP message (host, port)
     /// </summary>
     /// <param name="ssdpMessage"></param>
     /// <returns></returns>
