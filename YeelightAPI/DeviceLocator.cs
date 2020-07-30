@@ -327,7 +327,6 @@ namespace YeelightAPI
     ///   Discover devices in a specific Network Interface
     /// </summary>
     /// <param name="networkInterface"></param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to cancel the asynchronous operation.</param>
     /// <param name="deviceFoundReporter">
     ///   An implementation of <see cref="IProgress{T}" /> to handle discovered devices as soon
     ///   they are available.
@@ -353,6 +352,40 @@ namespace YeelightAPI
       IProgress<Device> deviceFoundReporter,
       CancellationToken cancellationToken) =>
       await DeviceLocator.SearchNetworkForDevicesAsync(networkInterface, deviceFoundReporter, cancellationToken);
+
+#if NETSTANDARD2_1
+    /// <summary>
+    ///   Enumerate devices asynchronously.
+    /// </summary>
+    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device"/> items.</returns>
+    public static async IAsyncEnumerable<Device> EnumerateDevicesAsync() => await EnumerateDevicesAsync(CancellationToken.None);
+
+    /// <summary>
+    ///   Enumerate devices asynchronously.
+    /// </summary>
+    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device"/> items.</returns>
+    /// <exception cref="OperationCanceledException">Thrown when operation was cancelled by the caller.</exception>
+    public static async IAsyncEnumerable<Device> EnumerateDevicesAsync(CancellationToken cancellationToken)
+    {
+      IEnumerable<NetworkInterface> interfaces = NetworkInterface.GetAllNetworkInterfaces()
+        .Where(networkInterface => networkInterface.OperationalStatus == OperationalStatus.Up);
+
+      foreach (NetworkInterface networkInterface in interfaces)
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        IEnumerable<Device> devices = await DeviceLocator.DiscoverAsync(networkInterface, cancellationToken);
+
+        foreach (Device device in devices
+          .GroupBy(d => d.Hostname)
+          .Select(g => g.FirstOrDefault()))
+        {
+          yield return device;
+        }
+      }
+    }
+
+#endif
 
     #endregion Async API Methods
 
