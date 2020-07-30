@@ -39,6 +39,7 @@ namespace YeelightAPI
     private const string _ssdpMessage =
       "M-SEARCH * HTTP/1.1\r\nHOST: {0}:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
 
+    private const int RetryDelayInMilliseconds = 10;
     private static readonly List<object> _allPropertyRealNames = PROPERTIES.ALL.GetRealNames();
     private static readonly char[] _colon = {':'};
     private static readonly string _defaultMulticastIPAddress = "239.255.255.250";
@@ -223,7 +224,7 @@ namespace YeelightAPI
                       // Continue polling
                     }
 
-                    await Task.Delay(TimeSpan.FromMilliseconds(10));
+                    await Task.Delay(TimeSpan.FromMilliseconds(DeviceLocator.RetryDelayInMilliseconds));
                   }
 
                   stopWatch.Stop();
@@ -362,7 +363,7 @@ namespace YeelightAPI
     /// <summary>
     ///   Enumerate devices asynchronously.
     /// </summary>
-    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device"/> items.</returns>
+    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device" /> items.</returns>
     public static async IAsyncEnumerable<Device> EnumerateDevicesAsync()
     {
       await foreach (Device device in DeviceLocator.EnumerateDevicesAsync(CancellationToken.None))
@@ -375,7 +376,7 @@ namespace YeelightAPI
     ///   Enumerate devices asynchronously.
     /// </summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to cancel the asynchronous operation.</param>
-    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device"/> items.</returns>
+    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device" /> items.</returns>
     /// <exception cref="OperationCanceledException">Thrown when operation was cancelled by the caller.</exception>
     public static async IAsyncEnumerable<Device> EnumerateDevicesAsync(
       [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -402,15 +403,16 @@ namespace YeelightAPI
     /// <summary>
     ///   Enumerate devices asynchronously.
     /// </summary>
-    /// <param name="networkInterface">The <see cref="NetworkInterface"/> of the network to search in.</param>
+    /// <param name="networkInterface">The <see cref="NetworkInterface" /> of the network to search in.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to cancel the asynchronous operation.</param>
-    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device"/> items.</returns>
+    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device" /> items.</returns>
     /// <exception cref="OperationCanceledException">Thrown when operation was cancelled by the caller.</exception>
     public static async IAsyncEnumerable<Device> EnumerateDevicesAsync(
       NetworkInterface networkInterface,
       [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-      await foreach (Device device in DeviceLocator.EnumerateNetworkInterfacesAsync(networkInterface, cancellationToken))
+      await foreach (Device device in DeviceLocator.EnumerateNetworkInterfacesAsync(networkInterface, cancellationToken)
+      )
       {
         cancellationToken.ThrowIfCancellationRequested();
         yield return device;
@@ -464,7 +466,7 @@ namespace YeelightAPI
       [EnumeratorCancellation] CancellationToken cancellationToken)
     {
       var socketExceptions = new List<SocketException>();
-      int discoveredDevicesCount = 0;
+      var discoveredDevicesCount = 0;
       for (var count = 0; count < DeviceLocator.MaxRetryCount; count++)
       {
         cancellationToken.ThrowIfCancellationRequested();
@@ -509,7 +511,9 @@ namespace YeelightAPI
 
       if (discoveredDevicesCount == 0 && socketExceptions.Any())
       {
-        throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.", socketExceptions);
+        throw new DeviceDiscoveryException(
+          "An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.",
+          socketExceptions);
       }
     }
 
@@ -575,7 +579,7 @@ namespace YeelightAPI
           }
 
           cancellationToken.ThrowIfCancellationRequested();
-          await Task.Delay(TimeSpan.FromMilliseconds(10), cancellationToken);
+          await Task.Delay(TimeSpan.FromMilliseconds(DeviceLocator.RetryDelayInMilliseconds), cancellationToken);
         }
       }
       finally
@@ -696,8 +700,11 @@ namespace YeelightAPI
 
       if (!devices.Any() && socketExceptions.Any())
       {
-        throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.", socketExceptions);
+        throw new DeviceDiscoveryException(
+          "An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.",
+          socketExceptions);
       }
+
       return devices;
     }
 
@@ -774,7 +781,7 @@ namespace YeelightAPI
           }
 
           cancellationToken.ThrowIfCancellationRequested();
-          Thread.Sleep(TimeSpan.FromMilliseconds(10));
+          Thread.Sleep(TimeSpan.FromMilliseconds(DeviceLocator.RetryDelayInMilliseconds));
         }
       }
       finally
