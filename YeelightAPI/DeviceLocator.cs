@@ -265,6 +265,7 @@ namespace YeelightAPI
     /// </summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to cancel the asynchronous operation.</param>
     /// <returns>A <see cref="Task" /> that contains a collection of all discovered <see cref="Device" /> instances.</returns>
+    /// <exception cref="OperationCanceledException">Thrown when operation was cancelled by the caller.</exception>
     public static async Task<IEnumerable<Device>> DiscoverAsync(CancellationToken cancellationToken) =>
       await DeviceLocator.DiscoverAsync(deviceFoundReporter: null, cancellationToken);
 
@@ -288,6 +289,7 @@ namespace YeelightAPI
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to cancel the asynchronous operation.</param>
     /// <returns>A <see cref="Task" /> that contains a collection of all discovered <see cref="Device" /> instances.</returns>
+    /// <exception cref="OperationCanceledException">Thrown when operation was cancelled by the caller.</exception>
     public static async Task<IEnumerable<Device>> DiscoverAsync(
       IProgress<Device> deviceFoundReporter,
       CancellationToken cancellationToken)
@@ -318,6 +320,7 @@ namespace YeelightAPI
     /// <param name="networkInterface"></param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to cancel the asynchronous operation.</param>
     /// <returns>A <see cref="Task" /> that contains a collection of all discovered <see cref="Device" /> instances.</returns>
+    /// <exception cref="OperationCanceledException">Thrown when operation was cancelled by the caller.</exception>
     public static async Task<IEnumerable<Device>> DiscoverAsync(
       NetworkInterface networkInterface,
       CancellationToken cancellationToken) =>
@@ -347,6 +350,7 @@ namespace YeelightAPI
     ///   they are available.
     /// </param>
     /// <returns>A <see cref="Task" /> that contains a collection of all discovered <see cref="Device" /> instances.</returns>
+    /// <exception cref="OperationCanceledException">Thrown when operation was cancelled by the caller.</exception>
     public static async Task<IEnumerable<Device>> DiscoverAsync(
       NetworkInterface networkInterface,
       IProgress<Device> deviceFoundReporter,
@@ -363,6 +367,7 @@ namespace YeelightAPI
     /// <summary>
     ///   Enumerate devices asynchronously.
     /// </summary>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to cancel the asynchronous operation.</param>
     /// <returns>Returns an asynchronously enumerable collection of <see cref="Device"/> items.</returns>
     /// <exception cref="OperationCanceledException">Thrown when operation was cancelled by the caller.</exception>
     public static async IAsyncEnumerable<Device> EnumerateDevicesAsync(CancellationToken cancellationToken)
