@@ -266,6 +266,44 @@ namespace YeelightAPI
               .ToList();
         }
 
+#if NETSTANDARD2_1
+        /// <summary>
+        ///   Discover devices in LAN
+        /// </summary>
+        /// <returns></returns>
+        public static async IAsyncEnumerable<Device> DiscoverAndEnumerateAsync(CancellationToken? cancel = null)
+        {
+            List<Task<IEnumerable<Device>>> tasks = NetworkInterface.GetAllNetworkInterfaces()
+              .Where(networkInterface => networkInterface.OperationalStatus == OperationalStatus.Up)
+              .Select(networkInterface => DeviceLocator.DiscoverAsync(networkInterface, deviceFoundReporter: null)).ToList();
+
+            Dictionary<string, Device> allUniqueDevices = new Dictionary<string, Device>();
+
+            while (tasks.Count != 0)
+            {
+                Task<IEnumerable<Device>> completedTask = await Task.WhenAny(tasks);
+                tasks.Remove(completedTask);
+
+                IEnumerable<Device> devices = await completedTask;
+
+                foreach (Device device in devices)
+                {
+                    if (!allUniqueDevices.ContainsKey(device.Hostname))
+                    {
+                        allUniqueDevices.Add(device.Hostname, device);
+                        yield return device;
+                    }
+                }
+
+                if (cancel.HasValue && cancel.Value.IsCancellationRequested)
+                {
+                    break;
+                }
+
+            }
+        }
+#endif 
+
         /// <summary>
         ///   Discover devices in a specific Network Interface
         /// </summary>
@@ -302,8 +340,8 @@ namespace YeelightAPI
             else
             {
                 //return default multicast address only
-                return new MulticastIPAddressInformation[] { 
-                    multicastIPAddresses.First(m => m.Address.AddressFamily == AddressFamily.InterNetwork && m.Address.Equals(IPAddress.Parse(DeviceLocator.DefaultMulticastIPAddress))) 
+                return new MulticastIPAddressInformation[] {
+                    multicastIPAddresses.First(m => m.Address.AddressFamily == AddressFamily.InterNetwork && m.Address.Equals(IPAddress.Parse(DeviceLocator.DefaultMulticastIPAddress)))
                 };
             }
         }
