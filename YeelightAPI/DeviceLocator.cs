@@ -380,6 +380,7 @@ namespace YeelightAPI
           .GroupBy(d => d.Hostname)
           .Select(g => g.FirstOrDefault()))
         {
+          cancellationToken.ThrowIfCancellationRequested();
           yield return device;
         }
       }
