@@ -27,7 +27,7 @@ namespace YeelightAPI.UnitTests
         {
             int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
             int count = 0;
-            await foreach(var device in DeviceLocator.DiscoverAndEnumerateAsync())
+            await foreach(Device device in DeviceLocator.EnumerateDevicesAsync())
             {
                 ++count;
             }
