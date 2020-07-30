@@ -410,7 +410,7 @@ namespace YeelightAPI
       NetworkInterface networkInterface,
       [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-      await foreach (Device device in DeviceLocator.EnumerateNetworkDevicesAsync(networkInterface, cancellationToken))
+      await foreach (Device device in DeviceLocator.EnumerateNetworkInterfacesAsync(networkInterface, cancellationToken))
       {
         cancellationToken.ThrowIfCancellationRequested();
         yield return device;
@@ -424,7 +424,7 @@ namespace YeelightAPI
     /// <param name="netInterface"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private static async IAsyncEnumerable<Device> EnumerateNetworkDevicesAsync(
+    private static async IAsyncEnumerable<Device> EnumerateNetworkInterfacesAsync(
       NetworkInterface netInterface,
       [EnumeratorCancellation] CancellationToken cancellationToken)
     {
@@ -447,7 +447,7 @@ namespace YeelightAPI
       {
         cancellationToken.ThrowIfCancellationRequested();
 
-        await foreach (Device device in DeviceLocator.EnumerateSocketForDevicesAsync(
+        await foreach (Device device in DeviceLocator.EnumerateMulticastAddressesAsync(
           multicastAddresses,
           unicastIpAddressInformation,
           cancellationToken))
@@ -458,11 +458,13 @@ namespace YeelightAPI
       }
     }
 
-    private static async IAsyncEnumerable<Device> EnumerateSocketForDevicesAsync(
+    private static async IAsyncEnumerable<Device> EnumerateMulticastAddressesAsync(
       IEnumerable<MulticastIPAddressInformation> multicastIPAddresses,
       UnicastIPAddressInformation ip,
       [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+      var socketExceptions = new List<SocketException>();
+      int discoveredDevicesCount = 0;
       for (var count = 0; count < DeviceLocator.MaxRetryCount; count++)
       {
         cancellationToken.ThrowIfCancellationRequested();
@@ -475,10 +477,12 @@ namespace YeelightAPI
           {
             ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
           }
-          catch (SocketException)
+          catch (SocketException exception)
           {
-            // Ignore exception and retry
-            await Task.Delay(TimeSpan.FromMilliseconds(10), cancellationToken);
+            // Collect exception, just in case no devices are found after retry
+            socketExceptions.Add(exception);
+
+            // Ignore exception and continue with nex multicast address
             continue;
           }
 
@@ -492,21 +496,27 @@ namespace YeelightAPI
 
             await foreach (Device device in DeviceLocator.EnumerateSocketDevicesAsync(
               multicastIPEndpoint,
-              null,
               ssdpSocket,
+              socketExceptions,
               cancellationToken))
             {
+              discoveredDevicesCount++;
               yield return device;
             }
           }
         }
       }
+
+      if (discoveredDevicesCount == 0 && socketExceptions.Any())
+      {
+        throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions'  for more details.", socketExceptions);
+      }
     }
 
     private static async IAsyncEnumerable<Device> EnumerateSocketDevicesAsync(
       IPEndPoint multicastIPEndpoint,
-      IProgress<Device> deviceFoundCallback,
       Socket ssdpSocket,
+      ICollection<SocketException> socketExceptions,
       [EnumeratorCancellation] CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
@@ -548,15 +558,15 @@ namespace YeelightAPI
                 if (!devices.ContainsKey(device.Hostname))
                 {
                   devices.Add(device.Hostname, device);
-                  deviceFoundCallback?.Report(device);
                   result = device;
                 }
               }
             }
           }
-          catch (SocketException)
+          catch (SocketException exception)
           {
             // Ignore SocketException and continue polling
+            socketExceptions.Add(exception);
           }
 
           if (result != null)
