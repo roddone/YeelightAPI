@@ -99,27 +99,60 @@ await flow.Reset()
 ```
 
 ### Find devices
-If you want to find what devices are connected, you can use `YeelightAPI.DeviceLocator` to find them: 
+If you want to find all connected devices, you can use the static asynchronous API of the `YeelightAPI.DeviceLocator`: 
 ```csharp
-List<Device> discoveredDevices = await DeviceLocator.DiscoverAsync();
+
+private	async Task GetDevicesAsync()
+{
+  // Await the asynchronous call to the static API
+  IEnumerable<Device> discoveredDevices = await DeviceLocator.DiscoverAsync();
+}
+```
+
+### Device Found
+If you don't want to wait until all devices are discovered, you can make use of the [`IProgress<T>`](https://docs.microsoft.com/en-us/dotnet/api/system.iprogress-1?view=netframework-4.7), to receive intermediate results.  
+Create instance of [`Progress<Device>`](https://docs.microsoft.com/en-us/dotnet/api/system.progress-1?view=netframework-4.8) and pass it to the appropriate `DiscoverAsync` overload. The callback, taking a `Device` as parameter and is registered with the constructor will always execute on the caller's thread. Therefore the caller has not to worry about `Dispatcher` invokes.  
+Each time `DeviceLocator.DiscoverAsync(IProgress<Device>)` finds a device, the `IProgress<T>.Report` method is invoked with the discovered devcice, which will trigger a call to the registered callback.
+Example : 
+```csharp
+
+// Define the callback for the progress reporter
+private void OnDeviceFound(Device device) 
+{
+  // Do Something with the discovered device   
+}
+	
+private	async Task GetDevicesAsync()
+{
+  // Initialize the instance of Progress<T> with a callback to handle a discovered device
+  var progressReporter = new Progress<Device>(OnDeviceFound);
+  
+  // Await the asynchronous call to the static API
+  await DeviceLocator.DiscoverAsync(progressReporter);
+  
+  // Alternatively: although each device is handled as soon as it is discovered by the callback registered with the progress reporter, 
+  // you still can await the result collection
+  IEnumerable<Device> discoveredDevices = await DeviceLocator.DiscoverAsync(progressReporter);
+}
 ```
 
 #### Parameters
 Some parameters are available to help avoiding some issues during discovery
-* `MaxRetryCount` allows you to define a retry count, use with caution because it can slow down the discovery, default to 1
-* `UseAllAvailableMulticastAddresses` allows you to use all the available multicast addresses instead of just the default one : 239.255.255.250, use with caution because it can slow down the discovery, default to false
-* `DefaultMulticastIPAddress` allows you to change the default multicast address used for the discovery, default to 239.255.255.250
+* `MaxRetryCount` allows you to define a retry count. Use with caution, because it can slow down the discovery! Defaults to `1`.
+* `UseAllAvailableMulticastAddresses` allows you to use all the available multicast addresses instead of just the default one : 239.255.255.250. Use with caution, because it can slow down the discovery! Defaults to `false`.
+* `DefaultMulticastIPAddress` allows you to change the default multicast address used for the discovery. Defaults to 239.255.255.250
 
 ### Async / Await
-Almost every methods are asynchronous and are awaitable tasks. you can either call them with await, or wait the result : 
+Almost every method is awaitable returning a `Task` or `Task<T>` to make them execute asynchronously. Simply await them non-blocking using `await`: 
 Example : 
+
 ```csharp
 // with single device
 await device.Connect();
-device.Toggle().Result;
+await device.Toggle();
 
-//with groups
-group.Connect().Result;
+// with groups
+await group.Connect();
 await group.Toggle();
 ...
 ```
@@ -143,24 +176,6 @@ device.OnError += (object sender, UnhandledExceptionEventArgs e) =>
 {
   Console.WriteLine($"An error occurred : {e.ExceptionObject}");
 };
-```
-
-### Device Found
-If you don't want to wait until all devices are discovered, you can make use of the [`IProgress<T>`](https://docs.microsoft.com/en-us/dotnet/api/system.iprogress-1?view=netframework-4.7), to receive intermediate results.
-Create instance of [`Progress<T>`](https://docs.microsoft.com/en-us/dotnet/api/system.progress-1?view=netframework-4.7) and pass to the appropriate DiscoverAsync overload. The callback will always execute oin the caller thread.
-When DeviceLocator.DiscoverAsync(Progress<T>) finds a device, the `Progress<T>.Report` method is invoked.
-Example : 
-```csharp
-private void OnDeviceFound(Device device) 
-{
-  // Do Something with the discovered device   
-}
-	
-private	async Task GetDevicesAsync()
-{
-  var progressReporter = new Progress<Device>(OnDeviceFound);
-  List<Devices> discoveredDevices = await DeviceLocator.DiscoverAsync(progresReporter);
-}
 ```
 
 ## VNext
