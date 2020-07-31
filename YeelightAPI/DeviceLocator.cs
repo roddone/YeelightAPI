@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,6 +39,7 @@ namespace YeelightAPI
     private const string _ssdpMessage =
       "M-SEARCH * HTTP/1.1\r\nHOST: {0}:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
 
+    private const int RetryDelayInMilliseconds = 10;
     private static readonly List<object> _allPropertyRealNames = PROPERTIES.ALL.GetRealNames();
     private static readonly char[] _colon = {':'};
     private static readonly string _defaultMulticastIPAddress = "239.255.255.250";
@@ -222,7 +224,7 @@ namespace YeelightAPI
                       // Continue polling
                     }
 
-                    await Task.Delay(TimeSpan.FromMilliseconds(10));
+                    await Task.Delay(TimeSpan.FromMilliseconds(DeviceLocator.RetryDelayInMilliseconds));
                   }
 
                   stopWatch.Stop();
@@ -361,16 +363,23 @@ namespace YeelightAPI
     /// <summary>
     ///   Enumerate devices asynchronously.
     /// </summary>
-    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device"/> items.</returns>
-    public static async IAsyncEnumerable<Device> EnumerateDevicesAsync() => await EnumerateDevicesAsync(CancellationToken.None);
+    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device" /> items.</returns>
+    public static async IAsyncEnumerable<Device> EnumerateDevicesAsync()
+    {
+      await foreach (Device device in DeviceLocator.EnumerateDevicesAsync(CancellationToken.None))
+      {
+        yield return device;
+      }
+    }
 
     /// <summary>
     ///   Enumerate devices asynchronously.
     /// </summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to cancel the asynchronous operation.</param>
-    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device"/> items.</returns>
+    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device" /> items.</returns>
     /// <exception cref="OperationCanceledException">Thrown when operation was cancelled by the caller.</exception>
-    public static async IAsyncEnumerable<Device> EnumerateDevicesAsync(CancellationToken cancellationToken)
+    public static async IAsyncEnumerable<Device> EnumerateDevicesAsync(
+      [EnumeratorCancellation] CancellationToken cancellationToken)
     {
       IEnumerable<NetworkInterface> interfaces = NetworkInterface.GetAllNetworkInterfaces()
         .Where(networkInterface => networkInterface.OperationalStatus == OperationalStatus.Up);
@@ -391,6 +400,193 @@ namespace YeelightAPI
       }
     }
 
+    /// <summary>
+    ///   Enumerate devices asynchronously.
+    /// </summary>
+    /// <param name="networkInterface">The <see cref="NetworkInterface" /> of the network to search in.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to cancel the asynchronous operation.</param>
+    /// <returns>Returns an asynchronously enumerable collection of <see cref="Device" /> items.</returns>
+    /// <exception cref="OperationCanceledException">Thrown when operation was cancelled by the caller.</exception>
+    public static async IAsyncEnumerable<Device> EnumerateDevicesAsync(
+      NetworkInterface networkInterface,
+      [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+      await foreach (Device device in DeviceLocator.EnumerateNetworkInterfacesAsync(networkInterface, cancellationToken)
+      )
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+        yield return device;
+      }
+    }
+
+
+    /// <summary>
+    ///   Create Discovery tasks for a specific Network Interface
+    /// </summary>
+    /// <param name="netInterface"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    private static async IAsyncEnumerable<Device> EnumerateNetworkInterfacesAsync(
+      NetworkInterface netInterface,
+      [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+      cancellationToken.ThrowIfCancellationRequested();
+
+      if (netInterface.NetworkInterfaceType != NetworkInterfaceType.Wireless80211 &&
+          netInterface.NetworkInterfaceType != NetworkInterfaceType.Ethernet)
+      {
+        yield break;
+      }
+
+      IEnumerable<MulticastIPAddressInformation> multicastAddresses =
+        DeviceLocator.GetMulticastIPAddressesForDiscovery(netInterface.GetIPProperties().MulticastAddresses);
+
+      cancellationToken.ThrowIfCancellationRequested();
+
+      foreach (UnicastIPAddressInformation unicastIpAddressInformation in netInterface.GetIPProperties()
+        .UnicastAddresses
+        .Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork))
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await foreach (Device device in DeviceLocator.EnumerateMulticastAddressesAsync(
+          multicastAddresses,
+          unicastIpAddressInformation,
+          cancellationToken))
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+          yield return device;
+        }
+      }
+    }
+
+    private static async IAsyncEnumerable<Device> EnumerateMulticastAddressesAsync(
+      IEnumerable<MulticastIPAddressInformation> multicastIPAddresses,
+      UnicastIPAddressInformation ip,
+      [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+      var socketExceptions = new List<SocketException>();
+      var discoveredDevicesCount = 0;
+      for (var count = 0; count < DeviceLocator.MaxRetryCount; count++)
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+        foreach (MulticastIPAddressInformation mca in multicastIPAddresses)
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+          Socket ssdpSocket = null;
+
+          try
+          {
+            ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+          }
+          catch (SocketException exception)
+          {
+            // Collect exception, just in case no devices are found after retry
+            socketExceptions.Add(exception);
+
+            // Ignore exception and continue with next multicast address
+            continue;
+          }
+
+          using (ssdpSocket)
+          {
+            var multicastIPEndpoint = new IPEndPoint(mca.Address, 1982);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            DeviceLocator.InitializeSocket(multicastIPEndpoint, ip, ssdpSocket);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await foreach (Device device in DeviceLocator.EnumerateSocketDevicesAsync(
+              multicastIPEndpoint,
+              ssdpSocket,
+              socketExceptions,
+              cancellationToken))
+            {
+              discoveredDevicesCount++;
+              yield return device;
+            }
+          }
+        }
+      }
+
+      if (discoveredDevicesCount == 0 && socketExceptions.Any())
+      {
+        throw new DeviceDiscoveryException(
+          "An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.",
+          socketExceptions);
+      }
+    }
+
+    private static async IAsyncEnumerable<Device> EnumerateSocketDevicesAsync(
+      IPEndPoint multicastIPEndpoint,
+      Socket ssdpSocket,
+      ICollection<SocketException> socketExceptions,
+      [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+      cancellationToken.ThrowIfCancellationRequested();
+
+      ssdpSocket.SendTo(
+        Encoding.ASCII.GetBytes(string.Format(DeviceLocator._ssdpMessage, multicastIPEndpoint.Address)),
+        SocketFlags.None,
+        multicastIPEndpoint
+      );
+
+      var stopWatch = Stopwatch.StartNew();
+      Device result = null;
+
+      // Use hash table for faster lookup, than List.Contains
+      var devices = new Dictionary<string, Device>();
+
+      try
+      {
+        while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+
+          try // Catch socket read exception
+          {
+            int available = ssdpSocket.Available;
+
+            if (available > 0)
+            {
+              var buffer = new byte[available];
+              int numberOfBytesRead = ssdpSocket.Receive(buffer, SocketFlags.None);
+
+              if (numberOfBytesRead > 0)
+              {
+                string response = Encoding.UTF8.GetString(buffer.Take(numberOfBytesRead).ToArray());
+                cancellationToken.ThrowIfCancellationRequested();
+
+                Device device = DeviceLocator.GetDeviceInformationFromSsdpMessage(response);
+
+                if (!devices.ContainsKey(device.Hostname))
+                {
+                  devices.Add(device.Hostname, device);
+                  result = device;
+                }
+              }
+            }
+          }
+          catch (SocketException exception)
+          {
+            // Collect exception, just in case no devices are found after retry and continue polling
+            socketExceptions.Add(exception);
+          }
+
+          if (result != null)
+          {
+            yield return result;
+          }
+
+          cancellationToken.ThrowIfCancellationRequested();
+          await Task.Delay(TimeSpan.FromMilliseconds(DeviceLocator.RetryDelayInMilliseconds), cancellationToken);
+        }
+      }
+      finally
+      {
+        stopWatch.Stop();
+      }
+    }
 #endif
 
     #endregion Async API Methods
@@ -445,16 +641,15 @@ namespace YeelightAPI
 
         return await Task.Run(
           () => netInterface.GetIPProperties().UnicastAddresses
-            .Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
+            .Where(addressInfo => addressInfo.Address.AddressFamily == AddressFamily.InterNetwork)
             .AsParallel()
             .WithCancellation(cancellationToken)
             .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
             .SelectMany(
-              ip => DeviceLocator.CheckSocketForDevices(
+              addressInformation => DeviceLocator.CheckSocketForDevices(
                 multicastAddresses,
-                ip,
+                addressInformation,
                 deviceFoundCallback,
-                retryCount,
                 cancellationToken))
             .ToList(),
           cancellationToken);
@@ -467,13 +662,11 @@ namespace YeelightAPI
       IEnumerable<MulticastIPAddressInformation> multicastIPAddresses,
       UnicastIPAddressInformation ip,
       IProgress<Device> deviceFoundCallback,
-      int retryCount,
       CancellationToken cancellationToken)
     {
-      // Use hash table for faster lookup, than List.Contains
-      var devices = new Dictionary<string, Device>();
-
-      for (var count = 0; count < retryCount; count++)
+      var socketExceptions = new List<SocketException>();
+      IEnumerable<Device> devices = new List<Device>();
+      for (var count = 0; count < DeviceLocator.MaxRetryCount; count++)
       {
         cancellationToken.ThrowIfCancellationRequested();
         foreach (MulticastIPAddressInformation mca in multicastIPAddresses)
@@ -489,22 +682,30 @@ namespace YeelightAPI
               DeviceLocator.InitializeSocket(multicastIPEndpoint, ip, ssdpSocket);
               cancellationToken.ThrowIfCancellationRequested();
 
-              DeviceLocator.GetDevicesFromSocket(
+              devices = DeviceLocator.GetDevicesFromSocket(
                 multicastIPEndpoint,
                 deviceFoundCallback,
                 ssdpSocket,
-                devices,
+                socketExceptions,
                 cancellationToken);
             }
           }
-          catch (SocketException ex)
+          catch (SocketException exception)
           {
-            //return devices.Values.ToList();
+            // Collect exception, just in case no devices are found after retry
+            socketExceptions.Add(exception);
           }
         }
       }
 
-      return devices.Values.ToList();
+      if (!devices.Any() && socketExceptions.Any())
+      {
+        throw new DeviceDiscoveryException(
+          "An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.",
+          socketExceptions);
+      }
+
+      return devices;
     }
 
     private static void InitializeSocket(
@@ -523,11 +724,11 @@ namespace YeelightAPI
         new MulticastOption(multicastIPEndpoint.Address));
     }
 
-    private static void GetDevicesFromSocket(
+    private static ICollection<Device> GetDevicesFromSocket(
       IPEndPoint multicastIPEndpoint,
       IProgress<Device> deviceFoundCallback,
       Socket ssdpSocket,
-      Dictionary<string, Device> devices,
+      List<SocketException> socketExceptions,
       CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
@@ -539,6 +740,10 @@ namespace YeelightAPI
       );
 
       var stopWatch = Stopwatch.StartNew();
+
+      // Use hash table for faster lookup, than List.Contains
+      var devices = new Dictionary<string, Device>();
+
       try
       {
         while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
@@ -557,6 +762,8 @@ namespace YeelightAPI
               if (numberOfBytesRead > 0)
               {
                 string response = Encoding.UTF8.GetString(buffer.Take(numberOfBytesRead).ToArray());
+                cancellationToken.ThrowIfCancellationRequested();
+
                 Device device = DeviceLocator.GetDeviceInformationFromSsdpMessage(response);
 
                 if (!devices.ContainsKey(device.Hostname))
@@ -567,22 +774,26 @@ namespace YeelightAPI
               }
             }
           }
-          catch (SocketException)
+          catch (SocketException exception)
           {
-            // Ignore SocketException and continue polling
+            // Store SocketException and continue polling
+            socketExceptions.Add(exception);
           }
 
-          Thread.Sleep(TimeSpan.FromMilliseconds(10));
+          cancellationToken.ThrowIfCancellationRequested();
+          Thread.Sleep(TimeSpan.FromMilliseconds(DeviceLocator.RetryDelayInMilliseconds));
         }
       }
       finally
       {
         stopWatch.Stop();
       }
+
+      return devices.Values.ToList();
     }
 
     /// <summary>
-    ///   Gets the informations from a raw SSDP message (host, port)
+    ///   Gets the information from a raw SSDP message (host, port)
     /// </summary>
     /// <param name="ssdpMessage"></param>
     /// <returns></returns>
