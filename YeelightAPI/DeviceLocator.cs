@@ -301,7 +301,27 @@ namespace YeelightAPI
         .Select(
           networkInterface => DeviceLocator.DiscoverAsync(networkInterface, deviceFoundReporter, cancellationToken));
 
-      IEnumerable<Device>[] result = await Task.WhenAll(tasks);
+      Task<IEnumerable<Device>[]> whenAllTask = Task.WhenAll(tasks);
+      IEnumerable<Device>[] result = Array.Empty<IEnumerable<Device>>();
+      try
+      {
+        result = await whenAllTask;
+      }
+      catch (DeviceDiscoveryException)
+      {
+        result = tasks
+          .Where(task => task.Status == TaskStatus.RanToCompletion)
+          .Select(task => task.Result)
+          .ToArray();
+
+        if (!result.Any())
+        {
+          IEnumerable<SocketException> socketExceptions = whenAllTask.Exception.InnerExceptions.OfType<DeviceDiscoveryException>()
+            .SelectMany(exception => exception.SocketExceptions);
+          throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.", socketExceptions);
+        }
+      }
+
       return result
         .SelectMany(devices => devices)
         .GroupBy(d => d.Hostname)
@@ -633,7 +653,6 @@ namespace YeelightAPI
       if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
           netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
       {
-        int retryCount = DeviceLocator.MaxRetryCount;
         IEnumerable<MulticastIPAddressInformation> multicastAddresses =
           DeviceLocator.GetMulticastIPAddressesForDiscovery(netInterface.GetIPProperties().MulticastAddresses);
 
