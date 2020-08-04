@@ -155,8 +155,11 @@ namespace YeelightAPI
             {
                 _tcpClient.Close();
                 _tcpClient = null;
-                _watchCancellationTokenSource.Cancel();
-                _watchCancellationTokenSource.Dispose();
+                try
+                {
+                    _watchCancellationTokenSource.Cancel();
+                }
+                catch (ObjectDisposedException) { }
             }
         }
 

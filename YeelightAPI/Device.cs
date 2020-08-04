@@ -467,101 +467,102 @@ namespace YeelightAPI
         /// <returns></returns>
         private async Task Watch()
         {
-            _watchCancellationTokenSource = new CancellationTokenSource();
-
-            await Task.Factory.StartNew(async () =>
+            using (_watchCancellationTokenSource = new CancellationTokenSource())
             {
-                //while device is connected
-                while (_tcpClient != null && _watchCancellationTokenSource.IsCancellationRequested == false)
+                await Task.Run(async () =>
                 {
-                    lock (_syncLock)
+                    //while device is connected
+                    while (_tcpClient != null && _watchCancellationTokenSource.IsCancellationRequested == false)
                     {
-                        if (_tcpClient != null)
+                        lock (_syncLock)
                         {
-                            //automatic re-connection
-                            if (!_tcpClient.IsConnected())
+                            if (_tcpClient != null)
                             {
-                                _tcpClient.ConnectAsync(Hostname, Port).Wait();
-                            }
-
-                            if (_tcpClient.IsConnected())
-                            {
-                                //there is data avaiblable in the pipe
-                                if (_tcpClient.Client.Available > 0)
+                                //automatic re-connection
+                                if (!_tcpClient.IsConnected())
                                 {
-                                    byte[] bytes = new byte[_tcpClient.Client.Available];
+                                    _tcpClient.ConnectAsync(Hostname, Port).Wait();
+                                }
 
-                                    //read datas
-                                    _tcpClient.Client.Receive(bytes);
-
-                                    try
+                                if (_tcpClient.IsConnected())
+                                {
+                                    //there is data avaiblable in the pipe
+                                    if (_tcpClient.Client.Available > 0)
                                     {
-                                        string datas = Encoding.UTF8.GetString(bytes);
-                                        if (!string.IsNullOrEmpty(datas))
-                                        {
-                                            //get every messages in the pipe
-                                            foreach (string entry in datas.Split(new string[] { Constants.LineSeparator },
-                                                StringSplitOptions.RemoveEmptyEntries))
-                                            {
-                                                CommandResult commandResult =
-                                                    JsonConvert.DeserializeObject<CommandResult>(entry, Constants.DeviceSerializerSettings);
-                                                if (commandResult != null && commandResult.Id != 0)
-                                                {
-                                                    ICommandResultHandler commandResultHandler;
-                                                    lock (_currentCommandResults)
-                                                    {
-                                                        if (!_currentCommandResults.TryGetValue(commandResult.Id, out commandResultHandler))
-                                                            continue; // ignore if the result can't be found
-                                                    }
+                                        byte[] bytes = new byte[_tcpClient.Client.Available];
 
-                                                    if (commandResult.Error == null)
+                                        //read datas
+                                        _tcpClient.Client.Receive(bytes);
+
+                                        try
+                                        {
+                                            string datas = Encoding.UTF8.GetString(bytes);
+                                            if (!string.IsNullOrEmpty(datas))
+                                            {
+                                                //get every messages in the pipe
+                                                foreach (string entry in datas.Split(new string[] { Constants.LineSeparator },
+                                                        StringSplitOptions.RemoveEmptyEntries))
+                                                {
+                                                    CommandResult commandResult =
+                                                        JsonConvert.DeserializeObject<CommandResult>(entry, Constants.DeviceSerializerSettings);
+                                                    if (commandResult != null && commandResult.Id != 0)
                                                     {
-                                                        commandResult = (CommandResult)JsonConvert.DeserializeObject(entry, commandResultHandler.ResultType, Constants.DeviceSerializerSettings);
-                                                        commandResultHandler.SetResult(commandResult);
+                                                        ICommandResultHandler commandResultHandler;
+                                                        lock (_currentCommandResults)
+                                                        {
+                                                            if (!_currentCommandResults.TryGetValue(commandResult.Id, out commandResultHandler))
+                                                                continue; // ignore if the result can't be found
+                                                        }
+
+                                                        if (commandResult.Error == null)
+                                                        {
+                                                            commandResult = (CommandResult)JsonConvert.DeserializeObject(entry, commandResultHandler.ResultType, Constants.DeviceSerializerSettings);
+                                                            commandResultHandler.SetResult(commandResult);
+                                                        }
+                                                        else
+                                                        {
+                                                            commandResultHandler.SetError(commandResult.Error);
+                                                        }
                                                     }
                                                     else
                                                     {
-                                                        commandResultHandler.SetError(commandResult.Error);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    NotificationResult notificationResult =
-                                                        JsonConvert.DeserializeObject<NotificationResult>(entry,
-                                                            Constants.DeviceSerializerSettings);
+                                                        NotificationResult notificationResult =
+                                                            JsonConvert.DeserializeObject<NotificationResult>(entry,
+                                                                Constants.DeviceSerializerSettings);
 
-                                                    if (notificationResult != null && notificationResult.Method != null)
-                                                    {
-                                                        if (notificationResult.Params != null)
+                                                        if (notificationResult != null && notificationResult.Method != null)
                                                         {
-                                                            //save properties
-                                                            foreach (KeyValuePair<PROPERTIES, object> property in
-                                                                notificationResult.Params)
+                                                            if (notificationResult.Params != null)
                                                             {
-                                                                this[property.Key] = property.Value;
+                                                                //save properties
+                                                                foreach (KeyValuePair<PROPERTIES, object> property in
+                                                                        notificationResult.Params)
+                                                                {
+                                                                    this[property.Key] = property.Value;
+                                                                }
                                                             }
-                                                        }
 
-                                                        //notification result
-                                                        OnNotificationReceived?.Invoke(this,
-                                                            new NotificationReceivedEventArgs(notificationResult));
+                                                            //notification result
+                                                            OnNotificationReceived?.Invoke(this,
+                                                                    new NotificationReceivedEventArgs(notificationResult));
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        OnError?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
+                                        catch (Exception ex)
+                                        {
+                                            OnError?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    await Task.Delay(100);
-                }
-            }, _watchCancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                        await Task.Delay(100);
+                    }
+                }, _watchCancellationTokenSource.Token);
+            }
         }
 
         /// <summary>
