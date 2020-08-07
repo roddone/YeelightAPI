@@ -45,6 +45,18 @@ namespace YeelightAPI.UnitTests
         }
 
         [Fact]
+        public async Task Discovery_should_find_devices_with_multiple_tries()
+        {
+            int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
+
+            DeviceLocator.MaxRetryCount = 3;
+            var devices = (await DeviceLocator.DiscoverAsync()).ToList();
+            DeviceLocator.MaxRetryCount = 1;
+
+            Assert.Equal(expectedDevicesCount, devices?.Count);
+        }
+
+        [Fact]
         public async Task Discovery_should_throw_when_using_wrong_multicast_address()
         {
             int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
