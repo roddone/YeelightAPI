@@ -227,21 +227,6 @@ namespace YeelightAPI
 
         #region PUBLIC METHODS
 
-        #region IDisposable
-
-        /// <summary>
-        /// Dispose the device
-        /// </summary>
-        public void Dispose()
-        {
-            lock (_syncLock)
-            {
-                Disconnect();
-            }
-        }
-
-        #endregion IDisposable
-
         /// <summary>
         /// Execute a command
         /// </summary>
@@ -575,5 +560,39 @@ namespace YeelightAPI
         }
 
         #endregion PRIVATE METHODS
+
+        #region IDisposable
+
+        private void ReleaseUnmanagedResources()
+        {
+            // TODO release unmanaged resources here
+        }
+
+        private void Dispose(bool disposing)
+        {
+            ReleaseUnmanagedResources();
+            if (disposing)
+            {
+                lock (_syncLock)
+                {
+                    Disconnect();
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <inheritdoc />
+        ~Device()
+        {
+            Dispose(false);
+        }
+
+        #endregion IDisposable
     }
 }
