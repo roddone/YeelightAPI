@@ -301,15 +301,15 @@ namespace YeelightAPI
               .Select(
                 async networkInterface => await DeviceLocator.SearchNetworkForDevicesAsync(networkInterface, deviceFoundReporter, cancellationToken));
 
-            DiscoveryResult[] result = await Task.WhenAll(tasks);
+            DiscoveryResult[] results = await Task.WhenAll(tasks);
 
             //no results and exceptions has occured
-            if (result.All(r => !r.HasResult && r.HasError))
+            if (results.All(result => !result.HasResult && result.HasError))
             {
-                throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.", result.SelectMany(r => r.Exceptions.SelectMany(e => e.SocketExceptions)));
+                throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.", results.SelectMany(result => result.Exceptions.SelectMany(e => e.SocketExceptions)));
             }
 
-            return result
+            return results
               .SelectMany(d => d.Devices)
               .GroupBy(d => d.Hostname)
               .Select(g => g.FirstOrDefault());
