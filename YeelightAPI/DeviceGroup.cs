@@ -104,6 +104,11 @@ namespace YeelightAPI
             return result;
         }
 
+        public override string ToString()
+        {
+            return $"{this.Name} ({this.Count} devices)";
+        }
+
         #endregion Protected Methods
     }
 }

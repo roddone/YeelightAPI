@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -36,6 +37,11 @@ namespace YeelightAPI
         /// TCP client used to communicate with the device
         /// </summary>
         private TcpClient _tcpClient;
+
+        /// <summary>
+        /// Cancellation token source for the Watch task
+        /// </summary>
+        private CancellationTokenSource _watchCancellationTokenSource;
 
         #endregion PRIVATE ATTRIBUTES
 
@@ -89,6 +95,11 @@ namespace YeelightAPI
                 return _tcpClient != null && _tcpClient.IsConnected();
             }
         }
+
+        /// <summary>
+        /// Indicate wether the music mode is enabled
+        /// </summary>
+        public bool IsMusicModeEnabled { get; private set; }
 
         /// <summary>
         /// The model.
@@ -216,21 +227,6 @@ namespace YeelightAPI
 
         #region PUBLIC METHODS
 
-        #region IDisposable
-
-        /// <summary>
-        /// Dispose the device
-        /// </summary>
-        public void Dispose()
-        {
-            lock (_syncLock)
-            {
-                Disconnect();
-            }
-        }
-
-        #endregion IDisposable
-
         /// <summary>
         /// Execute a command
         /// </summary>
@@ -251,6 +247,15 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)
         {
+            if (IsMusicModeEnabled)
+            {
+                //music mode enabled, there will be no response, we should assume everything works
+                int uniqueId = GetUniqueIdForCommand();
+                ExecuteCommand(method, uniqueId, parameters);
+                return new CommandResult<T>() { Id = uniqueId, Error = null, IsMusicResponse = true };
+            }
+
+            //default behavior : send command and wait for response
             return await ExecuteCommandWithResponse<T>(method, GetUniqueIdForCommand(), parameters);
         }
 
@@ -261,7 +266,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{this.Model.ToString()} ({this.Hostname}:{this.Port})";
+            return $"{Model.ToString()} ({Hostname}:{Port})";
         }
 
         #endregion PUBLIC METHODS
@@ -316,9 +321,26 @@ namespace YeelightAPI
             return null;
         }
 
+        internal async Task DisableMusicModeAsync()
+        {
+            _ = await Connect();
+            IsMusicModeEnabled = false;
+
+        }
+
         #endregion INTERNAL METHODS
 
         #region PRIVATE METHODS
+
+        private static string GetLocalIpAddress()
+        {
+            using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+            {
+                socket.Connect("8.8.8.8", 65530);
+                IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
+                return endPoint.Address.ToString();
+            }
+        }
 
         /// <summary>
         /// Generate valid parameters for percent values
@@ -430,99 +452,102 @@ namespace YeelightAPI
         /// <returns></returns>
         private async Task Watch()
         {
-            await Task.Factory.StartNew(async () =>
+            using (_watchCancellationTokenSource = new CancellationTokenSource())
             {
-                //while device is connected
-                while (_tcpClient != null)
+                await Task.Run(async () =>
                 {
-                    lock (_syncLock)
+                    //while device is connected
+                    while (_tcpClient != null && _watchCancellationTokenSource.IsCancellationRequested == false)
                     {
-                        if (_tcpClient != null)
+                        lock (_syncLock)
                         {
-                            //automatic re-connection
-                            if (!_tcpClient.IsConnected())
+                            if (_tcpClient != null)
                             {
-                                _tcpClient.ConnectAsync(Hostname, Port).Wait();
-                            }
-
-                            if (_tcpClient.IsConnected())
-                            {
-                                //there is data avaiblable in the pipe
-                                if (_tcpClient.Client.Available > 0)
+                                //automatic re-connection
+                                if (!_tcpClient.IsConnected())
                                 {
-                                    byte[] bytes = new byte[_tcpClient.Client.Available];
+                                    _tcpClient.ConnectAsync(Hostname, Port).Wait();
+                                }
 
-                                    //read datas
-                                    _tcpClient.Client.Receive(bytes);
-
-                                    try
+                                if (_tcpClient.IsConnected())
+                                {
+                                    //there is data avaiblable in the pipe
+                                    if (_tcpClient.Client.Available > 0)
                                     {
-                                        string datas = Encoding.UTF8.GetString(bytes);
-                                        if (!string.IsNullOrEmpty(datas))
-                                        {
-                                            //get every messages in the pipe
-                                            foreach (string entry in datas.Split(new string[] { Constants.LineSeparator },
-                                                StringSplitOptions.RemoveEmptyEntries))
-                                            {
-                                                CommandResult commandResult =
-                                                    JsonConvert.DeserializeObject<CommandResult>(entry, Constants.DeviceSerializerSettings);
-                                                if (commandResult != null && commandResult.Id != 0)
-                                                {
-                                                    ICommandResultHandler commandResultHandler;
-                                                    lock (_currentCommandResults)
-                                                    {
-                                                        if (!_currentCommandResults.TryGetValue(commandResult.Id, out commandResultHandler))
-                                                            continue; // ignore if the result can't be found
-                                                    }
+                                        byte[] bytes = new byte[_tcpClient.Client.Available];
 
-                                                    if (commandResult.Error == null)
+                                        //read datas
+                                        _tcpClient.Client.Receive(bytes);
+
+                                        try
+                                        {
+                                            string datas = Encoding.UTF8.GetString(bytes);
+                                            if (!string.IsNullOrEmpty(datas))
+                                            {
+                                                //get every messages in the pipe
+                                                foreach (string entry in datas.Split(new string[] { Constants.LineSeparator },
+                                                        StringSplitOptions.RemoveEmptyEntries))
+                                                {
+                                                    CommandResult commandResult =
+                                                        JsonConvert.DeserializeObject<CommandResult>(entry, Constants.DeviceSerializerSettings);
+                                                    if (commandResult != null && commandResult.Id != 0)
                                                     {
-                                                        commandResult = (CommandResult)JsonConvert.DeserializeObject(entry, commandResultHandler.ResultType, Constants.DeviceSerializerSettings);
-                                                        commandResultHandler.SetResult(commandResult);
+                                                        ICommandResultHandler commandResultHandler;
+                                                        lock (_currentCommandResults)
+                                                        {
+                                                            if (!_currentCommandResults.TryGetValue(commandResult.Id, out commandResultHandler))
+                                                                continue; // ignore if the result can't be found
+                                                        }
+
+                                                        if (commandResult.Error == null)
+                                                        {
+                                                            commandResult = (CommandResult)JsonConvert.DeserializeObject(entry, commandResultHandler.ResultType, Constants.DeviceSerializerSettings);
+                                                            commandResultHandler.SetResult(commandResult);
+                                                        }
+                                                        else
+                                                        {
+                                                            commandResultHandler.SetError(commandResult.Error);
+                                                        }
                                                     }
                                                     else
                                                     {
-                                                        commandResultHandler.SetError(commandResult.Error);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    NotificationResult notificationResult =
-                                                        JsonConvert.DeserializeObject<NotificationResult>(entry,
-                                                            Constants.DeviceSerializerSettings);
+                                                        NotificationResult notificationResult =
+                                                            JsonConvert.DeserializeObject<NotificationResult>(entry,
+                                                                Constants.DeviceSerializerSettings);
 
-                                                    if (notificationResult != null && notificationResult.Method != null)
-                                                    {
-                                                        if (notificationResult.Params != null)
+                                                        if (notificationResult != null && notificationResult.Method != null)
                                                         {
-                                                            //save properties
-                                                            foreach (KeyValuePair<PROPERTIES, object> property in
-                                                                notificationResult.Params)
+                                                            if (notificationResult.Params != null)
                                                             {
-                                                                this[property.Key] = property.Value;
+                                                                //save properties
+                                                                foreach (KeyValuePair<PROPERTIES, object> property in
+                                                                        notificationResult.Params)
+                                                                {
+                                                                    this[property.Key] = property.Value;
+                                                                }
                                                             }
-                                                        }
 
-                                                        //notification result
-                                                        OnNotificationReceived?.Invoke(this,
-                                                            new NotificationReceivedEventArgs(notificationResult));
+                                                            //notification result
+                                                            OnNotificationReceived?.Invoke(this,
+                                                                    new NotificationReceivedEventArgs(notificationResult));
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        OnError?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
+                                        catch (Exception ex)
+                                        {
+                                            OnError?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    await Task.Delay(100);
-                }
-            }, TaskCreationOptions.LongRunning);
+                        await Task.Delay(100);
+                    }
+                }, _watchCancellationTokenSource.Token);
+            }
         }
 
         /// <summary>
@@ -535,5 +560,39 @@ namespace YeelightAPI
         }
 
         #endregion PRIVATE METHODS
+
+        #region IDisposable
+
+        private void ReleaseUnmanagedResources()
+        {
+            // TODO release unmanaged resources here
+        }
+
+        private void Dispose(bool disposing)
+        {
+            ReleaseUnmanagedResources();
+            if (disposing)
+            {
+                lock (_syncLock)
+                {
+                    Disconnect();
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <inheritdoc />
+        ~Device()
+        {
+            Dispose(false);
+        }
+
+        #endregion IDisposable
     }
 }
