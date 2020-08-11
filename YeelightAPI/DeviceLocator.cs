@@ -299,17 +299,17 @@ namespace YeelightAPI
             IEnumerable<Task<DiscoveryResult>> tasks = NetworkInterface.GetAllNetworkInterfaces()
               .Where(networkInterface => networkInterface.OperationalStatus == OperationalStatus.Up)
               .Select(
-                networkInterface => DeviceLocator.SearchNetworkForDevicesAsync(networkInterface, deviceFoundReporter, cancellationToken));
+                async networkInterface => await DeviceLocator.SearchNetworkForDevicesAsync(networkInterface, deviceFoundReporter, cancellationToken));
 
-            DiscoveryResult[] result = await Task.WhenAll(tasks);
+            DiscoveryResult[] results = await Task.WhenAll(tasks);
 
             //no results and exceptions has occured
-            if (!result.Any(r => r.Devices.Any()) && result.Any(r => r.Exceptions.Any()))
+            if (results.All(result => !result.HasResult && result.HasError))
             {
-                throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.", result.SelectMany(r => r.Exceptions.SelectMany(e => e.SocketExceptions)));
+                throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.", results.SelectMany(result => result.Exceptions.SelectMany(e => e.SocketExceptions)));
             }
 
-            return result
+            return results
               .SelectMany(d => d.Devices)
               .GroupBy(d => d.Hostname)
               .Select(g => g.FirstOrDefault());
@@ -418,11 +418,35 @@ namespace YeelightAPI
           NetworkInterface networkInterface,
           [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            await foreach (Device device in DeviceLocator.EnumerateNetworkInterfacesAsync(networkInterface, cancellationToken)
+            var aggregatedExceptions = new List<DeviceDiscoveryException>();
+            int resultCount = 0;
+            await foreach (DiscoveryResult discoveryResult in DeviceLocator.EnumerateNetworkInterfacesAsync(networkInterface, cancellationToken)
             )
             {
+                resultCount++;
+
                 cancellationToken.ThrowIfCancellationRequested();
-                yield return device;
+
+                if (discoveryResult.HasError 
+                    && !discoveryResult.HasResult)
+                {
+                    aggregatedExceptions.AddRange(discoveryResult.Exceptions);
+                  continue;
+                }
+
+                if (!discoveryResult.HasResult)
+                {
+                    continue;
+                }
+
+                yield return discoveryResult.Devices.FirstOrDefault();
+            }
+
+            // Throw if all results failed with a SocketException
+            if (aggregatedExceptions.Any() 
+                && resultCount == aggregatedExceptions.Count)
+            {
+                throw new DeviceDiscoveryException("An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.", aggregatedExceptions.SelectMany(deviceDiscoveryException => deviceDiscoveryException.SocketExceptions));
             }
         }
 
@@ -433,7 +457,7 @@ namespace YeelightAPI
         /// <param name="netInterface"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private static async IAsyncEnumerable<Device> EnumerateNetworkInterfacesAsync(
+        private static async IAsyncEnumerable<DiscoveryResult> EnumerateNetworkInterfacesAsync(
           NetworkInterface netInterface,
           [EnumeratorCancellation] CancellationToken cancellationToken)
         {
@@ -456,18 +480,18 @@ namespace YeelightAPI
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                await foreach (Device device in DeviceLocator.EnumerateMulticastAddressesAsync(
+                await foreach (DiscoveryResult discoveryResult in DeviceLocator.EnumerateMulticastAddressesAsync(
                   multicastAddresses,
                   unicastIpAddressInformation,
                   cancellationToken))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    yield return device;
+                    yield return discoveryResult;
                 }
             }
         }
 
-        private static async IAsyncEnumerable<Device> EnumerateMulticastAddressesAsync(
+        private static async IAsyncEnumerable<DiscoveryResult> EnumerateMulticastAddressesAsync(
           IEnumerable<MulticastIPAddressInformation> multicastIPAddresses,
           UnicastIPAddressInformation ip,
           [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -510,7 +534,7 @@ namespace YeelightAPI
                           cancellationToken))
                         {
                             discoveredDevicesCount++;
-                            yield return device;
+                            yield return new DiscoveryResult(new []{device}); 
                         }
                     }
                 }
@@ -518,10 +542,15 @@ namespace YeelightAPI
 
             if (discoveredDevicesCount == 0 && socketExceptions.Any())
             {
-                throw new DeviceDiscoveryException(
-                  "An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.",
-                  socketExceptions);
+                yield return new DiscoveryResult(
+                  new[]
+                  {
+                    new DeviceDiscoveryException(
+                      "An error occurred during accessing a network socket. See the exception's property 'SocketExceptions' for more details.",
+                      socketExceptions)
+                  });
             }
+
         }
 
         private static async IAsyncEnumerable<Device> EnumerateSocketDevicesAsync(
