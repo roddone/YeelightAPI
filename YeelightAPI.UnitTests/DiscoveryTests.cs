@@ -83,16 +83,6 @@ namespace YeelightAPI.UnitTests
         }
 
         [Fact]
-        public async Task Discovery_obsolete_should_not_last_long()
-        {
-            Stopwatch sw = Stopwatch.StartNew();
-            _ = await DeviceLocator.Discover();
-            sw.Stop();
-
-            Assert.InRange(sw.ElapsedMilliseconds, 0, 1500);
-        }
-
-        [Fact]
         public async Task Discovery_should_not_last_long()
         {
             Stopwatch sw = Stopwatch.StartNew();

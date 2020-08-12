@@ -13,7 +13,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YeelightAPI.Core;
-using YeelightAPI.Events;
 using YeelightAPI.Models;
 
 #endregion
@@ -33,9 +32,6 @@ namespace YeelightAPI
 
         #region Private Fields
 
-        private const string _defaultSsdpMessage =
-          "M-SEARCH * HTTP/1.1\r\nHOST: 239.255.255.250:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
-
         private const string _ssdpMessage =
           "M-SEARCH * HTTP/1.1\r\nHOST: {0}:1982\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb";
 
@@ -43,12 +39,6 @@ namespace YeelightAPI
         private static readonly List<object> _allPropertyRealNames = PROPERTIES.ALL.GetRealNames();
         private static readonly char[] _colon = { ':' };
         private static readonly string _defaultMulticastIPAddress = "239.255.255.250";
-
-        private static readonly IPEndPoint _multicastEndPoint = new IPEndPoint(
-          IPAddress.Parse(DeviceLocator._defaultMulticastIPAddress),
-          1982);
-
-        private static readonly byte[] _ssdpDiagram = Encoding.ASCII.GetBytes(DeviceLocator._defaultSsdpMessage);
         private static readonly string _yeelightlocationMatch = "Location: yeelight://";
 
         #endregion Private Fields
@@ -75,183 +65,6 @@ namespace YeelightAPI
         ///   configurations
         /// </summary>
         public static string DefaultMulticastIPAddress { get; set; } = DeviceLocator._defaultMulticastIPAddress;
-
-        #region Depricated API. TODO: Remove
-
-        /// <summary>
-        ///   Notification Received event
-        /// </summary>
-        [Obsolete("Deprecated. Event will be removed in next release.")]
-        public static event DeviceFoundEventHandler OnDeviceFound;
-
-        /// <summary>
-        ///   Notification Received event handler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        [Obsolete("Deprecated. Event will be removed in next release.")]
-        public delegate void DeviceFoundEventHandler(object sender, DeviceFoundEventArgs e);
-
-        #region Public Methods
-
-        /// <summary>
-        ///   Discover devices in a specific Network Interface
-        /// </summary>
-        /// <param name="preferredInterface"></param>
-        /// <returns></returns>
-        [Obsolete("Deprecated. Use DiscoverAsync and overloads instead.")]
-        public static async Task<List<Device>> Discover(NetworkInterface preferredInterface)
-        {
-            List<Task<List<Device>>> tasks = DeviceLocator.CreateDiscoverTasks(
-              preferredInterface,
-              DeviceLocator.MaxRetryCount);
-
-            List<Device>[] result = await Task.WhenAll(tasks);
-            return result
-              .SelectMany(devices => devices)
-              .GroupBy(d => d.Hostname)
-              .Select(g => g.First())
-              .ToList();
-        }
-
-        /// <summary>
-        ///   Discover devices in LAN
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete("Deprecated. Use DiscoverAsync and overloads instead.")]
-        public static async Task<List<Device>> Discover()
-        {
-            var tasks = new List<Task<List<Device>>>();
-            int retryCount = DeviceLocator.MaxRetryCount;
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces()
-              .Where(n => n.OperationalStatus == OperationalStatus.Up))
-            {
-                tasks.AddRange(DeviceLocator.CreateDiscoverTasks(ni, retryCount));
-            }
-
-
-            List<Device>[] result = await Task.WhenAll(tasks);
-            return result
-              .SelectMany(devices => devices)
-              .GroupBy(d => d.Hostname)
-              .Select(g => g.First())
-              .ToList();
-        }
-
-        #endregion Public Methods
-
-        #region Private Methods
-
-        /// <summary>
-        ///   Create Discovery tasks for a specific Network Interface
-        /// </summary>
-        /// <param name="netInterface"></param>
-        /// <param name="retryCount">Number of retries when lookup fails.</param>
-        /// <returns></returns>
-        [Obsolete("Deprecated. Use SearchNetworkForDevicesAsync instead")]
-        private static List<Task<List<Device>>> CreateDiscoverTasks(NetworkInterface netInterface, int retryCount)
-        {
-            var devices = new ConcurrentDictionary<string, Device>();
-            var tasks = new List<Task<List<Device>>>();
-
-            if (netInterface.NetworkInterfaceType != NetworkInterfaceType.Wireless80211 &&
-                netInterface.NetworkInterfaceType != NetworkInterfaceType.Ethernet)
-            {
-                return tasks;
-            }
-
-            foreach (UnicastIPAddressInformation ip in netInterface.GetIPProperties().UnicastAddresses)
-            {
-                if (ip.Address.AddressFamily != AddressFamily.InterNetwork)
-                {
-                    continue;
-                }
-
-                for (var count = 0; count < retryCount; count++)
-                {
-                    Task<List<Device>> t = Task.Run(
-                      async () =>
-                      {
-                          var stopWatch = new Stopwatch();
-                          try
-                          {
-                              using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
-                              {
-                                  Blocking = false,
-                                  Ttl = 1,
-                                  UseOnlyOverlappedIO = true,
-                                  MulticastLoopback = false
-                              })
-                              {
-                                  ssdpSocket.Bind(new IPEndPoint(ip.Address, 0));
-                                  ssdpSocket.SetSocketOption(
-                          SocketOptionLevel.IP,
-                          SocketOptionName.AddMembership,
-                          new MulticastOption(DeviceLocator._multicastEndPoint.Address));
-
-                                  ssdpSocket.SendTo(
-                          DeviceLocator._ssdpDiagram,
-                          SocketFlags.None,
-                          DeviceLocator._multicastEndPoint);
-
-                                  stopWatch.Start();
-                                  while (stopWatch.Elapsed < TimeSpan.FromSeconds(1))
-                                  {
-                                      try
-                                      {
-                                          int available = ssdpSocket.Available;
-
-                                          if (available > 0)
-                                          {
-                                              var buffer = new byte[available];
-                                              int i = ssdpSocket.Receive(buffer, SocketFlags.None);
-
-                                              if (i > 0)
-                                              {
-                                                  string response = Encoding.UTF8.GetString(buffer.Take(i).ToArray());
-                                                  Device device = DeviceLocator.GetDeviceInformationFromSsdpMessage(response);
-
-                                                  //add only if no device already matching
-                                                  if (devices.TryAdd(device.Hostname, device))
-                                                  {
-                                                      DeviceLocator.OnDeviceFound?.Invoke(null, new DeviceFoundEventArgs(device));
-                                                  }
-                                              }
-                                          }
-                                      }
-                                      catch (SocketException)
-                                      {
-                                          // Continue polling
-                                      }
-
-                                      await Task.Delay(TimeSpan.FromMilliseconds(DeviceLocator.RetryDelayInMilliseconds));
-                                  }
-
-                                  stopWatch.Stop();
-                              }
-                          }
-                          catch (SocketException)
-                          {
-                              return devices.Values.ToList();
-                          }
-                          finally
-                          {
-                              stopWatch.Stop();
-                          }
-
-                          return devices.Values.ToList();
-                      });
-
-                    tasks.Add(t);
-                }
-            }
-
-            return tasks;
-        }
-
-        #endregion Depricated API. TODO: Remove
-
-        #endregion Depricated API. TODO: Remove
 
         #region Async API Methods
 
