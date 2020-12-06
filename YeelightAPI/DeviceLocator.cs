@@ -282,7 +282,7 @@ namespace YeelightAPI
                 yield break;
             }
 
-            IEnumerable<MulticastIPAddressInformation> multicastAddresses =
+            IEnumerable<IPAddress> multicastAddresses =
               DeviceLocator.GetMulticastIPAddressesForDiscovery(netInterface.GetIPProperties().MulticastAddresses);
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -305,7 +305,7 @@ namespace YeelightAPI
         }
 
         private static async IAsyncEnumerable<DiscoveryResult> EnumerateMulticastAddressesAsync(
-          IEnumerable<MulticastIPAddressInformation> multicastIPAddresses,
+          IEnumerable<IPAddress> multicastIPAddresses,
           UnicastIPAddressInformation ip,
           [EnumeratorCancellation] CancellationToken cancellationToken)
         {
@@ -314,7 +314,7 @@ namespace YeelightAPI
             for (var count = 0; count < DeviceLocator.MaxRetryCount; count++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                foreach (MulticastIPAddressInformation mca in multicastIPAddresses)
+                foreach (IPAddress mca in multicastIPAddresses)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     Socket ssdpSocket = null;
@@ -334,7 +334,7 @@ namespace YeelightAPI
 
                     using (ssdpSocket)
                     {
-                        var multicastIPEndpoint = new IPEndPoint(mca.Address, 1982);
+                        var multicastIPEndpoint = new IPEndPoint(mca, 1982);
                         cancellationToken.ThrowIfCancellationRequested();
 
                         DeviceLocator.InitializeSocket(multicastIPEndpoint, ip, ssdpSocket);
@@ -445,24 +445,22 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="multicastIPAddresses"></param>
         /// <returns></returns>
-        private static IEnumerable<MulticastIPAddressInformation> GetMulticastIPAddressesForDiscovery(
+        private static IEnumerable<IPAddress> GetMulticastIPAddressesForDiscovery(
           MulticastIPAddressInformationCollection multicastIPAddresses)
         {
             if (DeviceLocator.UseAllAvailableMulticastAddresses)
             {
                 //return all available multicast addresses
-                return multicastIPAddresses.Where(m => m.Address.AddressFamily == AddressFamily.InterNetwork);
+                return multicastIPAddresses.Where(m => m.Address.AddressFamily == AddressFamily.InterNetwork).Select(address => address.Address);
             }
 
             //return default multicast address only
-            MulticastIPAddressInformation multicastIpAddressesForDiscovery =
+            return new[]
+            {
               multicastIPAddresses.FirstOrDefault(
                 m => m.Address.AddressFamily == AddressFamily.InterNetwork &&
-                     m.Address.Equals(IPAddress.Parse(DeviceLocator.DefaultMulticastIPAddress)));
-
-            return multicastIpAddressesForDiscovery == null
-              ? new MulticastIPAddressInformation[] { }
-              : new[] { multicastIpAddressesForDiscovery };
+                     m.Address.Equals(IPAddress.Parse(DeviceLocator.DefaultMulticastIPAddress)))?.Address
+            };
         }
 
         /// <summary>
@@ -482,7 +480,7 @@ namespace YeelightAPI
             if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
                 netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
             {
-                IEnumerable<MulticastIPAddressInformation> multicastAddresses =
+                IEnumerable<IPAddress> multicastAddresses =
                   DeviceLocator.GetMulticastIPAddressesForDiscovery(netInterface.GetIPProperties().MulticastAddresses);
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -524,7 +522,7 @@ namespace YeelightAPI
         }
 
         private static IEnumerable<Device> CheckSocketForDevices(
-          IEnumerable<MulticastIPAddressInformation> multicastIPAddresses,
+          IEnumerable<IPAddress> multicastIPAddresses,
           UnicastIPAddressInformation ip,
           IProgress<Device> deviceFoundCallback,
           CancellationToken cancellationToken)
@@ -534,14 +532,14 @@ namespace YeelightAPI
             for (var count = 0; count < DeviceLocator.MaxRetryCount; count++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                foreach (MulticastIPAddressInformation mca in multicastIPAddresses)
+                foreach (IPAddress mca in multicastIPAddresses)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     try
                     {
                         using (var ssdpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
                         {
-                            var multicastIPEndpoint = new IPEndPoint(mca.Address, 1982);
+                            var multicastIPEndpoint = new IPEndPoint(mca, 1982);
                             cancellationToken.ThrowIfCancellationRequested();
 
                             DeviceLocator.InitializeSocket(multicastIPEndpoint, ip, ssdpSocket);
