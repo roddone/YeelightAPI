@@ -457,9 +457,7 @@ namespace YeelightAPI
             //return default multicast address only
             return new[]
             {
-              multicastIPAddresses.FirstOrDefault(
-                m => m.Address.AddressFamily == AddressFamily.InterNetwork &&
-                     m.Address.Equals(IPAddress.Parse(DeviceLocator.DefaultMulticastIPAddress)))?.Address
+                IPAddress.Parse(DefaultMulticastIPAddress)
             };
         }
 
