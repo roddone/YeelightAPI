@@ -27,7 +27,7 @@ namespace YeelightAPI.UnitTests
         {
             int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
             int count = 0;
-            await foreach(var device in DeviceLocator.DiscoverAndEnumerateAsync())
+            await foreach(Device device in DeviceLocator.EnumerateDevicesAsync())
             {
                 ++count;
             }
@@ -40,6 +40,18 @@ namespace YeelightAPI.UnitTests
         {
             int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
             var devices = (await DeviceLocator.DiscoverAsync()).ToList();
+
+            Assert.Equal(expectedDevicesCount, devices?.Count);
+        }
+
+        [Fact]
+        public async Task Discovery_should_find_devices_with_multiple_tries()
+        {
+            int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
+
+            DeviceLocator.MaxRetryCount = 3;
+            var devices = (await DeviceLocator.DiscoverAsync()).ToList();
+            DeviceLocator.MaxRetryCount = 1;
 
             Assert.Equal(expectedDevicesCount, devices?.Count);
         }
@@ -68,16 +80,6 @@ namespace YeelightAPI.UnitTests
             var devices = (await DeviceLocator.DiscoverAsync()).ToList();
 
             Assert.Equal(expectedDevicesCount, devices?.Count);
-        }
-
-        [Fact]
-        public async Task Discovery_obsolete_should_not_last_long()
-        {
-            Stopwatch sw = Stopwatch.StartNew();
-            _ = await DeviceLocator.Discover();
-            sw.Stop();
-
-            Assert.InRange(sw.ElapsedMilliseconds, 0, 1500);
         }
 
         [Fact]

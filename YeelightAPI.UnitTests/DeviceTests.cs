@@ -23,11 +23,13 @@ namespace YeelightAPI.UnitTests
         [Fact]
         public async Task Device_should_turnon_and_turnoff()
         {
-            Device testedDevice = await GetRandomConnectedDevice();
-            await testedDevice.TurnOn();
-            Assert.Equal("on", await testedDevice.GetProp(PROPERTIES.power));
-            await testedDevice.TurnOff();
-            Assert.Equal("off", await testedDevice.GetProp(PROPERTIES.power));
+            using (Device testedDevice = await GetRandomConnectedDevice())
+            {
+                await testedDevice.TurnOn();
+                Assert.Equal("on", await testedDevice.GetProp(PROPERTIES.power));
+                await testedDevice.TurnOff();
+                Assert.Equal("off", await testedDevice.GetProp(PROPERTIES.power));
+            }
         }
 
         [Fact]
@@ -67,12 +69,14 @@ namespace YeelightAPI.UnitTests
 
         private async Task DoWithRandomDevice(Action<Device> a, METHODS? supportedMethod = null)
         {
-            Device testedDevice = await GetRandomConnectedDevice(supportedMethod);
-            await testedDevice.TurnOn();
+            using (Device testedDevice = await GetRandomConnectedDevice(supportedMethod))
+            {
+                await testedDevice.TurnOn();
 
-            a?.Invoke(testedDevice);
+                a?.Invoke(testedDevice);
 
-            await testedDevice.TurnOff();
+                await testedDevice.TurnOff();
+            }
         }
 
         private async Task<Device> GetRandomConnectedDevice(METHODS? supportedMethod = null)
