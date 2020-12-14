@@ -155,6 +155,11 @@ namespace YeelightAPI
             {
                 _tcpClient.Close();
                 _tcpClient = null;
+                try
+                {
+                    _watchCancellationTokenSource.Cancel();
+                }
+                catch (ObjectDisposedException) { }
             }
         }
 
@@ -332,16 +337,33 @@ namespace YeelightAPI
         /// <summary>
         /// Starts the music mode
         /// </summary>
-        /// <param name="hostName"></param>
+        /// <param name="hostname"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        public async Task<bool> StartMusicMode(string hostName, int port)
+        public async Task<bool> StartMusicMode(string hostname = null, int port = 12345)
         {
-            List<object> parameters = new List<object>() { (int)MusicAction.On, hostName, port };
+            this.IsMusicModeEnabled = true;
+            //init new TCP socket
+            if (string.IsNullOrWhiteSpace(hostname))
+            {
+                hostname = GetLocalIpAddress();
+            }
+
+            var listener = new TcpListener(System.Net.IPAddress.Parse(hostname), port);
+            listener.Start();
+
+            List<object> parameters = new List<object>() { (int)MusicAction.On, hostname, port };
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetMusicMode,
                             parameters: parameters);
+
+            if (result.IsOk())
+            {
+                this.Disconnect();
+                var musicTcpClient = await listener.AcceptTcpClientAsync();
+                _tcpClient = musicTcpClient;
+            }
 
             return result.IsOk();
         }
@@ -370,7 +392,15 @@ namespace YeelightAPI
                             method: METHODS.SetMusicMode,
                             parameters: parameters);
 
-            return result.IsOk();
+            if (result.IsOk())
+            {
+                //disables the music mode
+                this.IsMusicModeEnabled = false;
+                await DisableMusicModeAsync();
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
