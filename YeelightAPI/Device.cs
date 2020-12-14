@@ -266,7 +266,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{Model.ToString()} ({Hostname}:{Port})";
+            return $"{this.Model} ({this.Hostname}:{this.Port})";
         }
 
         #endregion PUBLIC METHODS
