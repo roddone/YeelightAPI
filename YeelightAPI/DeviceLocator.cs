@@ -283,7 +283,7 @@ namespace YeelightAPI
             }
 
             IEnumerable<IPAddress> multicastAddresses =
-              DeviceLocator.GetMulticastIPAddressesForDiscovery(netInterface.GetIPProperties().MulticastAddresses);
+              DeviceLocator.GetMulticastIPAddressesForDiscovery(netInterface);
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -443,15 +443,17 @@ namespace YeelightAPI
         /// <summary>
         ///   Get the multicast addresses used by the discovery, according to the configurations
         /// </summary>
-        /// <param name="multicastIPAddresses"></param>
+        /// <param name="networkInterface"></param>
         /// <returns></returns>
         private static IEnumerable<IPAddress> GetMulticastIPAddressesForDiscovery(
-          MulticastIPAddressInformationCollection multicastIPAddresses)
+          NetworkInterface networkInterface)
         {
             if (DeviceLocator.UseAllAvailableMulticastAddresses)
             {
                 //return all available multicast addresses
-                return multicastIPAddresses.Where(m => m.Address.AddressFamily == AddressFamily.InterNetwork).Select(address => address.Address);
+                return networkInterface.GetIPProperties()
+                    .MulticastAddresses.Where(m => m.Address.AddressFamily == AddressFamily.InterNetwork)
+                    .Select(address => address.Address);
             }
 
             //return default multicast address only
@@ -479,7 +481,7 @@ namespace YeelightAPI
                 netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
             {
                 IEnumerable<IPAddress> multicastAddresses =
-                  DeviceLocator.GetMulticastIPAddressesForDiscovery(netInterface.GetIPProperties().MulticastAddresses);
+                  DeviceLocator.GetMulticastIPAddressesForDiscovery(netInterface);
 
                 cancellationToken.ThrowIfCancellationRequested();
                 ConcurrentBag<DeviceDiscoveryException> exceptions = new ConcurrentBag<DeviceDiscoveryException>();
