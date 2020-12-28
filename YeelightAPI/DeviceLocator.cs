@@ -179,7 +179,7 @@ namespace YeelightAPI
           CancellationToken cancellationToken) =>
           (await DeviceLocator.SearchNetworkForDevicesAsync(networkInterface, deviceFoundReporter, cancellationToken)).Devices;
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NET5_0
         /// <summary>
         ///   Enumerate devices asynchronously.
         /// </summary>
