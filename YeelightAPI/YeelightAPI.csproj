@@ -4,19 +4,19 @@
     <TargetFrameworks> netstandard2.0; netstandard2.1; net45; net46; net47; net48; net5.0</TargetFrameworks>
     <Authors>Romain ODDONE</Authors>
     <Company>Romain ODDONE</Company>
-    <Version>1.10.1</Version>
+    <Version>1.10.2</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/roddone/YeelightAPI</PackageProjectUrl>
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
-    <PackageReleaseNotes>* [Device] fix an exception that might occur in some cases when disposing device</PackageReleaseNotes>
+    <PackageReleaseNotes>* [Device] fix an error that caused the device to be considered in music mode even if the SetMusicMode failed</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
     <Copyright>Copyright © Romain ODDONE 2021</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyVersion>1.10.1.0</AssemblyVersion>
-    <FileVersion>1.10.1.0</FileVersion>
+    <AssemblyVersion>1.10.2.0</AssemblyVersion>
+    <FileVersion>1.10.2.0</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
