@@ -342,7 +342,6 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<bool> StartMusicMode(string hostname = null, int port = 12345)
         {
-            this.IsMusicModeEnabled = true;
             //init new TCP socket
             if (string.IsNullOrWhiteSpace(hostname))
             {
@@ -360,6 +359,7 @@ namespace YeelightAPI
 
             if (result.IsOk())
             {
+                this.IsMusicModeEnabled = true;
                 this.Disconnect();
                 var musicTcpClient = await listener.AcceptTcpClientAsync();
                 _tcpClient = musicTcpClient;
