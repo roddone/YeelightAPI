@@ -99,7 +99,16 @@ namespace YeelightAPI
         /// <summary>
         /// Indicate wether the music mode is enabled
         /// </summary>
-        public bool IsMusicModeEnabled { get; private set; }
+        [Obsolete("IsMusicModeEnabled will be removed in the next version, please use MusicMode property instead")]
+        public bool IsMusicModeEnabled
+        {
+            get => this.MusicMode.Enabled;
+        }
+
+        /// <summary>
+        /// Give informations about the music mode
+        /// </summary>
+        public MusicModeInformations MusicMode { get; private set; } = new MusicModeInformations();
 
         /// <summary>
         /// The model.
@@ -247,7 +256,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)
         {
-            if (IsMusicModeEnabled)
+            if (this.MusicMode.Enabled)
             {
                 //music mode enabled, there will be no response, we should assume everything works
                 int uniqueId = GetUniqueIdForCommand();
@@ -324,23 +333,13 @@ namespace YeelightAPI
         internal async Task DisableMusicModeAsync()
         {
             _ = await Connect();
-            IsMusicModeEnabled = false;
+            MusicMode.Enabled = false;
 
         }
 
         #endregion INTERNAL METHODS
 
         #region PRIVATE METHODS
-
-        private static string GetLocalIpAddress()
-        {
-            using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
-            {
-                socket.Connect("8.8.8.8", 65530);
-                IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
-                return endPoint.Address.ToString();
-            }
-        }
 
         /// <summary>
         /// Generate valid parameters for percent values

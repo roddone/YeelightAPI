@@ -340,15 +340,19 @@ namespace YeelightAPI
         /// <param name="hostname"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        public async Task<bool> StartMusicMode(string hostname = null, int port = 12345)
+        public async Task<bool> StartMusicMode(string hostname = null, int? port = null)
         {
             //init new TCP socket
             if (string.IsNullOrWhiteSpace(hostname))
             {
-                hostname = GetLocalIpAddress();
+                hostname = NetworkHelper.GetLocalIpAddress();
+            }
+            if (!port.HasValue)
+            {
+                port = NetworkHelper.GetNextAvailablePort(port ?? 0);
             }
 
-            var listener = new TcpListener(System.Net.IPAddress.Parse(hostname), port);
+            var listener = new TcpListener(System.Net.IPAddress.Parse(hostname), port.Value);
             listener.Start();
 
             List<object> parameters = new List<object>() { (int)MusicAction.On, hostname, port };
@@ -356,10 +360,12 @@ namespace YeelightAPI
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetMusicMode,
                             parameters: parameters);
-
+            
             if (result.IsOk())
             {
-                this.IsMusicModeEnabled = true;
+                this.MusicMode.Enabled = true;
+                this.MusicMode.HostName = hostname;
+                this.MusicMode.Port = port.Value;
                 this.Disconnect();
                 var musicTcpClient = await listener.AcceptTcpClientAsync();
                 _tcpClient = musicTcpClient;
@@ -395,8 +401,7 @@ namespace YeelightAPI
             if (result.IsOk())
             {
                 //disables the music mode
-                this.IsMusicModeEnabled = false;
-                await DisableMusicModeAsync();
+                this.MusicMode.Enabled = false;
                 return true;
             }
 
