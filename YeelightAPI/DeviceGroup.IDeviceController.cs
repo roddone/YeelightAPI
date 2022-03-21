@@ -1,4 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using YeelightAPI.Core;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
@@ -245,14 +249,37 @@ namespace YeelightAPI
         /// starts the music mode for all devices
         /// </summary>
         /// <param name="hostName"></param>
-        /// <param name="port"></param>
+        /// <param name="startingPort"></param>
         /// <returns></returns>
-        public async Task<bool> StartMusicMode(string hostName, int port)
+        public async Task<bool> StartMusicMode(string hostName, int startingPort = 0)
         {
-            return await Process((Device device) =>
+            bool result = true;
+            //this one can't be parallelized because of ports
+            foreach (var device in this)
             {
-                return device.StartMusicMode(hostName, port);
-            });
+                int port = NetworkHelper.GetNextAvailablePort();
+                result &= await device.StartMusicMode(hostName, port);
+            }
+
+            return result;
+        }
+
+        public async Task<bool> StartMusicMode(string hostName, IEnumerable<int> ports)
+        {
+            if(this.Count != ports.Count())
+            {
+                throw new InvalidDataException("Specified ports does not match with DeviceGroup length");
+            }
+
+            bool result = true;
+            //this one can't be parallelized because of ports
+            foreach (var device in this)
+            {
+                int port = ports.ElementAt(this.IndexOf(device));
+                result &= await device.StartMusicMode(hostName, port);
+            }
+
+            return result;
         }
 
         /// <summary>
