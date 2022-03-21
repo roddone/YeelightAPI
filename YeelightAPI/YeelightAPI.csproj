@@ -11,9 +11,10 @@
     <RepositoryUrl>https://github.com/roddone/YeelightAPI</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>xiaomi yeelight api bulb device iot .net c#</PackageTags>
-    <PackageReleaseNotes>* [Device] fix an error that caused the device to be considered in music mode even if the SetMusicMode failed</PackageReleaseNotes>
+    <PackageReleaseNotes>* [Device and DeviceGroup] Add more ways to handle Music Mode on Device and DeviceGroup
+	* Add more official build targets</PackageReleaseNotes>
     <Description>Xiaomi yeelight smart-devices manager</Description>
-    <Copyright>Copyright © Romain ODDONE 2021</Copyright>
+    <Copyright>Copyright © Romain ODDONE 2022</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyVersion>1.11.0.0</AssemblyVersion>
     <FileVersion>1.11.0.0</FileVersion>
