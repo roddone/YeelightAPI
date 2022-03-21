@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks> netstandard2.0; netstandard2.1; net45; net451; net452; net46; net461; net462; net47; net471; net472; net48; netcoreapp3.1; net5.0; net6.0</TargetFrameworks>
+    <TargetFrameworks> netstandard2.0; netstandard2.1; net45; net451; net452; net46; net461; net462; net47; net471; net472; net48; netcoreapp2.0; netcoreapp2.1; netcoreapp2.2; netcoreapp3.0; netcoreapp3.1; net5.0; net6.0</TargetFrameworks>
     <Authors>Romain ODDONE</Authors>
     <Company>Romain ODDONE</Company>
     <Version>1.11.0</Version>
