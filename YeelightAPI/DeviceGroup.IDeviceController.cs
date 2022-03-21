@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -246,37 +247,70 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// starts the music mode for all devices
+        /// starts the music mode for all devices, with automatic port chosing starting at <paramref name="startingPort"/>
         /// </summary>
         /// <param name="hostName"></param>
         /// <param name="startingPort"></param>
         /// <returns></returns>
-        public async Task<bool> StartMusicMode(string hostName, int startingPort = 0)
+        public async Task<bool> StartMusicMode(string hostName, int? startingPort)
         {
+            startingPort = startingPort ?? Constants.DefaultMusicModeStartingPort;
             bool result = true;
             //this one can't be parallelized because of ports
             foreach (var device in this)
             {
-                int port = NetworkHelper.GetNextAvailablePort();
+                int port = NetworkHelper.GetNextAvailablePort(startingPort.Value);
                 result &= await device.StartMusicMode(hostName, port);
             }
 
             return result;
         }
 
+        /// <summary>
+        /// starts the music mode for all device, with specified ports
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="ports"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException"></exception>
         public async Task<bool> StartMusicMode(string hostName, IEnumerable<int> ports)
         {
-            if(this.Count != ports.Count())
+            if(ports == null || ports.Count() != this.Count)
             {
                 throw new InvalidDataException("Specified ports does not match with DeviceGroup length");
+            }
+
+            bool result = true;
+            int idx = 0;
+            //this one can't be parallelized because of ports
+            foreach (var device in this)
+            {
+                int port = ports.ElementAt(idx);
+                result &= await device.StartMusicMode(hostName, port);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// starts the music mode for all device, with possibility to specify a Func that will be called for reach device to determine its port
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="portChooser"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException"></exception>
+        public async Task<bool> StartMusicMode(string hostName, Func<Device, int> portChooser)
+        {
+            if (portChooser == null)
+            {
+                throw new InvalidDataException("portChooser parameter cannot be null");
             }
 
             bool result = true;
             //this one can't be parallelized because of ports
             foreach (var device in this)
             {
-                int port = ports.ElementAt(this.IndexOf(device));
-                result &= await device.StartMusicMode(hostName, port);
+                result &= await device.StartMusicMode(hostName, portChooser);
             }
 
             return result;

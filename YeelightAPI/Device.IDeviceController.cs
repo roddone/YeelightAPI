@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using YeelightAPI.Core;
@@ -335,27 +337,28 @@ namespace YeelightAPI
         }
 
         /// <summary>
-        /// Starts the music mode
+        /// starts the music mode for all devices, with specified port (or automatic port chosing if <paramref name="startingPort"/> is null)
         /// </summary>
         /// <param name="hostname"></param>
-        /// <param name="port"></param>
+        /// <param name="startingPort"></param>
         /// <returns></returns>
-        public async Task<bool> StartMusicMode(string hostname = null, int? port = null)
+        public async Task<bool> StartMusicMode(string hostname, int? startingPort)
         {
             //init new TCP socket
             if (string.IsNullOrWhiteSpace(hostname))
             {
                 hostname = NetworkHelper.GetLocalIpAddress();
             }
-            if (!port.HasValue)
+
+            if (!startingPort.HasValue)
             {
-                port = NetworkHelper.GetNextAvailablePort(port ?? 0);
+                startingPort = NetworkHelper.GetNextAvailablePort(Constants.DefaultMusicModeStartingPort);
             }
 
-            var listener = new TcpListener(System.Net.IPAddress.Parse(hostname), port.Value);
+            var listener = new TcpListener(System.Net.IPAddress.Parse(hostname), startingPort.Value);
             listener.Start();
 
-            List<object> parameters = new List<object>() { (int)MusicAction.On, hostname, port };
+            List<object> parameters = new List<object>() { (int)MusicAction.On, hostname, startingPort.Value };
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetMusicMode,
@@ -365,13 +368,43 @@ namespace YeelightAPI
             {
                 this.MusicMode.Enabled = true;
                 this.MusicMode.HostName = hostname;
-                this.MusicMode.Port = port.Value;
+                this.MusicMode.Port = startingPort.Value;
                 this.Disconnect();
                 var musicTcpClient = await listener.AcceptTcpClientAsync();
                 _tcpClient = musicTcpClient;
             }
 
             return result.IsOk();
+        }
+
+        /// <summary>
+        /// starts the music mode for all device, with specified ports
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="ports"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException"></exception>
+        public Task<bool> StartMusicMode(string hostName, IEnumerable<int> ports)
+        {
+            if (ports == null || ports.Count() != 1)
+                throw new InvalidDataException("ports collection must have exactly one element");
+
+            return StartMusicMode(hostName, ports.First());
+        }
+
+        /// <summary>
+        /// starts the music mode for all device, with possibility to specify a Func that will be called for reach device to determine its port
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="portChooser"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException"></exception>
+        public Task<bool> StartMusicMode(string hostName, Func<Device, int> portChooser)
+        {
+            if (portChooser == null)
+                throw new InvalidDataException("portChooser parameter cannot be null");
+
+            return StartMusicMode(hostName, portChooser.Invoke(this));
         }
 
         /// <summary>
