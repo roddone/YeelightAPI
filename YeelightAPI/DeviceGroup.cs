@@ -104,6 +104,10 @@ namespace YeelightAPI
             return result;
         }
 
+        /// <summary>
+        /// To string 
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return $"{this.Name} ({this.Count} devices)";
