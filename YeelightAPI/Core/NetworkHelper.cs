@@ -8,6 +8,9 @@ using System.Text;
 
 namespace YeelightAPI.Core
 {
+    /// <summary>
+    /// Helper for networking operations
+    /// </summary>
     public static class NetworkHelper
     {
         /// <summary>

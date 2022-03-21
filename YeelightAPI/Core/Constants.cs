@@ -21,6 +21,11 @@ namespace YeelightAPI.Core
         public const int DefaultTimeout = 5000;
 
         /// <summary>
+        /// Default starting port when searching available ports for music mode
+        /// </summary>
+        public const int DefaultMusicModeStartingPort = 5000;
+
+        /// <summary>
         /// Line separator
         /// </summary>
         public const string LineSeparator = "\r\n";

@@ -1,4 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using YeelightAPI.Core;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
@@ -143,12 +147,30 @@ namespace YeelightAPI
         Task<bool> StartColorFlow(ColorFlow flow);
 
         /// <summary>
-        /// Start the music mode
+        /// starts the music mode for all devices, with automatic port chosing
         /// </summary>
         /// <param name="hostName"></param>
-        /// <param name="port"></param>
+        /// <param name="startingPort"></param>
         /// <returns></returns>
-        Task<bool> StartMusicMode(string hostName, int port);
+        Task<bool> StartMusicMode(string hostName, int? startingPort);
+
+        /// <summary>
+        /// starts the music mode for all device, with specified ports
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="ports"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException"></exception>
+        Task<bool> StartMusicMode(string hostName, IEnumerable<int> ports);
+
+        /// <summary>
+        /// starts the music mode for all device, with possibility to manually specify port for each device
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="portChooser"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException"></exception>
+        Task<bool> StartMusicMode(string hostName, Func<Device, int> portChooser);
 
         /// <summary>
         /// Stop the current color flow
