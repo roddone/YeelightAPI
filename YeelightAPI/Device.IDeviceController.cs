@@ -363,7 +363,7 @@ namespace YeelightAPI
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetMusicMode,
                             parameters: parameters);
-            
+
             if (result.IsOk())
             {
                 this.MusicMode.Enabled = true;
@@ -371,6 +371,7 @@ namespace YeelightAPI
                 this.MusicMode.Port = startingPort.Value;
                 this.Disconnect();
                 var musicTcpClient = await listener.AcceptTcpClientAsync();
+                musicTcpClient.Client.NoDelay = true;
                 _tcpClient = musicTcpClient;
             }
 
