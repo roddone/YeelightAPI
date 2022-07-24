@@ -371,7 +371,6 @@ namespace YeelightAPI
                 this.MusicMode.Port = startingPort.Value;
                 this.Disconnect();
                 var musicTcpClient = await listener.AcceptTcpClientAsync();
-                musicTcpClient.Client.NoDelay = true;
                 _tcpClient = musicTcpClient;
             }
 

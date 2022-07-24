@@ -259,6 +259,7 @@ namespace YeelightAPI
             if (this.MusicMode.Enabled)
             {
                 //music mode enabled, there will be no response, we should assume everything works
+                _tcpClient.Client.NoDelay = this.MusicMode.HighRateEnabled; //update here instead of "SetMusicMode" so it can be changed dynamically
                 int uniqueId = GetUniqueIdForCommand();
                 ExecuteCommand(method, uniqueId, parameters);
                 return new CommandResult<T>() { Id = uniqueId, Error = null, IsMusicResponse = true };

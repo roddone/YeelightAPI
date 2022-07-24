@@ -23,5 +23,10 @@ namespace YeelightAPI.Core
         /// Music mode enabled or not ?
         /// </summary>
         public bool Enabled { get; internal set; }
+
+        /// <summary>
+        /// High rate enabled or not ?
+        /// </summary>
+        public bool HighRateEnabled { get; set; }
     }
 }
