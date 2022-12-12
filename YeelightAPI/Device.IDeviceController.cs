@@ -363,7 +363,7 @@ namespace YeelightAPI
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetMusicMode,
                             parameters: parameters);
-            
+
             if (result.IsOk())
             {
                 this.MusicMode.Enabled = true;
