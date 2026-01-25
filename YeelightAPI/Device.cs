@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Text.Json;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -293,7 +293,7 @@ namespace YeelightAPI
                 Params = parameters ?? new List<object>()
             };
 
-            string data = JsonConvert.SerializeObject(command, Constants.DeviceSerializerSettings);
+            string data = JsonSerializer.Serialize(command, Constants.DeviceSerializerOptions);
             byte[] sentData = Encoding.ASCII.GetBytes(data + Constants.LineSeparator); // \r\n is the end of the message, it needs to be sent for the message to be read by the device
 
             lock (_syncLock)
@@ -489,7 +489,7 @@ namespace YeelightAPI
                                                         StringSplitOptions.RemoveEmptyEntries))
                                                 {
                                                     CommandResult commandResult =
-                                                        JsonConvert.DeserializeObject<CommandResult>(entry, Constants.DeviceSerializerSettings);
+                                                        JsonSerializer.Deserialize<CommandResult>(entry, Constants.DeviceSerializerOptions);
                                                     if (commandResult != null && commandResult.Id != 0)
                                                     {
                                                         ICommandResultHandler commandResultHandler;
@@ -501,7 +501,7 @@ namespace YeelightAPI
 
                                                         if (commandResult.Error == null)
                                                         {
-                                                            commandResult = (CommandResult)JsonConvert.DeserializeObject(entry, commandResultHandler.ResultType, Constants.DeviceSerializerSettings);
+                                                            commandResult = (CommandResult)JsonSerializer.Deserialize(entry, commandResultHandler.ResultType, Constants.DeviceSerializerOptions);
                                                             commandResultHandler.SetResult(commandResult);
                                                         }
                                                         else
@@ -512,8 +512,8 @@ namespace YeelightAPI
                                                     else
                                                     {
                                                         NotificationResult notificationResult =
-                                                            JsonConvert.DeserializeObject<NotificationResult>(entry,
-                                                                Constants.DeviceSerializerSettings);
+                                                            JsonSerializer.Deserialize<NotificationResult>(entry,
+                                                                Constants.DeviceSerializerOptions);
 
                                                         if (notificationResult != null && notificationResult.Method != null)
                                                         {

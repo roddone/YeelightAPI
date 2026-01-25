@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using YeelightAPI.Core;
 
 namespace YeelightAPI.Models

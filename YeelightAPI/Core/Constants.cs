@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
 
 namespace YeelightAPI.Core
 {
@@ -46,11 +45,12 @@ namespace YeelightAPI.Core
         public const string On = "on";
 
         /// <summary>
-        /// Serializer settings
+        /// Serializer options
         /// </summary>
-        public static readonly JsonSerializerSettings DeviceSerializerSettings = new JsonSerializerSettings()
+        public static readonly JsonSerializerOptions DeviceSerializerOptions = new JsonSerializerOptions
         {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true
         };
 
         #endregion Public Fields

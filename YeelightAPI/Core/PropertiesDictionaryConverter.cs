@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using YeelightAPI.Models;
 
 namespace YeelightAPI.Core
@@ -9,63 +9,98 @@ namespace YeelightAPI.Core
     /// <summary>
     /// custom converter for Dictionaries with PROPERTIES as key
     /// </summary>
-    public class PropertiesDictionaryConverter : JsonConverter
+    public class PropertiesDictionaryConverter : JsonConverter<Dictionary<PROPERTIES, object>>
     {
         #region Public Methods
 
         /// <summary>
-        /// Can convert
-        /// </summary>
-        /// <param name="objectType"></param>
-        /// <returns></returns>
-        public override bool CanConvert(Type objectType)
-        {
-            return true;
-        }
-
-        /// <summary>
         /// Read from JSON
         /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="objectType"></param>
-        /// <param name="existingValue"></param>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override Dictionary<PROPERTIES, object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            JObject jsonObject = JObject.Load(reader);
-            Dictionary<PROPERTIES, object> dict = new Dictionary<PROPERTIES, object>();
-
-            foreach (JProperty child in jsonObject.Children())
+            if (reader.TokenType != JsonTokenType.StartObject)
             {
-                //skip if the property is not in PROPERTIES enum
-                if (Enum.TryParse<PROPERTIES>(child.Name, out PROPERTIES prop))
+                throw new JsonException("Expected StartObject token");
+            }
+
+            var dict = new Dictionary<PROPERTIES, object>();
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
                 {
-                    //only integers and string
-                    if (child.Value.Type == JTokenType.Integer)
+                    return dict;
+                }
+
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                {
+                    throw new JsonException("Expected PropertyName token");
+                }
+
+                string propertyName = reader.GetString();
+                reader.Read();
+
+                // skip if the property is not in PROPERTIES enum
+                if (Enum.TryParse<PROPERTIES>(propertyName, out PROPERTIES prop))
+                {
+                    object value;
+                    switch (reader.TokenType)
                     {
-                        dict.Add(prop, child.ToObject(typeof(decimal)));
+                        case JsonTokenType.Number:
+                            if (reader.TryGetInt64(out long longValue))
+                            {
+                                value = (decimal)longValue;
+                            }
+                            else if (reader.TryGetDecimal(out decimal decimalValue))
+                            {
+                                value = decimalValue;
+                            }
+                            else
+                            {
+                                value = reader.GetDouble();
+                            }
+                            break;
+                        case JsonTokenType.String:
+                            value = reader.GetString();
+                            break;
+                        case JsonTokenType.True:
+                            value = true;
+                            break;
+                        case JsonTokenType.False:
+                            value = false;
+                            break;
+                        case JsonTokenType.Null:
+                            value = null;
+                            break;
+                        default:
+                            // Skip complex types
+                            reader.Skip();
+                            continue;
                     }
-                    else
-                    {
-                        dict.Add(prop, child.Value.ToString());
-                    }
+                    dict.Add(prop, value);
+                }
+                else
+                {
+                    // Skip values for properties not in the enum
+                    reader.Skip();
                 }
             }
 
-            return dict;
+            throw new JsonException("Expected EndObject token");
         }
 
         /// <summary>
         /// Write to JSON
         /// </summary>
-        /// <param name="writer"></param>
-        /// <param name="value"></param>
-        /// <param name="serializer"></param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, Dictionary<PROPERTIES, object> value, JsonSerializerOptions options)
         {
-            JToken token = JToken.FromObject(value);
-            token.WriteTo(writer);
+            writer.WriteStartObject();
+            foreach (var kvp in value)
+            {
+                writer.WritePropertyName(kvp.Key.ToString());
+                JsonSerializer.Serialize(writer, kvp.Value, options);
+            }
+            writer.WriteEndObject();
         }
 
         #endregion Public Methods
