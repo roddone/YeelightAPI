@@ -1,118 +1,136 @@
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
-using Xunit;
-using System.Linq;
 using System.Diagnostics;
 
-namespace YeelightAPI.UnitTests
+namespace YeelightAPI.UnitTests;
+
+/// <summary>
+/// Discovery tests that require actual Yeelight devices on the network.
+/// </summary>
+[NotInParallel("Integration Tests")]
+[Retry(3)] // Retry on quota exceeded errors
+public class DiscoveryTests
 {
-    public class DiscoveryTests
+    private readonly IConfigurationRoot _config;
+
+    public DiscoveryTests()
     {
-        private readonly IConfigurationRoot _config;
+        _config = new ConfigurationBuilder()
+            .AddJsonFile("config.json")
+            .Build();
+    }
 
-        public DiscoveryTests()
+    #region TESTS
+
+    [Test]
+    public async Task Discovery_enumerate_async_should_find_devices()
+    {
+        int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
+        int count = 0;
+        await foreach (Device device in DeviceLocator.EnumerateDevicesAsync())
         {
-            this._config = new ConfigurationBuilder()
-             .AddJsonFile("config.json")
-             .Build();
+            ++count;
         }
 
-        #region TESTS
+        await Assert.That(count).IsEqualTo(expectedDevicesCount);
+    }
 
-        [Fact]
-        public async Task Discovery_enumerate_async_should_find_devices()
+    [Test]
+    public async Task Discovery_should_find_devices()
+    {
+        int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
+        var devices = (await DeviceLocator.DiscoverAsync()).ToList();
+
+        await Assert.That(devices?.Count).IsEqualTo(expectedDevicesCount);
+    }
+
+    [Test]
+    public async Task Discovery_should_find_devices_with_multiple_tries()
+    {
+        int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
+
+        DeviceLocator.MaxRetryCount = 3;
+        try
         {
-            int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
-            int count = 0;
-            await foreach(Device device in DeviceLocator.EnumerateDevicesAsync())
-            {
-                ++count;
-            }
-
-            Assert.Equal(expectedDevicesCount, count);
-        }
-
-        [Fact]
-        public async Task Discovery_should_find_devices()
-        {
-            int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
             var devices = (await DeviceLocator.DiscoverAsync()).ToList();
-
-            Assert.Equal(expectedDevicesCount, devices?.Count);
+            await Assert.That(devices?.Count).IsEqualTo(expectedDevicesCount);
         }
-
-        [Fact]
-        public async Task Discovery_should_find_devices_with_multiple_tries()
+        finally
         {
-            int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
-
-            DeviceLocator.MaxRetryCount = 3;
-            var devices = (await DeviceLocator.DiscoverAsync()).ToList();
             DeviceLocator.MaxRetryCount = 1;
-
-            Assert.Equal(expectedDevicesCount, devices?.Count);
         }
+    }
 
-        [Fact]
-        public async Task Discovery_should_throw_when_using_wrong_multicast_address()
+    [Test]
+    public async Task Discovery_should_throw_when_using_wrong_multicast_address()
+    {
+        string initialMulticastAddress = DeviceLocator.DefaultMulticastIPAddress;
+        bool initialUseAllAddresses = DeviceLocator.UseAllAvailableMulticastAddresses;
+
+        try
         {
-            int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
-            string initialMulticastAddress = DeviceLocator.DefaultMulticastIPAddress;
+            DeviceLocator.UseAllAvailableMulticastAddresses = false;
             DeviceLocator.DefaultMulticastIPAddress = "foo";
 
-            _ = await Assert.ThrowsAsync<FormatException>(async () =>
-              {
-                  _ = (await DeviceLocator.DiscoverAsync()).ToList();
-              });
-
-            //reset to default to ensure next tests don't crash
-            DeviceLocator.DefaultMulticastIPAddress = initialMulticastAddress;
+            await Assert.That(async () =>
+            {
+                _ = (await DeviceLocator.DiscoverAsync()).ToList();
+            }).Throws<FormatException>();
         }
-
-        [Fact]
-        public async Task Discovery_should_find_devices_on_all_multicast_addresses()
+        finally
         {
-            int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
+            DeviceLocator.DefaultMulticastIPAddress = initialMulticastAddress;
+            DeviceLocator.UseAllAvailableMulticastAddresses = initialUseAllAddresses;
+        }
+    }
+
+    [Test]
+    public async Task Discovery_should_find_devices_on_all_multicast_addresses()
+    {
+        int expectedDevicesCount = GetConfig<int>("discovery_devices_expected");
+        bool initialValue = DeviceLocator.UseAllAvailableMulticastAddresses;
+
+        try
+        {
             DeviceLocator.UseAllAvailableMulticastAddresses = true;
             var devices = (await DeviceLocator.DiscoverAsync()).ToList();
-
-            Assert.Equal(expectedDevicesCount, devices?.Count);
+            await Assert.That(devices?.Count).IsEqualTo(expectedDevicesCount);
         }
-
-        [Fact]
-        public async Task Discovery_should_not_last_long()
+        finally
         {
-            Stopwatch sw = Stopwatch.StartNew();
-            _ = await DeviceLocator.DiscoverAsync();
-            sw.Stop();
-
-            Assert.InRange(sw.ElapsedMilliseconds, 0, 1500);
+            DeviceLocator.UseAllAvailableMulticastAddresses = initialValue;
         }
-
-        #endregion TESTS
-
-        #region PRIVATE METHODS
-
-        private T GetConfig<T>(string key)
-        {
-            Type t = typeof(T);
-            var value = _config[key];
-
-            TypeConverter converter = TypeDescriptor.GetConverter(t);
-            try
-            //if (value != null && converter.CanConvertTo(t) && converter.CanConvertFrom(typeof(string)))
-            {
-                return (T)converter.ConvertFromString(value);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Cannot convert '{value}' (key: {key}) to {t}", ex);
-            }
-        }
-
-        #endregion PRIVATE METHODS
     }
+
+    [Test]
+    public async Task Discovery_should_not_last_long()
+    {
+        Stopwatch sw = Stopwatch.StartNew();
+        _ = await DeviceLocator.DiscoverAsync();
+        sw.Stop();
+
+        await Assert.That(sw.ElapsedMilliseconds).IsBetween(0, 1500);
+    }
+
+    #endregion TESTS
+
+    #region PRIVATE METHODS
+
+    private T GetConfig<T>(string key)
+    {
+        Type t = typeof(T);
+        var value = _config[key];
+
+        TypeConverter converter = TypeDescriptor.GetConverter(t);
+        try
+        {
+            return (T)converter.ConvertFromString(value!)!;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Cannot convert '{value}' (key: {key}) to {t}", ex);
+        }
+    }
+
+    #endregion PRIVATE METHODS
 }

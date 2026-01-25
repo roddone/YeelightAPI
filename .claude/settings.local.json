@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(Select-String -Pattern \"^\\\\s+[A-Za-z]\")",
+      "Bash(Measure-Object)",
+      "Bash(Select-Object -ExpandProperty Count)",
+      "WebSearch",
+      "WebFetch(domain:tunit.dev)",
+      "WebFetch(domain:github.com)",
+      "Bash(dotnet clean:*)",
+      "Bash(Remove-Item -Recurse -Force YeelightAPI.UnitTestsbin, YeelightAPI.UnitTestsobj -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -Last 20)"
+    ]
+  }
+}
