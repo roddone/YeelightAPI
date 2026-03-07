@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using YeelightAPI.Core;
 using YeelightAPI.Models;
@@ -19,14 +20,16 @@ namespace YeelightAPI
         /// Get a cron JOB
         /// </summary>
         /// <param name="type"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<CronResult> CronGet(CronType type = CronType.PowerOff)
+        public async Task<CronResult> CronGetAsync(CronType type = CronType.PowerOff, CancellationToken cancellationToken = default)
         {
             List<object> parameters = new List<object>() { (int)type };
 
             CommandResult<CronResult[]> result = await ExecuteCommandWithResponse<CronResult[]>(
                             method: METHODS.GetCron,
-                            parameters: parameters);
+                            parameters: parameters,
+                            cancellationToken: cancellationToken);
 
             return result?.Result?.FirstOrDefault();
         }
@@ -34,10 +37,11 @@ namespace YeelightAPI
         /// <summary>
         /// Get all the properties asynchronously
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<Dictionary<PROPERTIES, object>> GetAllProps()
+        public async Task<Dictionary<PROPERTIES, object>> GetAllPropsAsync(CancellationToken cancellationToken = default)
         {
-            Dictionary<PROPERTIES, object> result = await GetProps(PROPERTIES.ALL);
+            Dictionary<PROPERTIES, object> result = await GetPropsAsync(PROPERTIES.ALL, cancellationToken);
 
             return result;
         }
@@ -46,12 +50,14 @@ namespace YeelightAPI
         /// Get a single property value asynchronously
         /// </summary>
         /// <param name="prop"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<object> GetProp(PROPERTIES prop)
+        public async Task<object> GetPropAsync(PROPERTIES prop, CancellationToken cancellationToken = default)
         {
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                 method: METHODS.GetProp,
-                parameters: new List<object>() { prop.ToString() } );
+                parameters: new List<object>() { prop.ToString() },
+                cancellationToken: cancellationToken);
 
             return result?.Result?.Count == 1 ? result.Result[0] : null;
         }
@@ -60,8 +66,9 @@ namespace YeelightAPI
         /// Get multiple properties asynchronously
         /// </summary>
         /// <param name="props"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<Dictionary<PROPERTIES, object>> GetProps(PROPERTIES props)
+        public async Task<Dictionary<PROPERTIES, object>> GetPropsAsync(PROPERTIES props, CancellationToken cancellationToken = default)
         {
             List<object> names = props.GetRealNames();
             List<string> results = new List<string>();
@@ -69,7 +76,8 @@ namespace YeelightAPI
             {
                 CommandResult<List<string>> commandResult = await ExecuteCommandWithResponse<List<string>>(
                     method: METHODS.GetProp,
-                    parameters: names
+                    parameters: names,
+                    cancellationToken: cancellationToken
                     );
 
                 results.AddRange(commandResult?.Result);
@@ -79,10 +87,12 @@ namespace YeelightAPI
 
                 CommandResult<List<string>> commandResult1 = await ExecuteCommandWithResponse<List<string>>(
                     method: METHODS.GetProp,
-                    parameters: names.Take(20).ToList() );
+                    parameters: names.Take(20).ToList(),
+                    cancellationToken: cancellationToken);
                 CommandResult<List<string>> commandResult2 = await ExecuteCommandWithResponse<List<string>>(
                     method: METHODS.GetProp,
-                    parameters: names.Skip(20).ToList());
+                    parameters: names.Skip(20).ToList(),
+                    cancellationToken: cancellationToken);
 
                 results.AddRange(commandResult1?.Result);
                 results.AddRange(commandResult2?.Result);
@@ -111,14 +121,16 @@ namespace YeelightAPI
         /// Set the name of the device
         /// </summary>
         /// <param name="name"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> SetName(string name)
+        public async Task<bool> SetNameAsync(string name, CancellationToken cancellationToken = default)
         {
             List<object> parameters = new List<object>() { name };
 
             CommandResult<List<string>> result = await ExecuteCommandWithResponse<List<string>>(
                             method: METHODS.SetName,
-                            parameters: parameters);
+                            parameters: parameters,
+                            cancellationToken: cancellationToken);
 
             if (result.IsOk())
             {

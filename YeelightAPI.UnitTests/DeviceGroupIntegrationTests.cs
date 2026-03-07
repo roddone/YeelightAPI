@@ -26,27 +26,27 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices, "Test Group");
-        await group.Connect();
+        await group.ConnectAsync();
 
-        var result = await group.TurnOn();
+        var result = await group.TurnOnAsync();
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         // Verify all devices are on
         foreach (var device in group)
         {
-            var powerState = await device.GetProp(PROPERTIES.power);
+            var powerState = await device.GetPropAsync(PROPERTIES.power);
             await Assert.That(powerState).IsEqualTo("on");
         }
 
-        result = await group.TurnOff();
+        result = await group.TurnOffAsync();
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         // Verify all devices are off
         foreach (var device in group)
         {
-            var powerState = await device.GetProp(PROPERTIES.power);
+            var powerState = await device.GetPropAsync(PROPERTIES.power);
             await Assert.That(powerState).IsEqualTo("off");
         }
     }
@@ -62,35 +62,35 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
+        await group.ConnectAsync();
 
         // Set known state (all on)
-        await group.TurnOn();
+        await group.TurnOnAsync();
         await Task.Delay(500);
 
         // Toggle to off
-        var result = await group.Toggle();
+        var result = await group.ToggleAsync();
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         foreach (var device in group)
         {
-            var powerState = await device.GetProp(PROPERTIES.power);
+            var powerState = await device.GetPropAsync(PROPERTIES.power);
             await Assert.That(powerState).IsEqualTo("off");
         }
 
         // Toggle back to on
-        result = await group.Toggle();
+        result = await group.ToggleAsync();
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         foreach (var device in group)
         {
-            var powerState = await device.GetProp(PROPERTIES.power);
+            var powerState = await device.GetPropAsync(PROPERTIES.power);
             await Assert.That(powerState).IsEqualTo("on");
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     [Test]
@@ -104,25 +104,25 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
+        await group.ConnectAsync();
 
-        var result = await group.SetPower(true, smooth: 300);
+        var result = await group.SetPowerAsync(true, smooth: 300);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         foreach (var device in group)
         {
-            var powerState = await device.GetProp(PROPERTIES.power);
+            var powerState = await device.GetPropAsync(PROPERTIES.power);
             await Assert.That(powerState).IsEqualTo("on");
         }
 
-        result = await group.SetPower(false, smooth: 300);
+        result = await group.SetPowerAsync(false, smooth: 300);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         foreach (var device in group)
         {
-            var powerState = await device.GetProp(PROPERTIES.power);
+            var powerState = await device.GetPropAsync(PROPERTIES.power);
             await Assert.That(powerState).IsEqualTo("off");
         }
     }
@@ -145,21 +145,21 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
-        await group.TurnOn();
+        await group.ConnectAsync();
+        await group.TurnOnAsync();
         await Task.Delay(300);
 
-        var result = await group.SetBrightness(65);
+        var result = await group.SetBrightnessAsync(65);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         foreach (var device in group)
         {
-            var brightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+            var brightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
             await Assert.That(brightness).IsEqualTo(65);
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     [Test]
@@ -176,29 +176,29 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
-        await group.TurnOn();
-        await group.SetBrightness(50);
+        await group.ConnectAsync();
+        await group.TurnOnAsync();
+        await group.SetBrightnessAsync(50);
         await Task.Delay(500);
 
         // Get initial brightness for each device
         var initialBrightness = new Dictionary<Device, int>();
         foreach (var device in group)
         {
-            initialBrightness[device] = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+            initialBrightness[device] = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
         }
 
-        var result = await group.AdjustBright(20);
+        var result = await group.AdjustBrightAsync(20);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         foreach (var device in group)
         {
-            var newBrightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+            var newBrightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
             await Assert.That(newBrightness > initialBrightness[device]).IsTrue();
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     [Test]
@@ -215,28 +215,28 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
-        await group.TurnOn();
-        await group.SetBrightness(40);
+        await group.ConnectAsync();
+        await group.TurnOnAsync();
+        await group.SetBrightnessAsync(40);
         await Task.Delay(500);
 
         var initialBrightness = new Dictionary<Device, int>();
         foreach (var device in group)
         {
-            initialBrightness[device] = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+            initialBrightness[device] = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
         }
 
-        var result = await group.SetAdjust(AdjustAction.increase, AdjustProperty.bright);
+        var result = await group.SetAdjustAsync(AdjustAction.increase, AdjustProperty.bright);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         foreach (var device in group)
         {
-            var newBrightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+            var newBrightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
             await Assert.That(newBrightness > initialBrightness[device]).IsTrue();
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     #endregion
@@ -257,21 +257,21 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
-        await group.TurnOn();
+        await group.ConnectAsync();
+        await group.TurnOnAsync();
         await Task.Delay(300);
 
-        var result = await group.SetColorTemperature(3500);
+        var result = await group.SetColorTemperatureAsync(3500);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         foreach (var device in group)
         {
-            var ct = Convert.ToInt32(await device.GetProp(PROPERTIES.ct));
+            var ct = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.ct));
             await Assert.That(ct).IsEqualTo(3500);
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     [Test]
@@ -288,28 +288,28 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
-        await group.TurnOn();
-        await group.SetColorTemperature(3000);
+        await group.ConnectAsync();
+        await group.TurnOnAsync();
+        await group.SetColorTemperatureAsync(3000);
         await Task.Delay(500);
 
         var initialCt = new Dictionary<Device, int>();
         foreach (var device in group)
         {
-            initialCt[device] = Convert.ToInt32(await device.GetProp(PROPERTIES.ct));
+            initialCt[device] = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.ct));
         }
 
-        var result = await group.AdjustColorTemperature(30);
+        var result = await group.AdjustColorTemperatureAsync(30);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         foreach (var device in group)
         {
-            var newCt = Convert.ToInt32(await device.GetProp(PROPERTIES.ct));
+            var newCt = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.ct));
             await Assert.That(newCt > initialCt[device]).IsTrue();
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     #endregion
@@ -330,22 +330,22 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
-        await group.TurnOn();
+        await group.ConnectAsync();
+        await group.TurnOnAsync();
         await Task.Delay(300);
 
-        var result = await group.SetRGBColor(128, 0, 255); // Purple
+        var result = await group.SetRGBColorAsync(128, 0, 255); // Purple
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         int expectedRgb = (128 << 16) | (0 << 8) | 255;
         foreach (var device in group)
         {
-            var rgb = Convert.ToInt32(await device.GetProp(PROPERTIES.rgb));
+            var rgb = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.rgb));
             await Assert.That(rgb).IsEqualTo(expectedRgb);
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     [Test]
@@ -362,23 +362,23 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
-        await group.TurnOn();
+        await group.ConnectAsync();
+        await group.TurnOnAsync();
         await Task.Delay(300);
 
-        var result = await group.SetHSVColor(180, 80); // Cyan
+        var result = await group.SetHSVColorAsync(180, 80); // Cyan
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         foreach (var device in group)
         {
-            var hue = Convert.ToInt32(await device.GetProp(PROPERTIES.hue));
-            var sat = Convert.ToInt32(await device.GetProp(PROPERTIES.sat));
+            var hue = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.hue));
+            var sat = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.sat));
             await Assert.That(hue).IsEqualTo(180);
             await Assert.That(sat).IsEqualTo(80);
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     #endregion
@@ -399,8 +399,8 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
-        await group.TurnOn();
+        await group.ConnectAsync();
+        await group.TurnOnAsync();
         await Task.Delay(300);
 
         var flow = new ColorFlow(0, ColorFlowEndAction.Restore)
@@ -410,29 +410,29 @@ public class DeviceGroupIntegrationTests
             new ColorFlowRGBExpression(0, 0, 255, 100, 500)
         };
 
-        var result = await group.StartColorFlow(flow);
+        var result = await group.StartColorFlowAsync(flow);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         // Verify all devices are flowing
         foreach (var device in group)
         {
-            var flowingState = await device.GetProp(PROPERTIES.flowing);
+            var flowingState = await device.GetPropAsync(PROPERTIES.flowing);
             await Assert.That(flowingState?.ToString()).IsEqualTo("1");
         }
 
-        result = await group.StopColorFlow();
+        result = await group.StopColorFlowAsync();
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
         // Verify all devices stopped flowing
         foreach (var device in group)
         {
-            var flowingState = await device.GetProp(PROPERTIES.flowing);
+            var flowingState = await device.GetPropAsync(PROPERTIES.flowing);
             await Assert.That(flowingState?.ToString()).IsEqualTo("0");
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     [Test]
@@ -449,8 +449,8 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
-        await group.TurnOn();
+        await group.ConnectAsync();
+        await group.TurnOnAsync();
         await Task.Delay(300);
 
         var flow = group.Flow()
@@ -458,18 +458,18 @@ public class DeviceGroupIntegrationTests
             .RgbColor(0, 255, 0, 100, 300)
             .Temperature(4000, 100, 300);
 
-        await flow.Play(ColorFlowEndAction.Restore, repetition: 1);
+        await flow.PlayAsync(ColorFlowEndAction.Restore, repetition: 1);
         await Task.Delay(300);
 
         // Verify all devices are flowing
         foreach (var device in group)
         {
-            var flowingState = await device.GetProp(PROPERTIES.flowing);
+            var flowingState = await device.GetPropAsync(PROPERTIES.flowing);
             await Assert.That(flowingState?.ToString()).IsEqualTo("1");
         }
 
-        await group.StopColorFlow();
-        await group.TurnOff();
+        await group.StopColorFlowAsync();
+        await group.TurnOffAsync();
     }
 
     #endregion
@@ -490,27 +490,27 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
+        await group.ConnectAsync();
 
         var scene = Scene.FromRGBColor(0, 200, 100, 70); // Greenish at 70%
-        var result = await group.SetScene(scene);
+        var result = await group.SetSceneAsync(scene);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         int expectedRgb = (0 << 16) | (200 << 8) | 100;
         foreach (var device in group)
         {
-            var powerState = await device.GetProp(PROPERTIES.power);
+            var powerState = await device.GetPropAsync(PROPERTIES.power);
             await Assert.That(powerState).IsEqualTo("on");
 
-            var rgb = Convert.ToInt32(await device.GetProp(PROPERTIES.rgb));
+            var rgb = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.rgb));
             await Assert.That(rgb).IsEqualTo(expectedRgb);
 
-            var brightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+            var brightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
             await Assert.That(brightness).IsEqualTo(70);
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     #endregion
@@ -531,35 +531,35 @@ public class DeviceGroupIntegrationTests
         }
 
         using var group = new DeviceGroup(devices);
-        await group.Connect();
-        await group.TurnOn();
+        await group.ConnectAsync();
+        await group.TurnOnAsync();
         await Task.Delay(300);
 
         // Add cron
-        var result = await group.CronAdd(5, CronType.PowerOff);
+        var result = await group.CronAddAsync(5, CronType.PowerOff);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         // Verify all devices have delayoff set
         foreach (var device in group)
         {
-            var delayoff = Convert.ToInt32(await device.GetProp(PROPERTIES.delayoff));
+            var delayoff = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.delayoff));
             await Assert.That(delayoff > 0 && delayoff <= 5).IsTrue();
         }
 
         // Delete cron
-        result = await group.CronDelete(CronType.PowerOff);
+        result = await group.CronDeleteAsync(CronType.PowerOff);
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
         // Verify all devices have delayoff cleared
         foreach (var device in group)
         {
-            var delayoff = Convert.ToInt32(await device.GetProp(PROPERTIES.delayoff));
+            var delayoff = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.delayoff));
             await Assert.That(delayoff).IsEqualTo(0);
         }
 
-        await group.TurnOff();
+        await group.TurnOffAsync();
     }
 
     #endregion
@@ -585,7 +585,7 @@ public class DeviceGroupIntegrationTests
         }
 
         // Connect
-        var result = await group.Connect();
+        var result = await group.ConnectAsync();
         await Assert.That(result).IsTrue();
 
         foreach (var device in group)
@@ -602,7 +602,7 @@ public class DeviceGroupIntegrationTests
         }
 
         // Reconnect to verify it still works
-        result = await group.Connect();
+        result = await group.ConnectAsync();
         await Assert.That(result).IsTrue();
 
         foreach (var device in group)

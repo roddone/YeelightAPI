@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+using System.Threading;
+using System.Threading.Tasks;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
@@ -18,13 +19,14 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="percent"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundAdjustBright(int percent, int? smooth = null)
+        public async Task<bool> BackgroundAdjustBrightAsync(int percent, int? smooth = null, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundAdjustBright(percent, smooth);
-            });
+                return device.BackgroundAdjustBrightAsync(percent, smooth, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -32,13 +34,14 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="percent"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundAdjustColor(int percent, int? smooth = null)
+        public async Task<bool> BackgroundAdjustColorAsync(int percent, int? smooth = null, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundAdjustColor(percent, smooth);
-            });
+                return device.BackgroundAdjustColorAsync(percent, smooth, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -46,13 +49,14 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="percent"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundAdjustColorTemperature(int percent, int? smooth = null)
+        public async Task<bool> BackgroundAdjustColorTemperatureAsync(int percent, int? smooth = null, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundAdjustColorTemperature(percent, smooth);
-            });
+                return device.BackgroundAdjustColorTemperatureAsync(percent, smooth, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -61,7 +65,7 @@ namespace YeelightAPI
         /// <returns></returns>
         public FluentFlow BackgroundFlow()
         {
-            return new FluentFlow(this, BackgroundStartColorFlow, BackgroundStopColorFlow);
+            return new FluentFlow(this, BackgroundStartColorFlowAsync, BackgroundStopColorFlowAsync);
         }
 
         /// <summary>
@@ -69,13 +73,14 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="action"></param>
         /// <param name="property"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetAdjust(AdjustAction action, AdjustProperty property)
+        public async Task<bool> BackgroundSetAdjustAsync(AdjustAction action, AdjustProperty property, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundSetAdjust(action, property);
-            });
+                return device.BackgroundSetAdjustAsync(action, property, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -83,13 +88,14 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="value"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetBrightness(int value, int? smooth = null)
+        public async Task<bool> BackgroundSetBrightnessAsync(int value, int? smooth = null, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundSetBrightness(value, smooth);
-            });
+                return device.BackgroundSetBrightnessAsync(value, smooth, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -97,25 +103,27 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="temperature"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth)
+        public async Task<bool> BackgroundSetColorTemperatureAsync(int temperature, int? smooth = null, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundSetColorTemperature(temperature, smooth);
-            });
+                return device.BackgroundSetColorTemperatureAsync(temperature, smooth, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
         /// Set the background current state as the default one
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetDefault()
+        public async Task<bool> BackgroundSetDefaultAsync(CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundSetDefault();
-            });
+                return device.BackgroundSetDefaultAsync(cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -124,13 +132,14 @@ namespace YeelightAPI
         /// <param name="hue"></param>
         /// <param name="sat"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetHSVColor(int hue, int sat, int? smooth = null)
+        public async Task<bool> BackgroundSetHSVColorAsync(int hue, int sat, int? smooth = null, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundSetHSVColor(hue, sat, smooth);
-            });
+                return device.BackgroundSetHSVColorAsync(hue, sat, smooth, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -139,13 +148,14 @@ namespace YeelightAPI
         /// <param name="state"></param>
         /// <param name="smooth"></param>
         /// <param name="mode"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetPower(bool state = true, int? smooth = null, PowerOnMode mode = PowerOnMode.Normal)
+        public async Task<bool> BackgroundSetPowerAsync(bool state = true, int? smooth = null, PowerOnMode mode = PowerOnMode.Normal, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundSetPower(state, smooth, mode);
-            });
+                return device.BackgroundSetPowerAsync(state, smooth, mode, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -155,76 +165,82 @@ namespace YeelightAPI
         /// <param name="g"></param>
         /// <param name="b"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth)
+        public async Task<bool> BackgroundSetRGBColorAsync(int r, int g, int b, int? smooth = null, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundSetRGBColor(r, g, b, smooth);
-            });
+                return device.BackgroundSetRGBColorAsync(r, g, b, smooth, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
         /// Set background scene
         /// </summary>
         /// <param name="scene"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundSetScene(Scene scene)
+        public async Task<bool> BackgroundSetSceneAsync(Scene scene, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundSetScene(scene);
-            });
+                return device.BackgroundSetSceneAsync(scene, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
         /// Starts a color flow
         /// </summary>
         /// <param name="flow"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundStartColorFlow(ColorFlow flow)
+        public async Task<bool> BackgroundStartColorFlowAsync(ColorFlow flow, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundStartColorFlow(flow);
-            });
+                return device.BackgroundStartColorFlowAsync(flow, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
         /// Stops the color flow
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundStopColorFlow()
+        public async Task<bool> BackgroundStopColorFlowAsync(CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundStopColorFlow();
-            });
+                return device.BackgroundStopColorFlowAsync(cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
         /// Toggle background light
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundToggle()
+        public async Task<bool> BackgroundToggleAsync(CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundToggle();
-            });
+                return device.BackgroundToggleAsync(cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
         /// Turn-Off the devices background light
         /// </summary>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundTurnOff(int? smooth = null)
+        public async Task<bool> BackgroundTurnOffAsync(int? smooth = null, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundTurnOff(smooth);
-            });
+                return device.BackgroundTurnOffAsync(smooth, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -232,25 +248,27 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="smooth"></param>
         /// <param name="mode"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> BackgroundTurnOn(int? smooth = null, PowerOnMode mode = PowerOnMode.Normal)
+        public async Task<bool> BackgroundTurnOnAsync(int? smooth = null, PowerOnMode mode = PowerOnMode.Normal, CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.BackgroundTurnOn(smooth, mode);
-            });
+                return device.BackgroundTurnOnAsync(smooth, mode, cancellationToken);
+            }, cancellationToken);
         }
 
         /// <summary>
         /// Toggle Both Background and normal light
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> DevToggle()
+        public async Task<bool> DevToggleAsync(CancellationToken cancellationToken = default)
         {
             return await Process((Device device) =>
             {
-                return device.DevToggle();
-            });
+                return device.DevToggleAsync(cancellationToken);
+            }, cancellationToken);
         }
 
         #endregion Public Methods

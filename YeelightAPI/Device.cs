@@ -120,17 +120,10 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="hostname"></param>
         /// <param name="port"></param>
-        /// <param name="autoConnect"></param>
-        public Device(string hostname, int port = Constants.DefaultPort, bool autoConnect = false)
+        public Device(string hostname, int port = Constants.DefaultPort)
         {
             Hostname = hostname;
             Port = port;
-
-            //autoconnect device if specified
-            if (autoConnect)
-            {
-                Connect().Wait();
-            }
         }
 
         internal Device(string hostname, int port, string id, MODEL model, string firmwareVersion, Dictionary<string, object> properties, List<METHODS> supportedOperations)
@@ -245,7 +238,7 @@ namespace YeelightAPI
         /// <param name="method"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null)
+        public async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, List<object> parameters = null, CancellationToken cancellationToken = default)
         {
             if (IsMusicModeEnabled)
             {
@@ -256,7 +249,7 @@ namespace YeelightAPI
             }
 
             //default behavior : send command and wait for response
-            return await ExecuteCommandWithResponse<T>(method, GetUniqueIdForCommand(), parameters);
+            return await ExecuteCommandWithResponse<T>(method, GetUniqueIdForCommand(), parameters, cancellationToken);
         }
 
 
@@ -310,20 +303,20 @@ namespace YeelightAPI
         /// <param name="id"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        internal async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id, List<object> parameters = null)
+        internal async Task<CommandResult<T>> ExecuteCommandWithResponse<T>(METHODS method, int id, List<object> parameters = null, CancellationToken cancellationToken = default)
         {
             try
             {
-                return await UnsafeExecuteCommandWithResponse<T>(method, id, parameters);
+                return await UnsafeExecuteCommandWithResponse<T>(method, id, parameters, cancellationToken);
             }
             catch (TaskCanceledException) { }
 
             return null;
         }
 
-        internal async Task DisableMusicModeAsync()
+        internal async Task DisableMusicModeAsync(CancellationToken cancellationToken = default)
         {
-            _ = await Connect();
+            _ = await ConnectAsync(cancellationToken);
             IsMusicModeEnabled = false;
 
         }
@@ -412,7 +405,7 @@ namespace YeelightAPI
         /// <param name="parameters"></param>
         /// <exception cref="TaskCanceledException"></exception>
         /// <returns></returns>
-        private async Task<CommandResult<T>> UnsafeExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null)
+        private async Task<CommandResult<T>> UnsafeExecuteCommandWithResponse<T>(METHODS method, int id = 0, List<object> parameters = null, CancellationToken cancellationToken = default)
         {
             CommandResultHandler<T> commandResultHandler;
             lock (_currentCommandResults)
@@ -423,7 +416,7 @@ namespace YeelightAPI
                     _currentCommandResults.Remove(id);
                 }
 
-                commandResultHandler = new CommandResultHandler<T>();
+                commandResultHandler = new CommandResultHandler<T>(cancellationToken);
                 _currentCommandResults.Add(id, commandResultHandler);
             }
 

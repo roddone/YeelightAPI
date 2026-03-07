@@ -16,7 +16,7 @@ namespace YeelightAPI.Core
         /// <summary>
         /// Cancellation Token Source
         /// </summary>
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource(Constants.DefaultTimeout);
+        private readonly CancellationTokenSource _cts;
 
         /// <summary>
         /// Task Completion Source
@@ -44,9 +44,11 @@ namespace YeelightAPI.Core
         /// <summary>
         /// Constructor
         /// </summary>
-        internal CommandResultHandler()
+        /// <param name="cancellationToken"></param>
+        internal CommandResultHandler(CancellationToken cancellationToken = default)
         {
-            //automatic cancel after 5 seconds
+            _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            _cts.CancelAfter(Constants.DefaultTimeout);
             _cts.Token.Register(() =>
             {
                 TrySetCanceled();

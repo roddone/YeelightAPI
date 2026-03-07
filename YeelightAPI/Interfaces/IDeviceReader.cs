@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Cron;
@@ -16,35 +17,40 @@ namespace YeelightAPI
         /// Get a cron task
         /// </summary>
         /// <param name="type"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<CronResult> CronGet(CronType type = CronType.PowerOff);
+        Task<CronResult> CronGetAsync(CronType type = CronType.PowerOff, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get all properties values
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Dictionary<PROPERTIES, object>> GetAllProps();
+        Task<Dictionary<PROPERTIES, object>> GetAllPropsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get a single property value
         /// </summary>
         /// <param name="prop"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<object> GetProp(PROPERTIES prop);
+        Task<object> GetPropAsync(PROPERTIES prop, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get multiple properties values
         /// </summary>
         /// <param name="props"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Dictionary<PROPERTIES, object>> GetProps(PROPERTIES props);
+        Task<Dictionary<PROPERTIES, object>> GetPropsAsync(PROPERTIES props, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Set the name of the device
         /// </summary>
         /// <param name="name"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> SetName(string name);
+        Task<bool> SetNameAsync(string name, CancellationToken cancellationToken = default);
 
         #endregion Public Methods
     }

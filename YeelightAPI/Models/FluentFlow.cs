@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using YeelightAPI.Core;
 using YeelightAPI.Models.ColorFlow;
@@ -18,9 +19,9 @@ namespace YeelightAPI.Models
 
         private List<ColorFlowExpression> _expressions = new List<ColorFlowExpression>();
 
-        private Func<ColorFlow.ColorFlow, Task<bool>> _startColorFlowMethod = null;
+        private Func<ColorFlow.ColorFlow, CancellationToken, Task<bool>> _startColorFlowMethod = null;
 
-        private Func<Task<bool>> _stopColorFlowMethod = null;
+        private Func<CancellationToken, Task<bool>> _stopColorFlowMethod = null;
 
         #endregion Private Fields
 
@@ -32,7 +33,7 @@ namespace YeelightAPI.Models
         /// <param name="device"></param>
         /// <param name="start"></param>
         /// <param name="stop"></param>
-        internal FluentFlow(IDeviceController device, Func<ColorFlow.ColorFlow, Task<bool>> start, Func<Task<bool>> stop)
+        internal FluentFlow(IDeviceController device, Func<ColorFlow.ColorFlow, CancellationToken, Task<bool>> start, Func<CancellationToken, Task<bool>> stop)
         {
             this._device = device;
             this._startColorFlowMethod = start;
@@ -62,14 +63,15 @@ namespace YeelightAPI.Models
         /// </summary>
         /// <param name="endAction"></param>
         /// <param name="repetition"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<FluentFlow> Play(ColorFlowEndAction endAction = ColorFlowEndAction.Restore, int repetition = 0)
+        public async Task<FluentFlow> PlayAsync(ColorFlowEndAction endAction = ColorFlowEndAction.Restore, int repetition = 0, CancellationToken cancellationToken = default)
         {
             CheckExpressions();
 
             ColorFlow.ColorFlow flow = new ColorFlow.ColorFlow(repetition, endAction, _expressions);
 
-            await _startColorFlowMethod(flow);
+            await _startColorFlowMethod(flow, cancellationToken);
 
             return this;
         }
@@ -80,14 +82,15 @@ namespace YeelightAPI.Models
         /// <param name="millisecondsDelay"></param>
         /// <param name="endAction"></param>
         /// <param name="repetition"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<FluentFlow> PlayAfter(int millisecondsDelay, ColorFlowEndAction endAction, int repetition = 0)
+        public async Task<FluentFlow> PlayAfterAsync(int millisecondsDelay, ColorFlowEndAction endAction, int repetition = 0, CancellationToken cancellationToken = default)
         {
             CheckExpressions();
 
-            await Task.Delay(millisecondsDelay);
+            await Task.Delay(millisecondsDelay, cancellationToken);
 
-            return await Play(endAction, repetition);
+            return await PlayAsync(endAction, repetition, cancellationToken);
         }
 
         /// <summary>
@@ -132,23 +135,26 @@ namespace YeelightAPI.Models
         /// <summary>
         /// Stop the color flow
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<FluentFlow> Stop()
+        public async Task<FluentFlow> StopAsync(CancellationToken cancellationToken = default)
         {
-            await _stopColorFlowMethod();
+            await _stopColorFlowMethod(cancellationToken);
 
             return this;
         }
 
         /// <summary>
-        /// Stop the color flow
+        /// Stop the color flow after a delay
         /// </summary>
+        /// <param name="milliSecondsDelay"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<FluentFlow> StopAfter(int milliSecondsDelay)
+        public async Task<FluentFlow> StopAfterAsync(int milliSecondsDelay, CancellationToken cancellationToken = default)
         {
-            await Task.Delay(milliSecondsDelay);
+            await Task.Delay(milliSecondsDelay, cancellationToken);
 
-            return await Stop();
+            return await StopAsync(cancellationToken);
         }
 
         /// <summary>

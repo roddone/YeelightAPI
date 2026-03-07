@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+using System.Threading;
+using System.Threading.Tasks;
 using YeelightAPI.Models;
 using YeelightAPI.Models.Adjust;
 using YeelightAPI.Models.ColorFlow;
@@ -18,24 +19,27 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="percent"></param>
         /// <param name="duration"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundAdjustBright(int percent, int? duration = null);
+        Task<bool> BackgroundAdjustBrightAsync(int percent, int? duration = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Adjusts the color
         /// </summary>
         /// <param name="percent"></param>
         /// <param name="duration"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundAdjustColor(int percent, int? duration = null);
+        Task<bool> BackgroundAdjustColorAsync(int percent, int? duration = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Adjusts the color temperature
         /// </summary>
         /// <param name="percent"></param>
         /// <param name="duration"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundAdjustColorTemperature(int percent, int? duration = null);
+        Task<bool> BackgroundAdjustColorTemperatureAsync(int percent, int? duration = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Initiate a new Color Flow
@@ -48,30 +52,34 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="action"></param>
         /// <param name="property"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundSetAdjust(AdjustAction action, AdjustProperty property);
+        Task<bool> BackgroundSetAdjustAsync(AdjustAction action, AdjustProperty property, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Set the brightness
         /// </summary>
         /// <param name="value"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundSetBrightness(int value, int? smooth = null);
+        Task<bool> BackgroundSetBrightnessAsync(int value, int? smooth = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Set the color temperature
         /// </summary>
         /// <param name="temperature"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundSetColorTemperature(int temperature, int? smooth = null);
+        Task<bool> BackgroundSetColorTemperatureAsync(int temperature, int? smooth = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Save the current state as default
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundSetDefault();
+        Task<bool> BackgroundSetDefaultAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Set the HSV color
@@ -79,8 +87,9 @@ namespace YeelightAPI
         /// <param name="hue"></param>
         /// <param name="sat"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundSetHSVColor(int hue, int sat, int? smooth = null);
+        Task<bool> BackgroundSetHSVColorAsync(int hue, int sat, int? smooth = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Set Power
@@ -88,8 +97,9 @@ namespace YeelightAPI
         /// <param name="state"></param>
         /// <param name="smooth"></param>
         /// <param name="mode"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundSetPower(bool state = true, int? smooth = null, PowerOnMode mode = PowerOnMode.Normal);
+        Task<bool> BackgroundSetPowerAsync(bool state = true, int? smooth = null, PowerOnMode mode = PowerOnMode.Normal, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Set RGB color
@@ -98,55 +108,63 @@ namespace YeelightAPI
         /// <param name="g"></param>
         /// <param name="b"></param>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundSetRGBColor(int r, int g, int b, int? smooth = null);
+        Task<bool> BackgroundSetRGBColorAsync(int r, int g, int b, int? smooth = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Set a scene
         /// </summary>
         /// <param name="scene"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundSetScene(Scene scene);
+        Task<bool> BackgroundSetSceneAsync(Scene scene, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Start a color flow
         /// </summary>
         /// <param name="flow"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundStartColorFlow(ColorFlow flow);
+        Task<bool> BackgroundStartColorFlowAsync(ColorFlow flow, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Stop the current color flow
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundStopColorFlow();
+        Task<bool> BackgroundStopColorFlowAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Toggle the device power state
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundToggle();
+        Task<bool> BackgroundToggleAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Turn-Off the device
         /// </summary>
         /// <param name="smooth"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundTurnOff(int? smooth = null);
+        Task<bool> BackgroundTurnOffAsync(int? smooth = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Turn-On the device
         /// </summary>
         /// <param name="smooth"></param>
         /// <param name="mode"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> BackgroundTurnOn(int? smooth = null, PowerOnMode mode = PowerOnMode.Normal);
+        Task<bool> BackgroundTurnOnAsync(int? smooth = null, PowerOnMode mode = PowerOnMode.Normal, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Toggle both Background and classical power state
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> DevToggle();
+        Task<bool> DevToggleAsync(CancellationToken cancellationToken = default);
 
         #endregion Public Methods
     }

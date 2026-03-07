@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace YeelightAPI
@@ -84,13 +85,16 @@ namespace YeelightAPI
         /// </summary>
         /// <param name="f"></param>
         /// <returns></returns>
-        protected async Task<bool> Process(Func<Device, Task<bool>> f)
+        protected async Task<bool> Process(Func<Device, Task<bool>> f, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             bool result = true;
             List<Task<bool>> tasks = new List<Task<bool>>();
 
             foreach (Device device in this)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 tasks.Add(f(device));
             }
 

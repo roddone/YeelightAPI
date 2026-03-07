@@ -21,17 +21,17 @@ public class DeviceIntegrationTests
     {
         using var device = await GetRandomConnectedDevice();
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
         await Task.Delay(300);
 
-        var result = await device.TurnOn();
+        var result = await device.TurnOnAsync();
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
-        var powerState = await device.GetProp(PROPERTIES.power);
+        var powerState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(powerState).IsEqualTo("on");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
@@ -39,14 +39,14 @@ public class DeviceIntegrationTests
     {
         using var device = await GetRandomConnectedDevice();
 
-        await device.TurnOn();
+        await device.TurnOnAsync();
         await Task.Delay(300);
 
-        var result = await device.TurnOff();
+        var result = await device.TurnOffAsync();
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
-        var powerState = await device.GetProp(PROPERTIES.power);
+        var powerState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(powerState).IsEqualTo("off");
     }
 
@@ -56,28 +56,28 @@ public class DeviceIntegrationTests
         using var device = await GetRandomConnectedDevice();
 
         // Ensure known state
-        await device.TurnOn();
+        await device.TurnOnAsync();
         await Task.Delay(300);
-        var initialState = await device.GetProp(PROPERTIES.power);
+        var initialState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(initialState).IsEqualTo("on");
 
         // Toggle to off
-        var result = await device.Toggle();
+        var result = await device.ToggleAsync();
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
-        var newState = await device.GetProp(PROPERTIES.power);
+        var newState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(newState).IsEqualTo("off");
 
         // Toggle back to on
-        result = await device.Toggle();
+        result = await device.ToggleAsync();
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
-        var finalState = await device.GetProp(PROPERTIES.power);
+        var finalState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(finalState).IsEqualTo("on");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
@@ -85,17 +85,17 @@ public class DeviceIntegrationTests
     {
         using var device = await GetRandomConnectedDevice();
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
         await Task.Delay(300);
 
-        var result = await device.SetPower(true, smooth: 500);
+        var result = await device.SetPowerAsync(true, smooth: 500);
         await Assert.That(result).IsTrue();
         await Task.Delay(800);
 
-        var powerState = await device.GetProp(PROPERTIES.power);
+        var powerState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(powerState).IsEqualTo("on");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
@@ -106,19 +106,19 @@ public class DeviceIntegrationTests
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetPower);
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
         await Task.Delay(300);
 
-        var result = await device.TurnOn(smooth: 300, mode: mode);
+        var result = await device.TurnOnAsync(smooth: 300, mode: mode);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
-        var powerState = await device.GetProp(PROPERTIES.power);
+        var powerState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(powerState).IsEqualTo("on");
 
         if (mode != PowerOnMode.Normal)
         {
-            var colorMode = await device.GetProp(PROPERTIES.color_mode);
+            var colorMode = await device.GetPropAsync(PROPERTIES.color_mode);
             Console.WriteLine($"Mode {mode} -> color_mode: {colorMode}");
             // color_mode: 1=RGB, 2=CT, 3=HSV
             if (mode == PowerOnMode.RGB)
@@ -127,7 +127,7 @@ public class DeviceIntegrationTests
                 await Assert.That(colorMode?.ToString()).IsEqualTo("2");
         }
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     #endregion
@@ -143,77 +143,77 @@ public class DeviceIntegrationTests
     public async Task Device_SetBrightness_VerifyValue(int brightness)
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetBrightness);
-        await device.TurnOn();
+        await device.TurnOnAsync();
         await Task.Delay(300);
 
-        var result = await device.SetBrightness(brightness);
+        var result = await device.SetBrightnessAsync(brightness);
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
-        var actualBrightness = await device.GetProp(PROPERTIES.bright);
+        var actualBrightness = await device.GetPropAsync(PROPERTIES.bright);
         await Assert.That(Convert.ToInt32(actualBrightness)).IsEqualTo(brightness);
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_SetBrightness_WithSmooth_VerifyValue()
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetBrightness);
-        await device.TurnOn();
-        await device.SetBrightness(100);
+        await device.TurnOnAsync();
+        await device.SetBrightnessAsync(100);
         await Task.Delay(300);
 
-        var result = await device.SetBrightness(30, smooth: 1000);
+        var result = await device.SetBrightnessAsync(30, smooth: 1000);
         await Assert.That(result).IsTrue();
         await Task.Delay(1300);
 
-        var actualBrightness = await device.GetProp(PROPERTIES.bright);
+        var actualBrightness = await device.GetPropAsync(PROPERTIES.bright);
         await Assert.That(Convert.ToInt32(actualBrightness)).IsEqualTo(30);
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_AdjustBright_Increase_VerifyChange()
     {
         using var device = await GetRandomConnectedDevice(METHODS.AdjustBright);
-        await device.TurnOn();
-        await device.SetBrightness(50);
+        await device.TurnOnAsync();
+        await device.SetBrightnessAsync(50);
         await Task.Delay(300);
 
-        var initialBrightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var initialBrightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
 
-        var result = await device.AdjustBright(20, duration: 300);
+        var result = await device.AdjustBrightAsync(20, duration: 300);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
-        var newBrightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var newBrightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
         await Assert.That(newBrightness > initialBrightness).IsTrue();
         Console.WriteLine($"Brightness: {initialBrightness} -> {newBrightness}");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_AdjustBright_Decrease_VerifyChange()
     {
         using var device = await GetRandomConnectedDevice(METHODS.AdjustBright);
-        await device.TurnOn();
-        await device.SetBrightness(70);
+        await device.TurnOnAsync();
+        await device.SetBrightnessAsync(70);
         await Task.Delay(300);
 
-        var initialBrightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var initialBrightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
 
-        var result = await device.AdjustBright(-30, duration: 300);
+        var result = await device.AdjustBrightAsync(-30, duration: 300);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
-        var newBrightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var newBrightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
         await Assert.That(newBrightness < initialBrightness).IsTrue();
         Console.WriteLine($"Brightness: {initialBrightness} -> {newBrightness}");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     #endregion
@@ -229,60 +229,60 @@ public class DeviceIntegrationTests
     public async Task Device_SetColorTemperature_VerifyValue(int temperature)
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetColorTemperature);
-        await device.TurnOn();
+        await device.TurnOnAsync();
         await Task.Delay(300);
 
-        var result = await device.SetColorTemperature(temperature);
+        var result = await device.SetColorTemperatureAsync(temperature);
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
-        var actualCt = await device.GetProp(PROPERTIES.ct);
+        var actualCt = await device.GetPropAsync(PROPERTIES.ct);
         await Assert.That(Convert.ToInt32(actualCt)).IsEqualTo(temperature);
 
         // Verify color mode is CT (2)
-        var colorMode = await device.GetProp(PROPERTIES.color_mode);
+        var colorMode = await device.GetPropAsync(PROPERTIES.color_mode);
         await Assert.That(colorMode?.ToString()).IsEqualTo("2");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_SetColorTemperature_WithSmooth_VerifyValue()
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetColorTemperature);
-        await device.TurnOn();
-        await device.SetColorTemperature(2700);
+        await device.TurnOnAsync();
+        await device.SetColorTemperatureAsync(2700);
         await Task.Delay(300);
 
-        var result = await device.SetColorTemperature(5000, smooth: 1000);
+        var result = await device.SetColorTemperatureAsync(5000, smooth: 1000);
         await Assert.That(result).IsTrue();
         await Task.Delay(1300);
 
-        var actualCt = await device.GetProp(PROPERTIES.ct);
+        var actualCt = await device.GetPropAsync(PROPERTIES.ct);
         await Assert.That(Convert.ToInt32(actualCt)).IsEqualTo(5000);
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_AdjustColorTemperature_Increase_VerifyChange()
     {
         using var device = await GetRandomConnectedDevice(METHODS.AdjustColorTemperature);
-        await device.TurnOn();
-        await device.SetColorTemperature(3000);
+        await device.TurnOnAsync();
+        await device.SetColorTemperatureAsync(3000);
         await Task.Delay(300);
 
-        var initialCt = Convert.ToInt32(await device.GetProp(PROPERTIES.ct));
+        var initialCt = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.ct));
 
-        var result = await device.AdjustColorTemperature(30, duration: 300);
+        var result = await device.AdjustColorTemperatureAsync(30, duration: 300);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
-        var newCt = Convert.ToInt32(await device.GetProp(PROPERTIES.ct));
+        var newCt = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.ct));
         await Assert.That(newCt > initialCt).IsTrue();
         Console.WriteLine($"Color Temperature: {initialCt}K -> {newCt}K");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     #endregion
@@ -300,41 +300,41 @@ public class DeviceIntegrationTests
     public async Task Device_SetRGBColor_VerifyValue(int r, int g, int b, int expectedRgbValue)
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetRGBColor);
-        await device.TurnOn();
+        await device.TurnOnAsync();
         await Task.Delay(300);
 
-        var result = await device.SetRGBColor(r, g, b);
+        var result = await device.SetRGBColorAsync(r, g, b);
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
-        var actualRgb = await device.GetProp(PROPERTIES.rgb);
+        var actualRgb = await device.GetPropAsync(PROPERTIES.rgb);
         await Assert.That(Convert.ToInt32(actualRgb)).IsEqualTo(expectedRgbValue);
 
         // Verify color mode is RGB (1)
-        var colorMode = await device.GetProp(PROPERTIES.color_mode);
+        var colorMode = await device.GetPropAsync(PROPERTIES.color_mode);
         await Assert.That(colorMode?.ToString()).IsEqualTo("1");
 
         Console.WriteLine($"RGB({r},{g},{b}) = {actualRgb}");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_SetRGBColor_WithSmooth_VerifyValue()
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetRGBColor);
-        await device.TurnOn();
-        await device.SetRGBColor(255, 0, 0); // Red
+        await device.TurnOnAsync();
+        await device.SetRGBColorAsync(255, 0, 0); // Red
         await Task.Delay(300);
 
-        var result = await device.SetRGBColor(0, 0, 255, smooth: 1000); // Blue
+        var result = await device.SetRGBColorAsync(0, 0, 255, smooth: 1000); // Blue
         await Assert.That(result).IsTrue();
         await Task.Delay(1300);
 
-        var actualRgb = await device.GetProp(PROPERTIES.rgb);
+        var actualRgb = await device.GetPropAsync(PROPERTIES.rgb);
         await Assert.That(Convert.ToInt32(actualRgb)).IsEqualTo(255); // Blue = 255
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     #endregion
@@ -351,47 +351,47 @@ public class DeviceIntegrationTests
     public async Task Device_SetHSVColor_VerifyValue(int hue, int sat)
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetHSVColor);
-        await device.TurnOn();
+        await device.TurnOnAsync();
         await Task.Delay(300);
 
-        var result = await device.SetHSVColor(hue, sat);
+        var result = await device.SetHSVColorAsync(hue, sat);
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
-        var actualHue = await device.GetProp(PROPERTIES.hue);
-        var actualSat = await device.GetProp(PROPERTIES.sat);
+        var actualHue = await device.GetPropAsync(PROPERTIES.hue);
+        var actualSat = await device.GetPropAsync(PROPERTIES.sat);
 
         await Assert.That(Convert.ToInt32(actualHue)).IsEqualTo(hue);
         await Assert.That(Convert.ToInt32(actualSat)).IsEqualTo(sat);
 
         // Verify color mode is HSV (3)
-        var colorMode = await device.GetProp(PROPERTIES.color_mode);
+        var colorMode = await device.GetPropAsync(PROPERTIES.color_mode);
         await Assert.That(colorMode?.ToString()).IsEqualTo("3");
 
         Console.WriteLine($"HSV: hue={actualHue}, sat={actualSat}");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_SetHSVColor_WithSmooth_VerifyValue()
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetHSVColor);
-        await device.TurnOn();
-        await device.SetHSVColor(0, 100); // Red
+        await device.TurnOnAsync();
+        await device.SetHSVColorAsync(0, 100); // Red
         await Task.Delay(300);
 
-        var result = await device.SetHSVColor(120, 80, smooth: 1000); // Green
+        var result = await device.SetHSVColorAsync(120, 80, smooth: 1000); // Green
         await Assert.That(result).IsTrue();
         await Task.Delay(1300);
 
-        var actualHue = await device.GetProp(PROPERTIES.hue);
-        var actualSat = await device.GetProp(PROPERTIES.sat);
+        var actualHue = await device.GetPropAsync(PROPERTIES.hue);
+        var actualSat = await device.GetPropAsync(PROPERTIES.sat);
 
         await Assert.That(Convert.ToInt32(actualHue)).IsEqualTo(120);
         await Assert.That(Convert.ToInt32(actualSat)).IsEqualTo(80);
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     #endregion
@@ -402,81 +402,81 @@ public class DeviceIntegrationTests
     public async Task Device_SetAdjust_IncreaseBright_VerifyChange()
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetAdjust);
-        await device.TurnOn();
-        await device.SetBrightness(40);
+        await device.TurnOnAsync();
+        await device.SetBrightnessAsync(40);
         await Task.Delay(300);
 
-        var initialBright = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var initialBright = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
 
-        var result = await device.SetAdjust(AdjustAction.increase, AdjustProperty.bright);
+        var result = await device.SetAdjustAsync(AdjustAction.increase, AdjustProperty.bright);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
-        var newBright = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var newBright = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
         await Assert.That(newBright > initialBright).IsTrue();
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_SetAdjust_DecreaseBright_VerifyChange()
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetAdjust);
-        await device.TurnOn();
-        await device.SetBrightness(60);
+        await device.TurnOnAsync();
+        await device.SetBrightnessAsync(60);
         await Task.Delay(300);
 
-        var initialBright = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var initialBright = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
 
-        var result = await device.SetAdjust(AdjustAction.decrease, AdjustProperty.bright);
+        var result = await device.SetAdjustAsync(AdjustAction.decrease, AdjustProperty.bright);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
-        var newBright = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var newBright = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
         await Assert.That(newBright < initialBright).IsTrue();
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_SetAdjust_IncreaseCt_VerifyChange()
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetAdjust);
-        await device.TurnOn();
-        await device.SetColorTemperature(3000);
+        await device.TurnOnAsync();
+        await device.SetColorTemperatureAsync(3000);
         await Task.Delay(300);
 
-        var initialCt = Convert.ToInt32(await device.GetProp(PROPERTIES.ct));
+        var initialCt = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.ct));
 
-        var result = await device.SetAdjust(AdjustAction.increase, AdjustProperty.ct);
+        var result = await device.SetAdjustAsync(AdjustAction.increase, AdjustProperty.ct);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
-        var newCt = Convert.ToInt32(await device.GetProp(PROPERTIES.ct));
+        var newCt = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.ct));
         await Assert.That(newCt > initialCt).IsTrue();
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_SetAdjust_CircleColor_VerifyChange()
     {
         using var device = await GetRandomConnectedDevice(METHODS.SetAdjust);
-        await device.TurnOn();
-        await device.SetRGBColor(255, 0, 0);
+        await device.TurnOnAsync();
+        await device.SetRGBColorAsync(255, 0, 0);
         await Task.Delay(300);
 
-        var initialRgb = Convert.ToInt32(await device.GetProp(PROPERTIES.rgb));
+        var initialRgb = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.rgb));
 
-        var result = await device.SetAdjust(AdjustAction.circle, AdjustProperty.color);
+        var result = await device.SetAdjustAsync(AdjustAction.circle, AdjustProperty.color);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
-        var newRgb = Convert.ToInt32(await device.GetProp(PROPERTIES.rgb));
+        var newRgb = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.rgb));
         await Assert.That(newRgb).IsNotEqualTo(initialRgb);
         Console.WriteLine($"Color circle: {initialRgb} -> {newRgb}");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     #endregion
@@ -487,7 +487,7 @@ public class DeviceIntegrationTests
     public async Task Device_StartColorFlow_VerifyFlowingState()
     {
         using var device = await GetRandomConnectedDevice(METHODS.StartColorFlow);
-        await device.TurnOn();
+        await device.TurnOnAsync();
         await Task.Delay(300);
 
         var flow = new ColorFlow(0, ColorFlowEndAction.Restore)
@@ -497,30 +497,30 @@ public class DeviceIntegrationTests
             new ColorFlowRGBExpression(0, 0, 255, 100, 1000)
         };
 
-        var result = await device.StartColorFlow(flow);
+        var result = await device.StartColorFlowAsync(flow);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         // Verify flowing state is active
-        var flowingState = await device.GetProp(PROPERTIES.flowing);
+        var flowingState = await device.GetPropAsync(PROPERTIES.flowing);
         await Assert.That(flowingState?.ToString()).IsEqualTo("1");
         Console.WriteLine($"Flowing state: {flowingState}");
 
-        await device.StopColorFlow();
+        await device.StopColorFlowAsync();
         await Task.Delay(300);
 
         // Verify flowing stopped
-        flowingState = await device.GetProp(PROPERTIES.flowing);
+        flowingState = await device.GetPropAsync(PROPERTIES.flowing);
         await Assert.That(flowingState?.ToString()).IsEqualTo("0");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_StopColorFlow_VerifyFlowingStopped()
     {
         using var device = await GetRandomConnectedDevice(METHODS.StopColorFlow);
-        await device.TurnOn();
+        await device.TurnOnAsync();
 
         var flow = new ColorFlow(0, ColorFlowEndAction.Keep)
         {
@@ -528,25 +528,25 @@ public class DeviceIntegrationTests
             new ColorFlowRGBExpression(0, 0, 255, 100, 500)
         };
 
-        await device.StartColorFlow(flow);
+        await device.StartColorFlowAsync(flow);
         await Task.Delay(800);
 
-        var result = await device.StopColorFlow();
+        var result = await device.StopColorFlowAsync();
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
-        var flowingState = await device.GetProp(PROPERTIES.flowing);
+        var flowingState = await device.GetPropAsync(PROPERTIES.flowing);
         await Assert.That(flowingState?.ToString()).IsEqualTo("0");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_ColorFlow_EndActionKeep_VerifyFinalColor()
     {
         using var device = await GetRandomConnectedDevice(METHODS.StartColorFlow);
-        await device.TurnOn();
-        await device.SetRGBColor(255, 255, 255); // Start white
+        await device.TurnOnAsync();
+        await device.SetRGBColorAsync(255, 255, 255); // Start white
         await Task.Delay(300);
 
         // Flow ends with blue, EndAction=Keep should keep the blue color
@@ -556,22 +556,22 @@ public class DeviceIntegrationTests
             new ColorFlowRGBExpression(0, 0, 255, 100, 300) // Ends blue
         };
 
-        var result = await device.StartColorFlow(flow);
+        var result = await device.StartColorFlowAsync(flow);
         await Assert.That(result).IsTrue();
         await Task.Delay(1000);
 
-        var finalRgb = await device.GetProp(PROPERTIES.rgb);
+        var finalRgb = await device.GetPropAsync(PROPERTIES.rgb);
         await Assert.That(Convert.ToInt32(finalRgb)).IsEqualTo(255); // Blue = 255
         Console.WriteLine($"Final RGB after Keep: {finalRgb}");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_ColorFlow_EndActionTurnOff_VerifyPowerOff()
     {
         using var device = await GetRandomConnectedDevice(METHODS.StartColorFlow);
-        await device.TurnOn();
+        await device.TurnOnAsync();
         await Task.Delay(300);
 
         var flow = new ColorFlow(1, ColorFlowEndAction.TurnOff)
@@ -580,11 +580,11 @@ public class DeviceIntegrationTests
             new ColorFlowRGBExpression(0, 255, 0, 100, 300)
         };
 
-        var result = await device.StartColorFlow(flow);
+        var result = await device.StartColorFlowAsync(flow);
         await Assert.That(result).IsTrue();
         await Task.Delay(1000);
 
-        var powerState = await device.GetProp(PROPERTIES.power);
+        var powerState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(powerState).IsEqualTo("off");
     }
 
@@ -592,7 +592,7 @@ public class DeviceIntegrationTests
     public async Task Device_FluentFlow_VerifyExecution()
     {
         using var device = await GetRandomConnectedDevice(METHODS.StartColorFlow);
-        await device.TurnOn();
+        await device.TurnOnAsync();
         await Task.Delay(300);
 
         var flow = device.Flow()
@@ -600,14 +600,14 @@ public class DeviceIntegrationTests
             .RgbColor(0, 255, 0, 100, 500)
             .Temperature(4000, 100, 500);
 
-        await flow.Play(ColorFlowEndAction.Keep, repetition: 1);
+        await flow.PlayAsync(ColorFlowEndAction.Keep, repetition: 1);
         await Task.Delay(500);
 
-        var flowingState = await device.GetProp(PROPERTIES.flowing);
+        var flowingState = await device.GetPropAsync(PROPERTIES.flowing);
         await Assert.That(flowingState?.ToString()).IsEqualTo("1");
 
         await Task.Delay(2000);
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     #endregion
@@ -620,24 +620,24 @@ public class DeviceIntegrationTests
         using var device = await GetRandomConnectedDevice(METHODS.SetScene);
 
         var scene = Scene.FromRGBColor(255, 128, 0, 80); // Orange at 80%
-        var result = await device.SetScene(scene);
+        var result = await device.SetSceneAsync(scene);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         // Verify power is on
-        var powerState = await device.GetProp(PROPERTIES.power);
+        var powerState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(powerState).IsEqualTo("on");
 
         // Verify RGB color
-        var rgb = Convert.ToInt32(await device.GetProp(PROPERTIES.rgb));
+        var rgb = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.rgb));
         int expectedRgb = (255 << 16) | (128 << 8) | 0; // 16744448
         await Assert.That(rgb).IsEqualTo(expectedRgb);
 
         // Verify brightness
-        var brightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var brightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
         await Assert.That(brightness).IsEqualTo(80);
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
@@ -646,19 +646,19 @@ public class DeviceIntegrationTests
         using var device = await GetRandomConnectedDevice(METHODS.SetScene);
 
         var scene = Scene.FromHSVColor(120, 100, 60); // Green at 60%
-        var result = await device.SetScene(scene);
+        var result = await device.SetSceneAsync(scene);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
-        var hue = Convert.ToInt32(await device.GetProp(PROPERTIES.hue));
-        var sat = Convert.ToInt32(await device.GetProp(PROPERTIES.sat));
-        var brightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var hue = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.hue));
+        var sat = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.sat));
+        var brightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
 
         await Assert.That(hue).IsEqualTo(120);
         await Assert.That(sat).IsEqualTo(100);
         await Assert.That(brightness).IsEqualTo(60);
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
@@ -667,17 +667,17 @@ public class DeviceIntegrationTests
         using var device = await GetRandomConnectedDevice(METHODS.SetScene);
 
         var scene = Scene.FromColorTemperature(4500, 90);
-        var result = await device.SetScene(scene);
+        var result = await device.SetSceneAsync(scene);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
-        var ct = Convert.ToInt32(await device.GetProp(PROPERTIES.ct));
-        var brightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var ct = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.ct));
+        var brightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
 
         await Assert.That(ct).IsEqualTo(4500);
         await Assert.That(brightness).IsEqualTo(90);
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
@@ -692,15 +692,15 @@ public class DeviceIntegrationTests
         };
         var scene = Scene.FromColorFlow(flow);
 
-        var result = await device.SetScene(scene);
+        var result = await device.SetSceneAsync(scene);
         await Assert.That(result).IsTrue();
         await Task.Delay(300);
 
-        var flowingState = await device.GetProp(PROPERTIES.flowing);
+        var flowingState = await device.GetPropAsync(PROPERTIES.flowing);
         await Assert.That(flowingState?.ToString()).IsEqualTo("1");
 
-        await device.StopColorFlow();
-        await device.TurnOff();
+        await device.StopColorFlowAsync();
+        await device.TurnOffAsync();
     }
 
     [Test]
@@ -709,24 +709,24 @@ public class DeviceIntegrationTests
         using var device = await GetRandomConnectedDevice(METHODS.SetScene);
 
         var scene = Scene.FromAutoDelayOff(1, 70); // 1 minute delay, 70% brightness
-        var result = await device.SetScene(scene);
+        var result = await device.SetSceneAsync(scene);
         await Assert.That(result).IsTrue();
         await Task.Delay(500);
 
         // Verify power is on
-        var powerState = await device.GetProp(PROPERTIES.power);
+        var powerState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(powerState).IsEqualTo("on");
 
         // Verify brightness
-        var brightness = Convert.ToInt32(await device.GetProp(PROPERTIES.bright));
+        var brightness = Convert.ToInt32(await device.GetPropAsync(PROPERTIES.bright));
         await Assert.That(brightness).IsEqualTo(70);
 
         // Verify delayoff is set (should be around 1 minute)
-        var delayoff = await device.GetProp(PROPERTIES.delayoff);
+        var delayoff = await device.GetPropAsync(PROPERTIES.delayoff);
         await Assert.That(delayoff).IsNotNull();
         Console.WriteLine($"Delay off: {delayoff} minutes remaining");
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     #endregion
@@ -737,55 +737,55 @@ public class DeviceIntegrationTests
     public async Task Device_CronAdd_VerifyCronGet()
     {
         using var device = await GetRandomConnectedDevice(METHODS.AddCron);
-        await device.TurnOn();
+        await device.TurnOnAsync();
 
         // Add cron job to turn off in 10 minutes
-        var addResult = await device.CronAdd(10, CronType.PowerOff);
+        var addResult = await device.CronAddAsync(10, CronType.PowerOff);
         await Assert.That(addResult).IsTrue();
         await Task.Delay(500);
 
         // Get and verify cron job
-        var cronResult = await device.CronGet(CronType.PowerOff);
+        var cronResult = await device.CronGetAsync(CronType.PowerOff);
         await Assert.That(cronResult).IsNotNull();
         Console.WriteLine($"Cron result - Type: {cronResult!.Type}, Delay: {cronResult.Delay}, Mix: {cronResult.Mix}");
 
         // Verify delayoff property is set
-        var delayoff = await device.GetProp(PROPERTIES.delayoff);
+        var delayoff = await device.GetPropAsync(PROPERTIES.delayoff);
         await Assert.That(delayoff).IsNotNull();
         var delayMinutes = Convert.ToInt32(delayoff);
         await Assert.That(delayMinutes > 0 && delayMinutes <= 10).IsTrue();
         Console.WriteLine($"Delayoff remaining: {delayMinutes} minutes");
 
         // Clean up
-        await device.CronDelete(CronType.PowerOff);
-        await device.TurnOff();
+        await device.CronDeleteAsync(CronType.PowerOff);
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_CronDelete_VerifyRemoved()
     {
         using var device = await GetRandomConnectedDevice(METHODS.DeleteCron);
-        await device.TurnOn();
+        await device.TurnOnAsync();
 
         // Add cron job
-        await device.CronAdd(5, CronType.PowerOff);
+        await device.CronAddAsync(5, CronType.PowerOff);
         await Task.Delay(300);
 
         // Verify it exists
-        var delayoffBefore = await device.GetProp(PROPERTIES.delayoff);
+        var delayoffBefore = await device.GetPropAsync(PROPERTIES.delayoff);
         await Assert.That(delayoffBefore).IsNotNull();
         await Assert.That(Convert.ToInt32(delayoffBefore) > 0).IsTrue();
 
         // Delete cron job
-        var deleteResult = await device.CronDelete(CronType.PowerOff);
+        var deleteResult = await device.CronDeleteAsync(CronType.PowerOff);
         await Assert.That(deleteResult).IsTrue();
         await Task.Delay(300);
 
         // Verify delayoff is 0
-        var delayoffAfter = await device.GetProp(PROPERTIES.delayoff);
+        var delayoffAfter = await device.GetPropAsync(PROPERTIES.delayoff);
         await Assert.That(Convert.ToInt32(delayoffAfter)).IsEqualTo(0);
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     #endregion
@@ -796,12 +796,12 @@ public class DeviceIntegrationTests
     public async Task Device_GetAllProps_VerifyEssentialProperties()
     {
         using var device = await GetRandomConnectedDevice();
-        await device.TurnOn();
-        await device.SetBrightness(75);
-        await device.SetColorTemperature(4000);
+        await device.TurnOnAsync();
+        await device.SetBrightnessAsync(75);
+        await device.SetColorTemperatureAsync(4000);
         await Task.Delay(500);
 
-        var props = await device.GetAllProps();
+        var props = await device.GetAllPropsAsync();
 
         await Assert.That(props).IsNotNull();
         await Assert.That(props).IsNotEmpty();
@@ -822,19 +822,19 @@ public class DeviceIntegrationTests
             Console.WriteLine($"  {prop.Key}: {prop.Value}");
         }
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
     public async Task Device_GetProps_MultipleProperties_VerifyValues()
     {
         using var device = await GetRandomConnectedDevice();
-        await device.TurnOn();
-        await device.SetBrightness(60);
-        await device.SetRGBColor(0, 255, 0); // Green
+        await device.TurnOnAsync();
+        await device.SetBrightnessAsync(60);
+        await device.SetRGBColorAsync(0, 255, 0); // Green
         await Task.Delay(500);
 
-        var props = await device.GetProps(PROPERTIES.power | PROPERTIES.bright | PROPERTIES.rgb | PROPERTIES.color_mode);
+        var props = await device.GetPropsAsync(PROPERTIES.power | PROPERTIES.bright | PROPERTIES.rgb | PROPERTIES.color_mode);
 
         await Assert.That(props).IsNotNull();
 
@@ -850,7 +850,7 @@ public class DeviceIntegrationTests
         if (props.ContainsKey(PROPERTIES.color_mode))
             await Assert.That(props[PROPERTIES.color_mode]?.ToString()).IsEqualTo("1"); // RGB mode
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     [Test]
@@ -859,26 +859,26 @@ public class DeviceIntegrationTests
         using var device = await GetRandomConnectedDevice(METHODS.SetName);
 
         // Get original name
-        var originalName = await device.GetProp(PROPERTIES.name) as string ?? "";
+        var originalName = await device.GetPropAsync(PROPERTIES.name) as string ?? "";
         Console.WriteLine($"Original name: '{originalName}'");
 
         // Set new name
         var testName = $"Test_{DateTime.Now.Ticks}";
-        var result = await device.SetName(testName);
+        var result = await device.SetNameAsync(testName);
         await Assert.That(result).IsTrue();
         await Task.Delay(1000);
 
         // Verify name changed
-        var newName = await device.GetProp(PROPERTIES.name) as string;
+        var newName = await device.GetPropAsync(PROPERTIES.name) as string;
         await Assert.That(newName).IsEqualTo(testName);
         Console.WriteLine($"New name: '{newName}'");
 
         // Restore original name
         if (!string.IsNullOrEmpty(originalName))
         {
-            await device.SetName(originalName);
+            await device.SetNameAsync(originalName);
             await Task.Delay(500);
-            var restoredName = await device.GetProp(PROPERTIES.name) as string;
+            var restoredName = await device.GetPropAsync(PROPERTIES.name) as string;
             await Assert.That(restoredName).IsEqualTo(originalName);
         }
     }
@@ -896,13 +896,13 @@ public class DeviceIntegrationTests
         var device = devices.First();
 
         // First connection
-        var connected = await device.Connect();
+        var connected = await device.ConnectAsync();
         await Assert.That(connected).IsTrue();
         await Assert.That(device.IsConnected).IsTrue();
 
         // Execute command to verify connection works
-        await device.TurnOn();
-        var powerState = await device.GetProp(PROPERTIES.power);
+        await device.TurnOnAsync();
+        var powerState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(powerState).IsEqualTo("on");
 
         // Disconnect
@@ -910,13 +910,13 @@ public class DeviceIntegrationTests
         await Assert.That(device.IsConnected).IsFalse();
 
         // Reconnect
-        connected = await device.Connect();
+        connected = await device.ConnectAsync();
         await Assert.That(connected).IsTrue();
         await Assert.That(device.IsConnected).IsTrue();
 
         // Verify commands still work
-        await device.TurnOff();
-        powerState = await device.GetProp(PROPERTIES.power);
+        await device.TurnOffAsync();
+        powerState = await device.GetPropAsync(PROPERTIES.power);
         await Assert.That(powerState).IsEqualTo("off");
 
         device.Dispose();
@@ -947,11 +947,11 @@ public class DeviceIntegrationTests
         };
 
         // Trigger state changes
-        await device.TurnOn();
+        await device.TurnOnAsync();
         await Task.Delay(200);
-        await device.SetBrightness(50);
+        await device.SetBrightnessAsync(50);
         await Task.Delay(200);
-        await device.SetBrightness(100);
+        await device.SetBrightnessAsync(100);
         await Task.Delay(200);
 
         // Wait for notification with timeout
@@ -969,7 +969,7 @@ public class DeviceIntegrationTests
             Console.WriteLine("No notification received within timeout - this is device-dependent behavior");
         }
 
-        await device.TurnOff();
+        await device.TurnOffAsync();
     }
 
     #endregion
@@ -988,18 +988,18 @@ public class DeviceIntegrationTests
 
         using (device)
         {
-            var result = await device.BackgroundTurnOn();
+            var result = await device.BackgroundTurnOnAsync();
             await Assert.That(result).IsTrue();
             await Task.Delay(300);
 
-            var bgPower = await device.GetProp(PROPERTIES.bg_power);
+            var bgPower = await device.GetPropAsync(PROPERTIES.bg_power);
             await Assert.That(bgPower).IsEqualTo("on");
 
-            result = await device.BackgroundTurnOff();
+            result = await device.BackgroundTurnOffAsync();
             await Assert.That(result).IsTrue();
             await Task.Delay(300);
 
-            bgPower = await device.GetProp(PROPERTIES.bg_power);
+            bgPower = await device.GetPropAsync(PROPERTIES.bg_power);
             await Assert.That(bgPower).IsEqualTo("off");
         }
     }
@@ -1019,18 +1019,18 @@ public class DeviceIntegrationTests
 
         using (device)
         {
-            await device.BackgroundTurnOn();
+            await device.BackgroundTurnOnAsync();
             await Task.Delay(300);
 
-            var result = await device.BackgroundSetRGBColor(r, g, b);
+            var result = await device.BackgroundSetRGBColorAsync(r, g, b);
             await Assert.That(result).IsTrue();
             await Task.Delay(300);
 
-            var bgRgb = await device.GetProp(PROPERTIES.bg_rgb);
+            var bgRgb = await device.GetPropAsync(PROPERTIES.bg_rgb);
             int expectedRgb = (r << 16) | (g << 8) | b;
             await Assert.That(Convert.ToInt32(bgRgb)).IsEqualTo(expectedRgb);
 
-            await device.BackgroundTurnOff();
+            await device.BackgroundTurnOffAsync();
         }
     }
 
@@ -1049,17 +1049,17 @@ public class DeviceIntegrationTests
 
         using (device)
         {
-            await device.BackgroundTurnOn();
+            await device.BackgroundTurnOnAsync();
             await Task.Delay(300);
 
-            var result = await device.BackgroundSetBrightness(brightness);
+            var result = await device.BackgroundSetBrightnessAsync(brightness);
             await Assert.That(result).IsTrue();
             await Task.Delay(300);
 
-            var bgBright = await device.GetProp(PROPERTIES.bg_bright);
+            var bgBright = await device.GetPropAsync(PROPERTIES.bg_bright);
             await Assert.That(Convert.ToInt32(bgBright)).IsEqualTo(brightness);
 
-            await device.BackgroundTurnOff();
+            await device.BackgroundTurnOffAsync();
         }
     }
 
@@ -1078,17 +1078,17 @@ public class DeviceIntegrationTests
 
         using (device)
         {
-            await device.BackgroundTurnOn();
+            await device.BackgroundTurnOnAsync();
             await Task.Delay(300);
 
-            var result = await device.BackgroundSetColorTemperature(temperature);
+            var result = await device.BackgroundSetColorTemperatureAsync(temperature);
             await Assert.That(result).IsTrue();
             await Task.Delay(300);
 
-            var bgCt = await device.GetProp(PROPERTIES.bg_ct);
+            var bgCt = await device.GetPropAsync(PROPERTIES.bg_ct);
             await Assert.That(Convert.ToInt32(bgCt)).IsEqualTo(temperature);
 
-            await device.BackgroundTurnOff();
+            await device.BackgroundTurnOffAsync();
         }
     }
 
@@ -1104,19 +1104,19 @@ public class DeviceIntegrationTests
 
         using (device)
         {
-            await device.BackgroundTurnOn();
+            await device.BackgroundTurnOnAsync();
             await Task.Delay(300);
 
-            var result = await device.BackgroundSetHSVColor(180, 80);
+            var result = await device.BackgroundSetHSVColorAsync(180, 80);
             await Assert.That(result).IsTrue();
             await Task.Delay(300);
 
-            var bgHue = await device.GetProp(PROPERTIES.bg_hue);
-            var bgSat = await device.GetProp(PROPERTIES.bg_sat);
+            var bgHue = await device.GetPropAsync(PROPERTIES.bg_hue);
+            var bgSat = await device.GetPropAsync(PROPERTIES.bg_sat);
             await Assert.That(Convert.ToInt32(bgHue)).IsEqualTo(180);
             await Assert.That(Convert.ToInt32(bgSat)).IsEqualTo(80);
 
-            await device.BackgroundTurnOff();
+            await device.BackgroundTurnOffAsync();
         }
     }
 
@@ -1132,21 +1132,21 @@ public class DeviceIntegrationTests
 
         using (device)
         {
-            await device.BackgroundTurnOff();
+            await device.BackgroundTurnOffAsync();
             await Task.Delay(300);
 
-            var result = await device.BackgroundToggle();
+            var result = await device.BackgroundToggleAsync();
             await Assert.That(result).IsTrue();
             await Task.Delay(300);
 
-            var bgPower = await device.GetProp(PROPERTIES.bg_power);
+            var bgPower = await device.GetPropAsync(PROPERTIES.bg_power);
             await Assert.That(bgPower).IsEqualTo("on");
 
-            result = await device.BackgroundToggle();
+            result = await device.BackgroundToggleAsync();
             await Assert.That(result).IsTrue();
             await Task.Delay(300);
 
-            bgPower = await device.GetProp(PROPERTIES.bg_power);
+            bgPower = await device.GetPropAsync(PROPERTIES.bg_power);
             await Assert.That(bgPower).IsEqualTo("off");
         }
     }
@@ -1163,7 +1163,7 @@ public class DeviceIntegrationTests
 
         using (device)
         {
-            await device.BackgroundTurnOn();
+            await device.BackgroundTurnOnAsync();
             await Task.Delay(300);
 
             var flow = new ColorFlow(0, ColorFlowEndAction.Restore)
@@ -1172,20 +1172,20 @@ public class DeviceIntegrationTests
                 new ColorFlowRGBExpression(0, 0, 255, 100, 500)
             };
 
-            var result = await device.BackgroundStartColorFlow(flow);
+            var result = await device.BackgroundStartColorFlowAsync(flow);
             await Assert.That(result).IsTrue();
             await Task.Delay(300);
 
-            var bgFlowing = await device.GetProp(PROPERTIES.bg_flowing);
+            var bgFlowing = await device.GetPropAsync(PROPERTIES.bg_flowing);
             await Assert.That(bgFlowing?.ToString()).IsEqualTo("1");
 
-            await device.BackgroundStopColorFlow();
+            await device.BackgroundStopColorFlowAsync();
             await Task.Delay(300);
 
-            bgFlowing = await device.GetProp(PROPERTIES.bg_flowing);
+            bgFlowing = await device.GetPropAsync(PROPERTIES.bg_flowing);
             await Assert.That(bgFlowing?.ToString()).IsEqualTo("0");
 
-            await device.BackgroundTurnOff();
+            await device.BackgroundTurnOffAsync();
         }
     }
 
@@ -1202,27 +1202,27 @@ public class DeviceIntegrationTests
         using (device)
         {
             // Set known state
-            await device.TurnOn();
-            await device.BackgroundTurnOn();
+            await device.TurnOnAsync();
+            await device.BackgroundTurnOnAsync();
             await Task.Delay(300);
 
-            var mainPower = await device.GetProp(PROPERTIES.power);
-            var bgPower = await device.GetProp(PROPERTIES.bg_power);
+            var mainPower = await device.GetPropAsync(PROPERTIES.power);
+            var bgPower = await device.GetPropAsync(PROPERTIES.bg_power);
             await Assert.That(mainPower).IsEqualTo("on");
             await Assert.That(bgPower).IsEqualTo("on");
 
             // DevToggle should toggle both
-            var result = await device.DevToggle();
+            var result = await device.DevToggleAsync();
             await Assert.That(result).IsTrue();
             await Task.Delay(300);
 
-            mainPower = await device.GetProp(PROPERTIES.power);
-            bgPower = await device.GetProp(PROPERTIES.bg_power);
+            mainPower = await device.GetPropAsync(PROPERTIES.power);
+            bgPower = await device.GetPropAsync(PROPERTIES.bg_power);
             await Assert.That(mainPower).IsEqualTo("off");
             await Assert.That(bgPower).IsEqualTo("off");
 
             // Toggle back
-            await device.DevToggle();
+            await device.DevToggleAsync();
         }
     }
 
@@ -1241,7 +1241,7 @@ public class DeviceIntegrationTests
         var randomIndex = new Random().Next(0, devices.Count);
         var device = devices[randomIndex];
         Console.WriteLine($"Using device: {device} (Model: {device.Model})");
-        await device.Connect();
+        await device.ConnectAsync();
         return device;
     }
 
@@ -1257,7 +1257,7 @@ public class DeviceIntegrationTests
         if (backgroundDevice != null)
         {
             Console.WriteLine($"Using background light device: {backgroundDevice} (Model: {backgroundDevice.Model})");
-            await backgroundDevice.Connect();
+            await backgroundDevice.ConnectAsync();
         }
 
         return backgroundDevice;

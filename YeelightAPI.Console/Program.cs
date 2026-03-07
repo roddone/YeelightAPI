@@ -30,7 +30,7 @@ try
         {
             Console.WriteLine($"{devices.Count} device(s) found !");
             using DeviceGroup group = new(devices);
-            await group.Connect();
+            await group.ConnectAsync();
 
             foreach (Device device in group)
             {
@@ -79,7 +79,7 @@ try
         bool success = true;
 
         Console.WriteLine("connecting device ...");
-        success &= await device.Connect();
+        success &= await device.ConnectAsync();
 
         device.OnNotificationReceived += Device_OnNotificationReceived;
         device.OnError += Device_OnError;
@@ -128,7 +128,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("powering on ...");
-        success = await device.SetPower(true, smooth);
+        success = await device.SetPowerAsync(true, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -137,7 +137,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("turn off ...");
-        success = await device.TurnOff(smooth);
+        success = await device.TurnOffAsync(smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -146,7 +146,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("turn on ...");
-        success = await device.TurnOn(smooth);
+        success = await device.TurnOnAsync(smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -155,7 +155,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("add cron ...");
-        success = await device.CronAdd(15, CronType.PowerOff);
+        success = await device.CronAddAsync(15, CronType.PowerOff);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -166,7 +166,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("get cron ...");
-            CronResult cronResult = await deviceReader.CronGet(CronType.PowerOff);
+            CronResult cronResult = await deviceReader.CronGetAsync(CronType.PowerOff);
             globalSuccess &= (cronResult != null);
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -176,7 +176,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("getting current name ...");
-            name = (await deviceReader.GetProp(PROPERTIES.name))?.ToString();
+            name = (await deviceReader.GetPropAsync(PROPERTIES.name))?.ToString();
             Console.WriteLine($"current name : {name}");
         });
         await Task.Delay(delay);
@@ -184,7 +184,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("setting name 'test' ...");
-            success &= await deviceReader.SetName("test");
+            success &= await deviceReader.SetNameAsync("test");
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(2000);
         });
@@ -193,7 +193,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("restoring name '{0}' ...", name);
-            success &= await deviceReader.SetName(name);
+            success &= await deviceReader.SetNameAsync(name);
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(2000);
         });
@@ -201,7 +201,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("getting all props ...");
-            Dictionary<PROPERTIES, object> result = await deviceReader.GetAllProps();
+            Dictionary<PROPERTIES, object> result = await deviceReader.GetAllPropsAsync();
             Console.WriteLine($"\tprops : {JsonSerializer.Serialize(result)}");
             await Task.Delay(2000);
         });
@@ -210,7 +210,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("delete cron ...");
-        success = await device.CronDelete(CronType.PowerOff);
+        success = await device.CronDeleteAsync(CronType.PowerOff);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -221,7 +221,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("powering on ...");
-            success = await backgroundDevice.BackgroundSetPower(true, smooth);
+            success = await backgroundDevice.BackgroundSetPowerAsync(true, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -230,7 +230,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("turn off ...");
-            success = await backgroundDevice.BackgroundTurnOff(smooth);
+            success = await backgroundDevice.BackgroundTurnOffAsync(smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -239,7 +239,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("turn on ...");
-            success = await backgroundDevice.BackgroundTurnOn(smooth, PowerOnMode.RGB);
+            success = await backgroundDevice.BackgroundTurnOnAsync(smooth, PowerOnMode.RGB);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -248,7 +248,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting Brightness to One...");
-            success = await backgroundDevice.BackgroundSetBrightness(1, smooth);
+            success = await backgroundDevice.BackgroundSetBrightnessAsync(1, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -257,7 +257,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting brightness increase...");
-            success = await backgroundDevice.BackgroundSetAdjust(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.bright);
+            success = await backgroundDevice.BackgroundSetAdjustAsync(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.bright);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -266,7 +266,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting Brightness to 100 %...");
-            success = await backgroundDevice.BackgroundSetBrightness(100, smooth);
+            success = await backgroundDevice.BackgroundSetBrightnessAsync(100, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -275,7 +275,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting brightness decrease...");
-            success = await backgroundDevice.BackgroundSetAdjust(YeelightAPI.Models.Adjust.AdjustAction.decrease, YeelightAPI.Models.Adjust.AdjustProperty.bright);
+            success = await backgroundDevice.BackgroundSetAdjustAsync(YeelightAPI.Models.Adjust.AdjustAction.decrease, YeelightAPI.Models.Adjust.AdjustProperty.bright);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -284,7 +284,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting Brightness to 50 %...");
-            success = await backgroundDevice.BackgroundSetBrightness(50, smooth);
+            success = await backgroundDevice.BackgroundSetBrightnessAsync(50, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -293,7 +293,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting RGB color to red ...");
-            success = await backgroundDevice.BackgroundSetRGBColor(255, 0, 0, smooth);
+            success = await backgroundDevice.BackgroundSetRGBColorAsync(255, 0, 0, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -302,7 +302,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting RGB color to green...");
-            success = await backgroundDevice.BackgroundSetRGBColor(0, 255, 0, smooth);
+            success = await backgroundDevice.BackgroundSetRGBColorAsync(0, 255, 0, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -311,7 +311,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting color increase circle...");
-            success = await backgroundDevice.BackgroundSetAdjust(YeelightAPI.Models.Adjust.AdjustAction.circle, YeelightAPI.Models.Adjust.AdjustProperty.color);
+            success = await backgroundDevice.BackgroundSetAdjustAsync(YeelightAPI.Models.Adjust.AdjustAction.circle, YeelightAPI.Models.Adjust.AdjustProperty.color);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -320,7 +320,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting RGB color to blue...");
-            success = await backgroundDevice.BackgroundSetRGBColor(0, 0, 255, smooth);
+            success = await backgroundDevice.BackgroundSetRGBColorAsync(0, 0, 255, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -329,7 +329,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting HSV color to red...");
-            success = await backgroundDevice.BackgroundSetHSVColor(0, 100, smooth);
+            success = await backgroundDevice.BackgroundSetHSVColorAsync(0, 100, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -338,7 +338,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting HSV color to green...");
-            success = await backgroundDevice.BackgroundSetHSVColor(120, 100, smooth);
+            success = await backgroundDevice.BackgroundSetHSVColorAsync(120, 100, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -347,7 +347,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting HSV color to blue...");
-            success = await backgroundDevice.BackgroundSetHSVColor(240, 100, smooth);
+            success = await backgroundDevice.BackgroundSetHSVColorAsync(240, 100, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -356,7 +356,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting Color Temperature to 1700k ...");
-            success = await backgroundDevice.BackgroundSetColorTemperature(1700, smooth);
+            success = await backgroundDevice.BackgroundSetColorTemperatureAsync(1700, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -365,7 +365,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting color temperature increase ...");
-            success = await backgroundDevice.BackgroundSetAdjust(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.ct);
+            success = await backgroundDevice.BackgroundSetAdjustAsync(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.ct);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -374,7 +374,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Setting Color Temperature to 6500k ...");
-            success = await backgroundDevice.BackgroundSetColorTemperature(6500, smooth);
+            success = await backgroundDevice.BackgroundSetColorTemperatureAsync(6500, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -393,7 +393,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
                 new ColorFlowTemperatureExpression(2700, 100, 500),
                 new ColorFlowTemperatureExpression(5000, 1, 500)
             };
-            success = await backgroundDevice.BackgroundStartColorFlow(flow);
+            success = await backgroundDevice.BackgroundStartColorFlowAsync(flow);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(10 * 1000);
@@ -402,7 +402,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Stoping color flow ...");
-            success = await backgroundDevice.BackgroundStopColorFlow();
+            success = await backgroundDevice.BackgroundStopColorFlowAsync();
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -421,9 +421,9 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
                 .Temperature(2700, 100, 1000)
                 .Sleep(2000)
                 .Temperature(6500, 100, 1000)
-                .Play(ColorFlowEndAction.Keep);
+                .PlayAsync(ColorFlowEndAction.Keep);
 
-            await fflow.StopAfter(5000);
+            await fflow.StopAfterAsync(5000);
 
             WriteLineWithColor($"Color flow ended", ConsoleColor.DarkCyan);
         });
@@ -431,7 +431,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("adjust brightness ++");
-            success = await backgroundDevice.BackgroundAdjustBright(50, smooth);
+            success = await backgroundDevice.BackgroundAdjustBrightAsync(50, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -440,7 +440,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("adjust brightness --");
-            success = await backgroundDevice.BackgroundAdjustBright(-50, smooth);
+            success = await backgroundDevice.BackgroundAdjustBrightAsync(-50, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -449,7 +449,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("adjust color ++");
-            success = await backgroundDevice.BackgroundAdjustColor(50, smooth);
+            success = await backgroundDevice.BackgroundAdjustColorAsync(50, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -458,7 +458,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("adjust color --");
-            success = await backgroundDevice.BackgroundAdjustColor(-50, smooth);
+            success = await backgroundDevice.BackgroundAdjustColorAsync(-50, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -467,7 +467,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("adjust color temperature ++");
-            success = await backgroundDevice.BackgroundAdjustColorTemperature(50, smooth);
+            success = await backgroundDevice.BackgroundAdjustColorTemperatureAsync(50, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -476,7 +476,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("adjust color temperature --");
-            success = await backgroundDevice.BackgroundAdjustColorTemperature(-50, smooth);
+            success = await backgroundDevice.BackgroundAdjustColorTemperatureAsync(-50, smooth);
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -485,7 +485,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
         await Try(async () =>
         {
             Console.WriteLine("Toggling bulb state...");
-            success = await backgroundDevice.BackgroundToggle();
+            success = await backgroundDevice.BackgroundToggleAsync();
             globalSuccess &= success;
             WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
             await Task.Delay(delay);
@@ -495,7 +495,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting Brightness to One...");
-        success = await device.SetBrightness(1, smooth);
+        success = await device.SetBrightnessAsync(1, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -504,7 +504,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting brightness increase...");
-        success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.bright);
+        success = await device.SetAdjustAsync(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.bright);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -513,7 +513,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting Brightness to 100 %...");
-        success = await device.SetBrightness(100, smooth);
+        success = await device.SetBrightnessAsync(100, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -522,7 +522,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting brightness decrease...");
-        success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.decrease, YeelightAPI.Models.Adjust.AdjustProperty.bright);
+        success = await device.SetAdjustAsync(YeelightAPI.Models.Adjust.AdjustAction.decrease, YeelightAPI.Models.Adjust.AdjustProperty.bright);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -531,7 +531,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting Brightness to 50 %...");
-        success = await device.SetBrightness(50, smooth);
+        success = await device.SetBrightnessAsync(50, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -540,7 +540,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting RGB color to red ...");
-        success = await device.SetRGBColor(255, 0, 0, smooth);
+        success = await device.SetRGBColorAsync(255, 0, 0, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -549,7 +549,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting RGB color to green...");
-        success = await device.SetRGBColor(0, 255, 0, smooth);
+        success = await device.SetRGBColorAsync(0, 255, 0, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -558,7 +558,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting color increase circle...");
-        success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.circle, YeelightAPI.Models.Adjust.AdjustProperty.color);
+        success = await device.SetAdjustAsync(YeelightAPI.Models.Adjust.AdjustAction.circle, YeelightAPI.Models.Adjust.AdjustProperty.color);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -567,7 +567,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting RGB color to blue...");
-        success = await device.SetRGBColor(0, 0, 255, smooth);
+        success = await device.SetRGBColorAsync(0, 0, 255, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -576,7 +576,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting HSV color to red...");
-        success = await device.SetHSVColor(0, 100, smooth);
+        success = await device.SetHSVColorAsync(0, 100, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -585,7 +585,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting HSV color to green...");
-        success = await device.SetHSVColor(120, 100, smooth);
+        success = await device.SetHSVColorAsync(120, 100, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -594,7 +594,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting HSV color to blue...");
-        success = await device.SetHSVColor(240, 100, smooth);
+        success = await device.SetHSVColorAsync(240, 100, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -603,7 +603,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting Color Temperature to 1700k ...");
-        success = await device.SetColorTemperature(1700, smooth);
+        success = await device.SetColorTemperatureAsync(1700, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -612,7 +612,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting color temperature increase ...");
-        success = await device.SetAdjust(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.ct);
+        success = await device.SetAdjustAsync(YeelightAPI.Models.Adjust.AdjustAction.increase, YeelightAPI.Models.Adjust.AdjustProperty.ct);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -621,7 +621,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Setting Color Temperature to 6500k ...");
-        success = await device.SetColorTemperature(6500, smooth);
+        success = await device.SetColorTemperatureAsync(6500, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -640,7 +640,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
             new ColorFlowTemperatureExpression(2700, 100, 500),
             new ColorFlowTemperatureExpression(5000, 1, 500)
         };
-        success = await device.StartColorFlow(flow);
+        success = await device.StartColorFlowAsync(flow);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(10 * 1000);
@@ -649,7 +649,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Stoping color flow ...");
-        success = await device.StopColorFlow();
+        success = await device.StopColorFlowAsync();
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -668,9 +668,9 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
             .Temperature(2700, 100, 1000)
             .Sleep(2000)
             .Temperature(6500, 100, 1000)
-            .Play(ColorFlowEndAction.Keep);
+            .PlayAsync(ColorFlowEndAction.Keep);
 
-        await fflow.StopAfter(5000);
+        await fflow.StopAfterAsync(5000);
 
         WriteLineWithColor($"Color flow ended", ConsoleColor.DarkCyan);
     });
@@ -678,7 +678,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("adjust brightness ++");
-        success = await device.AdjustBright(50, smooth);
+        success = await device.AdjustBrightAsync(50, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -687,7 +687,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("adjust brightness --");
-        success = await device.AdjustBright(-50, smooth);
+        success = await device.AdjustBrightAsync(-50, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -696,7 +696,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("adjust color ++");
-        success = await device.AdjustColor(50, smooth);
+        success = await device.AdjustColorAsync(50, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -705,7 +705,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("adjust color --");
-        success = await device.AdjustColor(-50, smooth);
+        success = await device.AdjustColorAsync(-50, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -714,7 +714,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("adjust color temperature ++");
-        success = await device.AdjustColorTemperature(50, smooth);
+        success = await device.AdjustColorTemperatureAsync(50, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -723,7 +723,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("adjust color temperature --");
-        success = await device.AdjustColorTemperature(-50, smooth);
+        success = await device.AdjustColorTemperatureAsync(-50, smooth);
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);
@@ -732,7 +732,7 @@ async Task<bool> ExecuteTests(IDeviceController device, int? smooth = null)
     await Try(async () =>
     {
         Console.WriteLine("Toggling bulb state...");
-        success = await device.Toggle();
+        success = await device.ToggleAsync();
         globalSuccess &= success;
         WriteLineWithColor($"command success : {success}", ConsoleColor.DarkCyan);
         await Task.Delay(delay);

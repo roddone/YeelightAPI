@@ -92,7 +92,7 @@ public abstract class IntegrationTestBase
         Console.WriteLine($"Using device: {device} (Model: {device.Model})");
 
         await RespectRateLimit(device.Id);
-        await device.Connect();
+        await device.ConnectAsync();
 
         return device;
     }
@@ -111,7 +111,7 @@ public abstract class IntegrationTestBase
         foreach (var device in devices)
         {
             await RespectRateLimit(device.Id);
-            await device.Connect();
+            await device.ConnectAsync();
         }
 
         return devices;
