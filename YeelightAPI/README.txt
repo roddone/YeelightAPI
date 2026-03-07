@@ -6,4 +6,4 @@ The release notes can be found here: https://github.com/roddone/YeelightAPI/rele
 
 If you want to thank the author (me), you can make a gift on Paypal : https://www.paypal.me/roddone.
 
-If you find some bugs, or if you have any idea or feature that needs to be implemented, you can email me at romain.oddone@outlook.com.
+If you find some bugs, or if you have any idea or feature that needs to be implemented, please create an issue on the GitHub repository, or if you want to contribute, please create a pull request.    
